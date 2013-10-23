@@ -1,0 +1,20 @@
+﻿<Properties>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/Tile.cs">
+    <Files>
+      <File FileName="Assets/Scripts/GameEngine.cs" Line="61" Column="5" />
+      <File FileName="Assets/Scripts/TouchHandler.cs" Line="117" Column="30" />
+      <File FileName="Assets/Scripts/TurnState.cs" Line="6" Column="9" />
+      <File FileName="Assets/Scripts/MapInfo.cs" Line="175" Column="26" />
+      <File FileName="Assets/Scripts/Tile.cs" Line="25" Column="22" />
+      <File FileName="Assets/Scripts/GameState.cs" Line="25" Column="14" />
+      <File FileName="Assets/Scripts/Player.cs" Line="15" Column="21" />
+      <File FileName="Assets/Scripts/Guy.cs" Line="8" Column="27" />
+      <File FileName="Assets/Scripts/Spy.cs" Line="6" Column="32" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+</Properties>

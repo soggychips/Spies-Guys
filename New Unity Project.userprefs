@@ -1,0 +1,16 @@
+﻿<Properties>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/Spy.cs">
+    <Files>
+      <File FileName="Assets/Scripts/MapInfo.cs" Line="11" Column="3" />
+      <File FileName="Assets/Scripts/Tile.cs" Line="7" Column="2" />
+      <File FileName="Assets/Scripts/Player.cs" Line="7" Column="2" />
+      <File FileName="Assets/Scripts/Guy.cs" Line="7" Column="2" />
+      <File FileName="Assets/Scripts/Spy.cs" Line="8" Column="14" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+</Properties>
