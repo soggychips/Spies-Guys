@@ -17,16 +17,27 @@ public class TouchHandler : MonoBehaviour {
 	}
 	
 	void Update(){
+		//if it's midgame
 		if(scene.CurrentGameState==(int)GameState.States.P1 ||scene.CurrentGameState==(int)GameState.States.P2){
+			//if turnstate: Neutral
 			if(scene.CurrentTurnState==(int)TurnState.States.Neutral){
 				Vector2 mouseClick = MouseClickToTileCoords();
 				if(scene.CurrentPlayerAt((int)mouseClick.x,(int)mouseClick.y)){
+					Debug.Log("Player clicked on");
 					scene.SelectCharacter((int)mouseClick.x,(int)mouseClick.y);	
 				}
+			//if turnState: CharSelected
 			}else if(scene.CurrentTurnState==(int)TurnState.States.CharSelected){
 				Vector2 mouseClick = MouseClickToTileCoords();
 				if(scene.OpenTileAt((int)mouseClick.x,(int)mouseClick.y) && scene.VisibleTileAt((int)mouseClick.x,(int)mouseClick.y)){
 					scene.MoveSelectedCharTo((int)mouseClick.x,(int)mouseClick.y);
+				}else if(scene.CurrentPlayerAt((int)mouseClick.x,(int)mouseClick.y)){
+					scene.DeselectCharacter();
+				}else if(scene.TileTakenByEnemy((int)mouseClick.x,(int)mouseClick.y) && scene.VisibleTileAt((int)mouseClick.x,(int)mouseClick.y)){
+					Debug.Log("Enemy at "+mouseClick.x+","+mouseClick.y+" eliminated!");
+					scene.EliminatePlayerAt((int)mouseClick.x,(int)mouseClick.y);
+					scene.DeselectCharacter();
+					scene.SetPlayerVisibility();
 				}
 			}
 		}
@@ -78,11 +89,20 @@ public class TouchHandler : MonoBehaviour {
 			if(scene.CurrentTurnState==(int)TurnState.States.Neutral){
 				DisplayPlayerButtons();
 			}
+		}else if(scene.CurrentGameState==(int)GameState.States.GameOver){
+			DisplayEndGameMenu();
 		}else{
 			Debug.Log("TouchHandler's currentGameState: "+scene.CurrentGameState);	
 		}
 		
 		
+	}
+
+	void DisplayEndGameMenu ()
+	{
+		int winner = scene.Winner;
+		GUI.Box(new Rect(Screen.width/2-300,Screen.height/2-300,600,600), "Winner:");
+		GUI.Label(new Rect(Screen.width/2-50,Screen.height/2-25,100,50), "Player "+winner);
 	}
 
 	void DebugButton ()
@@ -149,7 +169,7 @@ public class TouchHandler : MonoBehaviour {
 		if(GUI.Button(new Rect(Screen.width-90,Screen.height-30,80,20), "Submit")) { 
 			if(scene.CurrentGameState==(int)GameState.States.P1) scene.GiveControlToPlayer2();
 			else if(scene.CurrentGameState==(int)GameState.States.P2) scene.GiveControlToPlayer1();
-			
+			scene.FlagForUpdate();
 			
 		}
 	}

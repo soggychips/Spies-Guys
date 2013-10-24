@@ -6,6 +6,7 @@ public class GameEngine : MonoBehaviour {
 	public Transform tile;
 	public Material ft_hidden, ft_open, ft_taken, ft_wall, ft_item;
 	
+	private int winner;
 	private Transform[,] tileGraphics;
 	private MapInfo map;
 	private GameState gstate;
@@ -13,6 +14,9 @@ public class GameEngine : MonoBehaviour {
 	private int[,] visibility;
 	private bool updateFlag;
 	
+	public int Winner{
+		get{return winner;}	
+	}
 	
 	// Use this for initialization
 	void Start () {
@@ -35,7 +39,18 @@ public class GameEngine : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		if(updateFlag){
+			CheckForWinner();
 			updateFlag = false;
+		}
+		
+	}
+
+	void CheckForWinner ()
+	{
+		if(map.AllTeammatesDead()){
+			winner = map.Winner;
+			gstate.EndGame();
+			tstate.Neutralize();
 		}
 	}
 
@@ -60,6 +75,11 @@ public class GameEngine : MonoBehaviour {
 	public void SelectCharacter(int x, int z){
 		map.SelectCharacterAtTile(x,z);
 		tstate.SelectCharacter();	
+	}
+	
+	public void DeselectCharacter(){
+		map.DeselectCharacter();
+		tstate.Neutralize();
 	}
 	
 	public void GiveControlToPlayer1(){
@@ -103,11 +123,11 @@ public class GameEngine : MonoBehaviour {
 			for(int j=0; j<map.MapSize;j++){
 				if(tileVisibility[i,j]==0){
 					tileGraphics[i,j].renderer.material.SetColor("_Color",ft_hidden.color);
-					Debug.Log("INVIS TILE "+i+","+j);
+					//Debug.Log("INVIS TILE "+i+","+j);
 				}else{
 					Material temp = AssignMaterial(i,j);
 					tileGraphics[i,j].renderer.material.SetColor("_Color",temp.color);
-					Debug.Log("tile "+i+","+j+" mat set to "+ temp);
+					//Debug.Log("tile "+i+","+j+" mat set to "+ temp);
 				}
 			}
 		}
@@ -154,9 +174,17 @@ public class GameEngine : MonoBehaviour {
 		return map.VisibleTileAt(x,z);	
 	}
 	
+	public bool TileTakenByEnemy(int x, int z){
+		return map.TileTakenByEnemy(x,z);
+	}
+	
 	public void MoveSelectedCharTo(int x, int z){
 		map.MoveSelectedCharTo(x,z);
 		tstate.Neutralize();
 		SetPlayerVisibility();
+	}
+	
+	public void EliminatePlayerAt(int x, int z){
+		map.EliminatePlayerAt(x,z);	
 	}
 }

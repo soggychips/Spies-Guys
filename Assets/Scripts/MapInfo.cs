@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class MapInfo{
 	
@@ -8,7 +9,7 @@ public class MapInfo{
 	
 	private int mapSize = 35;
 	
-	
+	private int winner;
 	private Tile[,] map;
 	private bool updateMap = false;
 	private int[,] visibility;
@@ -16,7 +17,11 @@ public class MapInfo{
 	
 	public Guy[] guys;
 	public Spy[] spies;
-
+	
+	public int Winner{
+		get{return winner;}	
+	}
+	
 	public int Spacing{
 		get{return spacing;}	
 	}
@@ -137,7 +142,8 @@ public class MapInfo{
 	public void RemoveVisibility(){
 		for(int i=0; i<mapSize; i++){
 			for(int j=0; j<mapSize; j++){
-				map[i,j].Visible=false;
+				if(map[i,j].Type!=(int)TileType.Wall)
+					map[i,j].Visible=false;
 			}
 		}
 		Debug.Log ("All Tiles Invisible");
@@ -154,6 +160,8 @@ public class MapInfo{
 		}
 	}
 	
+	
+	/*//rewrite similar to CurrentPlayerAtTile to fix vision problem
 	public void FindVisibleTilesForPlayer(){
 		if(currentPlayer==1){ //spies
 			Vector2[] spyLocations = {spies[0].TileLocation,spies[1].TileLocation};
@@ -176,6 +184,41 @@ public class MapInfo{
 				}
 			}	
 		}
+	}*/
+	
+	//above method, rewritten using lists and checking for dead players
+	public void FindVisibleTilesForPlayer(){
+		//for the spies:
+		if(currentPlayer==1){
+			List<Vector2> spyLocations = new List<Vector2>();
+			//populate list of alive spy locations
+			foreach(Spy spy in spies){
+				if(spy.Alive) spyLocations.Add (spy.TileLocation);
+			}
+			//add a 4x4 vision box around each spy location
+			foreach(Vector2 loc in spyLocations){
+				int[] bounds = BoundCheck(loc);
+				for(int i = bounds[0];i<=bounds[3];i++){
+					for(int j = bounds[1];j<=bounds[2];j++){
+						map[i,j].Visible=true;	
+					}
+				}
+			}
+		//for the guys:
+		}else if(currentPlayer==2){
+			List<Vector2> guyLocations = new List<Vector2>();
+			foreach(Guy guy in guys){
+				if(guy.Alive) guyLocations.Add (guy.TileLocation);	
+			}
+			foreach(Vector2 loc in guyLocations){
+				int[] bounds = BoundCheck(loc);
+				for(int i = bounds[0];i<=bounds[3];i++){
+					for(int j = bounds[1];j<=bounds[2];j++){
+						map[i,j].Visible=true;	
+					}
+				}
+			}
+		}
 	}
 	
 	public int[] BoundCheck(Vector2 playerLocation){ //returns {leftX,bottomZ,topZ,rightX}
@@ -197,17 +240,19 @@ public class MapInfo{
 		return visibility;	
 	}
 	
+	
 	public bool CurrentPlayerAtTile(int x, int z){
-		if(currentPlayer==1){ //spies
-			Vector2[] spyLocations = {spies[0].TileLocation,spies[1].TileLocation};
-			foreach(Vector2 loc in spyLocations){
-				if(loc.x==x && loc.y==z) return true;
+		Vector2 tile = new Vector2(x,z);
+		if(currentPlayer==1){
+			foreach(Spy spy in spies){
+				if(spy.Alive && spy.TileLocation==tile)
+					return true;
 			}
-		}else if(currentPlayer==2){ //guys
-			Vector2[] guyLocations = {guys[0].TileLocation,guys[1].TileLocation,guys[2].TileLocation};
-			foreach(Vector2 loc in guyLocations){
-				if(loc.x==x && loc.y==z) return true;
-			}	
+		}else if(currentPlayer==2){
+			foreach(Guy guy in guys){
+				if(guy.Alive && guy.TileLocation==tile)
+					return true;
+			}
 		}
 		return false;
 	}
@@ -221,6 +266,19 @@ public class MapInfo{
 			else if(guys[1].TileLocation.x==x && guys[1].TileLocation.y==z) guys[1].Selected=true;
 			else if(guys[2].TileLocation.x==x && guys[2].TileLocation.y==z) guys[2].Selected=true;
 		}
+		Debug.Log ("Player selected");
+	}
+	
+	public void DeselectCharacter(){
+		if(currentPlayer==1){ //spies
+			if(spies[0].Selected) spies[0].Selected=false;
+			if(spies[1].Selected) spies[1].Selected=false;
+		}else if(currentPlayer==2){ //guys
+			if(guys[0].Selected) guys[0].Selected=false;
+			if(guys[1].Selected) guys[1].Selected=false;
+			if(guys[2].Selected) guys[2].Selected=false;
+		}	
+		Debug.Log ("Players Deselected");
 	}
 	
 	public void MoveSelectedCharTo(int x, int z){
@@ -246,6 +304,7 @@ public class MapInfo{
 	}
 	
 	public bool OpenTileAt(int x, int z){
+		if(x==-1000 || z==-1000) return false;
 		if(map[x,z].Type == (int)TileType.Open)	return true;
 		return false;
 	}
@@ -254,4 +313,55 @@ public class MapInfo{
 		return map[x,z].Visible;	
 	}
 	
+	public bool TileTakenByEnemy(int x, int z){
+		if(currentPlayer==1){
+			foreach(Guy guy in guys){
+				if(guy.TileLocation.x==x && guy.TileLocation.y==z){ 
+					return true;
+				}
+			}
+		}else if(currentPlayer==2){
+			foreach(Spy spy in spies){
+				if(spy.TileLocation.x==x && spy.TileLocation.y==z){ 
+					return true;
+				}
+			}
+		}else
+			Debug.Log ("error: currentPlayer in MapInfo set incorrectly (TileTakenByEnemy(int x,int z))");
+		return false;
+	}
+	
+	public void EliminatePlayerAt(int x, int z){
+		if(currentPlayer==1){
+			foreach(Guy guy in guys){
+				if(guy.TileLocation.x==x && guy.TileLocation.y==z){ 
+					map[x,z].Open();
+					guy.Die();
+				}
+			}
+		}else if(currentPlayer==2){
+			foreach(Spy spy in spies){
+				if(spy.TileLocation.x==x && spy.TileLocation.y==z){ 
+					map[x,z].Open ();
+					spy.Die();
+				}
+			}
+		}else
+			Debug.Log ("error: currentPlayer in MapInfo set incorrectly (TileTakenByEnemy(int x,int z))");
+	}
+	
+	public bool AllTeammatesDead(){
+		if(currentPlayer==1){
+			foreach(Spy spy in spies)
+				if(spy.Alive) return false;
+			winner = 2;
+		}else if(currentPlayer==2){
+			foreach(Guy guy in guys)
+				if(guy.Alive) return false;
+			winner = 1;
+		}else{
+			Debug.Log ("error: currentPlayer set incorrectly (AllTeammatesDead())");
+		}
+		return true;
+	}
 }

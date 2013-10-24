@@ -6,8 +6,8 @@ public class Player {
 	public static int totalMovementPoints = 10;
 	public static int yPlayerHeight = 0;
 	
-	private bool alive;
-	private bool selected;
+	protected bool alive;
+	protected bool selected;
 	protected Vector2 tileLocation;
 	protected Vector3 realWorldLocation;
 	protected int movesLeft { get; set; }
@@ -50,7 +50,7 @@ public class Player {
 	}
 	
 	public void Die(){
-		alive=false;	
+		alive=false;
 	}
 	
 }
