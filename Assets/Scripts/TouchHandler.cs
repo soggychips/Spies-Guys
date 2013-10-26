@@ -9,6 +9,7 @@ public class TouchHandler : MonoBehaviour {
 	private GameEngine scene;
 	private bool mainMenu;
 	private bool gameMenu;
+	private Vector2 mouseClick;
 	
 	// Use this for initialization
 	void Start () {
@@ -19,27 +20,30 @@ public class TouchHandler : MonoBehaviour {
 	void Update(){
 		//if it's midgame
 		if(scene.CurrentGameState==(int)GameState.States.P1 ||scene.CurrentGameState==(int)GameState.States.P2){
+			switch(scene.CurrentTurnState){
 			//if turnstate: Neutral
-			if(scene.CurrentTurnState==(int)TurnState.States.Neutral){
-				Vector2 mouseClick = MouseClickToTileCoords();
-				if(scene.CurrentPlayerAt((int)mouseClick.x,(int)mouseClick.y)){
-					Debug.Log("Player clicked on");
-					scene.SelectCharacter((int)mouseClick.x,(int)mouseClick.y);	
-				}
-			//if turnState: CharSelected
-			}else if(scene.CurrentTurnState==(int)TurnState.States.CharSelected){
-				Vector2 mouseClick = MouseClickToTileCoords();
-				if(scene.OpenTileAt((int)mouseClick.x,(int)mouseClick.y) && scene.VisibleTileAt((int)mouseClick.x,(int)mouseClick.y)){
-					scene.MoveSelectedCharTo((int)mouseClick.x,(int)mouseClick.y);
-				}else if(scene.CurrentPlayerAt((int)mouseClick.x,(int)mouseClick.y)){
-					scene.DeselectCharacter();
-				}else if(scene.TileTakenByEnemy((int)mouseClick.x,(int)mouseClick.y) && scene.VisibleTileAt((int)mouseClick.x,(int)mouseClick.y)){
-					Debug.Log("Enemy at "+mouseClick.x+","+mouseClick.y+" eliminated!");
-					scene.EliminatePlayerAt((int)mouseClick.x,(int)mouseClick.y);
-					scene.DeselectCharacter();
-					scene.SetPlayerVisibility();
-				}
-			}
+				case (int)TurnState.States.Neutral:
+					mouseClick = MouseClickToTileCoords();
+					if(scene.CurrentPlayerAt((int)mouseClick.x,(int)mouseClick.y)){
+						Debug.Log("Player clicked on");
+						scene.SelectCharacter((int)mouseClick.x,(int)mouseClick.y);	
+					}
+					break;
+				//if turnState: CharSelected
+				case (int)TurnState.States.CharSelected:
+					mouseClick = MouseClickToTileCoords();
+					if(scene.OpenTileAt((int)mouseClick.x,(int)mouseClick.y) && scene.VisibleTileAt((int)mouseClick.x,(int)mouseClick.y)){
+						scene.MoveSelectedCharTo((int)mouseClick.x,(int)mouseClick.y);
+					}else if(scene.CurrentPlayerAt((int)mouseClick.x,(int)mouseClick.y)){
+						scene.DeselectCharacter();
+					}else if(scene.TileTakenByEnemy((int)mouseClick.x,(int)mouseClick.y) && scene.VisibleTileAt((int)mouseClick.x,(int)mouseClick.y)){
+						Debug.Log("Enemy at "+mouseClick.x+","+mouseClick.y+" eliminated!");
+						scene.EliminatePlayerAt((int)mouseClick.x,(int)mouseClick.y);
+						scene.DeselectCharacter();
+						scene.SetPlayerVisibility();
+					}
+					break;
+			} //end switch
 		}
 	}
 
