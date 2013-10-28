@@ -11,7 +11,6 @@ public class MapInfo{
 	
 	private int winner;
 	private Tile[,] map;
-	private bool updateMap = false;
 	private int[,] visibility;
 	private int currentPlayer; //used for visibility reference, set to 1 or 2 only!
 	
@@ -363,5 +362,23 @@ public class MapInfo{
 			Debug.Log ("error: currentPlayer set incorrectly (AllTeammatesDead())");
 		}
 		return true;
+	}
+	
+	public List<Vector2> BFS(int x, int z){
+		List<Vector2> bfsTiles = new List<Vector2>();
+		return bfsTiles;
+	}
+	
+	//only returns OPEN adjacent tiles
+	public List<Vector2> GetAdjacentOpenTiles(int x, int z){
+		List<Vector2> adjTiles = new List<Vector2>();
+		if(x>=mapSize || z>=mapSize || x<0 || z<0){
+			Debug.Log ("Error: MapInfo.getAdjacentTiles");	
+		}
+		if(x-1>=0 && map[x-1,z].isOpen()) adjTiles.Add(new Vector2(x-1,z));
+		if(z-1>=0 && map[x,z-1].isOpen()) adjTiles.Add(new Vector2(x,z-1));
+		if(x+1<mapSize && map[x+1,z].isOpen()) adjTiles.Add(new Vector2(x+1,z));
+		if(z+1<mapSize && map[x,z+1].isOpen()) adjTiles.Add(new Vector2(x,z+1));
+		return adjTiles;
 	}
 }

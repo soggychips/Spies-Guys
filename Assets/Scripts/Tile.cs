@@ -10,15 +10,12 @@ public class Tile {
 	public static int yTileHeight = 0;
 	
 	private int type;
-	private Vector2 tileLocation;
-	private Vector3 worldLocation;
 	private bool visible;
+	private bool highlighted;
 	
 	public Tile(int x, int z){
 		type = (int)TileType.Open;
-		tileLocation = new Vector2(x,z);
-		worldLocation = new Vector3(x*spacing,yTileHeight,z*spacing);
-		visible = false;
+		visible = false; highlighted = false;
 	}
 	
 	public int Type{
@@ -50,7 +47,17 @@ public class Tile {
 		type = (int)TileType.Door;	
 	}
 	
+	public void Highlight(){
+		if(visible)
+			highlighted=true;
+		else {
+			Debug.Log("Error: Tile.Highlight()");
+		}
+	}
 	
+	public bool isOpen(){
+		return (type==(int)TileType.Open);	
+	}
 	
 	
 }
