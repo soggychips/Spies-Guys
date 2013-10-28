@@ -32,6 +32,7 @@
 -define:ENABLE_PROFILER
 -define:UNITY_EDITOR
 -define:UNITY_EDITOR_OSX
+'Assets/HighlightPulse.cs'
 'Assets/Scripts/GameEngine.cs'
 'Assets/Scripts/GameState.cs'
 'Assets/Scripts/Guy.cs'

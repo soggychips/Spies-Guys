@@ -35,6 +35,7 @@
 'Assets/Scripts/GameEngine.cs'
 'Assets/Scripts/GameState.cs'
 'Assets/Scripts/Guy.cs'
+'Assets/Scripts/HighlightPulse.cs'
 'Assets/Scripts/MapInfo.cs'
 'Assets/Scripts/Player.cs'
 'Assets/Scripts/Spy.cs'
