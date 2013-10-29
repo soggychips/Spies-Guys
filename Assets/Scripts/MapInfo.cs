@@ -11,7 +11,6 @@ public class MapInfo{
 	
 	private int winner;
 	private Tile[,] map;
-	private bool updateMap = false;
 	private int[,] visibility;
 	private int currentPlayer; //used for visibility reference, set to 1 or 2 only!
 	
@@ -363,5 +362,76 @@ public class MapInfo{
 			Debug.Log ("error: currentPlayer set incorrectly (AllTeammatesDead())");
 		}
 		return true;
+	}
+	
+	public Tile TileAt(Vector2 v){
+		return map[(int)v.x,(int)v.y];	
+	}
+	
+	
+	public List<Vector2> BFS(int x, int z, int maxDistance){
+		Vector2 v = new Vector2(x,z);
+		List<Vector2> V = new List<Vector2>();
+		Queue q = new Queue();
+		int depth = 0;
+		q.Enqueue(v);
+		V.Add(v);
+		TileAt(v).Depth=depth;
+		while(q.Count!=0){
+			Vector2 t = (Vector2)q.Dequeue();
+			depth = TileAt(t).Depth;
+			if(depth>maxDistance){
+				q.Clear();	
+			}else{
+				foreach(Vector2 tile in GetAdjacentOpenTiles((int)t.x,(int)t.y)){
+					bool VContainsTile = (bool)V.Contains(tile);
+					bool tileAtTileIsOpen = (bool)TileAt(tile).isOpen();
+					if(tileAtTileIsOpen && !VContainsTile){
+						q.Enqueue(tile);
+						TileAt (tile).Depth = depth+1;
+						TileAt(tile).PathPredecessor = t;
+						if(depth+1<=maxDistance) V.Add (tile);
+					}
+				}
+			}
+		}
+		return V;
+	}
+	
+	/* BFS algorithm: */
+	/* returns a List of tile coordinates, V
+	 BFS(Vector2 v,int maxDistance)  //where v is the starting Vector2 
+	 	int depth = 0
+	 	queue Q
+	 	List V
+	 	Q.enqueue(v)
+	 	V.Add(v)
+	 	TileAt(v).Depth=depth
+	 	while(Q is not empty)
+	 		t=Q.dequeue
+	 		depth = TileAt(t).Depth
+	 		if(depth > maxDistance) 
+	 			Q.Clear
+	 		else
+	 			foreach(Vector2 tile in GetAdjacentOpenTiles(t.x,t.z)
+	 				if(tile is open and not already in V)
+	 					Q.enqueue(tile)
+	 					TileAt(tile).Depth = depth+1
+	 					TileAt(tile).PathPredecessor = t
+	 					if(depth+1<=maxDistance) V.Add(tile)
+		return V
+	 */ 
+	
+	//only returns OPEN adjacent tiles
+	public List<Vector2> GetAdjacentOpenTiles(int x, int z){
+		List<Vector2> adjTiles = new List<Vector2>();
+		if(x>=mapSize || z>=mapSize || x<0 || z<0){
+			Debug.Log ("Error: MapInfo.getAdjacentTiles");	
+		}
+		if(x-1>=0 && map[x-1,z].isOpen()) adjTiles.Add(new Vector2(x-1,z));
+		if(z-1>=0 && map[x,z-1].isOpen()) adjTiles.Add(new Vector2(x,z-1));
+		if(x+1<mapSize && map[x+1,z].isOpen()) adjTiles.Add(new Vector2(x+1,z));
+		if(z+1<mapSize && map[x,z+1].isOpen()) adjTiles.Add(new Vector2(x,z+1));
+		return adjTiles;
 	}
 }
