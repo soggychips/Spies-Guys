@@ -1,10 +1,13 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class GameEngine : MonoBehaviour {
 
 	public Transform tile;
 	public Material ft_hidden, ft_open, ft_taken, ft_wall, ft_item;
+	public Transform sneakHighlight;
+	
 	
 	private int winner;
 	private Transform[,] tileGraphics;
@@ -74,11 +77,13 @@ public class GameEngine : MonoBehaviour {
 	
 	public void SelectCharacter(int x, int z){
 		map.SelectCharacterAtTile(x,z);
+		HighlightTiles(x,z);
 		tstate.SelectCharacter();	
 	}
 	
 	public void DeselectCharacter(){
 		map.DeselectCharacter();
+		DestroyHighlights();
 		tstate.Neutralize();
 	}
 	
@@ -133,6 +138,18 @@ public class GameEngine : MonoBehaviour {
 		}
 	}
 	
+	public void HighlightTiles(int x, int z){
+		List<Vector2> BFSFromOrigin = map.BFS (x,z,5);
+		foreach(Vector2 tile in BFSFromOrigin){
+			Instantiate(sneakHighlight,new Vector3(tile.x*Tile.spacing,.2f,tile.y*Tile.spacing),Quaternion.identity);
+		}
+	}
+	
+	public void DestroyHighlights(){
+		foreach(GameObject g in GameObject.FindGameObjectsWithTag("highlight"))
+			Destroy(g);
+	}
+	
 	public void RemoveVisibility(){
 		map.RemoveVisibility();
 		UpdateTileMaterials();	
@@ -179,6 +196,7 @@ public class GameEngine : MonoBehaviour {
 	}
 	
 	public void MoveSelectedCharTo(int x, int z){
+		DestroyHighlights();
 		map.MoveSelectedCharTo(x,z);
 		tstate.Neutralize();
 		SetPlayerVisibility();

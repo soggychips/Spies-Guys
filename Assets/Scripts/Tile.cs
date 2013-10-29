@@ -12,10 +12,16 @@ public class Tile {
 	private int type;
 	private bool visible;
 	private bool highlighted;
+	private Vector3 realWorldLocation;
+	
+	private int depth;
+	private Vector2 pathPredecessor;
 	
 	public Tile(int x, int z){
 		type = (int)TileType.Open;
 		visible = false; highlighted = false;
+		depth = 0;
+		realWorldLocation = new Vector3(x*spacing,yTileHeight,z*spacing);
 	}
 	
 	public int Type{
@@ -25,6 +31,16 @@ public class Tile {
 	public bool Visible{
 		get{ return visible;}
 		set{ visible = value;}
+	}
+	
+	public int Depth{
+		get{return depth;}
+		set{depth=value;}
+	}
+	
+	public Vector2 PathPredecessor{
+		get{return pathPredecessor;}
+		set{pathPredecessor=value;}
 	}
 	
 	public void GiveWall(){
@@ -47,13 +63,7 @@ public class Tile {
 		type = (int)TileType.Door;	
 	}
 	
-	public void Highlight(){
-		if(visible)
-			highlighted=true;
-		else {
-			Debug.Log("Error: Tile.Highlight()");
-		}
-	}
+
 	
 	public bool isOpen(){
 		return (type==(int)TileType.Open);	
