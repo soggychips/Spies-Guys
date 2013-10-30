@@ -47,12 +47,14 @@
      <Compile Include="Assets\Scripts\GameEngine.cs" />
      <Compile Include="Assets\Scripts\GameState.cs" />
      <Compile Include="Assets\Scripts\Guy.cs" />
+     <Compile Include="Assets\Scripts\HighlightPulse.cs" />
      <Compile Include="Assets\Scripts\MapInfo.cs" />
      <Compile Include="Assets\Scripts\Player.cs" />
      <Compile Include="Assets\Scripts\Spy.cs" />
      <Compile Include="Assets\Scripts\Tile.cs" />
      <Compile Include="Assets\Scripts\TouchHandler.cs" />
      <Compile Include="Assets\Scripts\TurnState.cs" />
+     <Compile Include="Assets\testScan.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

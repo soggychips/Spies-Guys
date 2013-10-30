@@ -1,0 +1,74 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1138\cocoasubrtf510
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+\margl1440\margr1440\vieww12240\viewh15320\viewkind1
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\qc
+
+\f0\fs24 \cf0 Vision Rules\
+Spies Guys\
+10/29/13\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+\cf0 Each room has its own vision field. If the lights are on, everything is visible within the room, except for tiles behind pillars/walls/doors (FoV from player).\
+\
+If the lights are off, Guys can only see their flashlight vision. Spies can still see due to night vision.\
+\
+=>\
+\
+To set proper visibility for the current player:\
+\
+if(player == spies)\{\
+	RemoveAllVisibility\
+	foreach spy\
+		do FoV from spy (sets tiles visible)\
+	UpdateVisibility\
+\}else\{\
+	RemoveAllVisibility\
+	foreach guy\
+		if(lights on)\
+			do FoV from guy\
+		else\
+			immediate surroundings set visible (small box)\
+			flashlight coverage (small facing arc and beam) set vis\
+	UpdateVisibility\
+\}\
+\
+\page /*\
+*FoV algorithm:\
+*/\
+void FoV(Vector2 playerLocation, maxDistance)\
+	set all tiles to not visible\
+	List<Vector2> edgeOfVisionTiles = ReturnAllMaxDistanceTiles((int)playerLocation.x,(int)playerLocation.z,maxDistance);\
+	foreach(Vector2 endpoint in edgeOfVisionTiles)\
+	ScanLine(playerLocation,endpoint);\
+end FoV\
+\
+void ScanLine(Vector2 start, Vector2 end)\{\
+	Vector2 vect = end-start;\
+	float norm = sqrt(vect.x*vect.x + vect.z*vect.z)\
+	Vector2 unitVect = vect/norm;\
+	TileAt(start).Visible=true;\
+	while(start!=end)\{\
+		start+=unitVect;\
+		if(!TileAt(start).Visible)\{\
+			TileAt(start).Visible=true;\
+			if(!TileAt(start).isOpen) return;\
+		\}\
+	\}\
+\}\
+\
+\
+List ReturnAllMaxDistanceTiles(x,z,maxDistance)\{\
+	List<Vector2> maxDistTiles\
+	leftMostX = x-maxDistance; rightMostX = x+maxDistance;\
+	topMostZ = z+maxDistance; bottomMostZ = z-maxDistance;\
+	if(leftMostX<0) leftMostX=0;\
+	if(rightMostX>=mapSize) rightMostX=mapSize-1;\
+	if(bottomMostZ<0) bottomMostZ=0;\
+	if(topMostZ>=mapSize) topMostZ = mapSize-1;\
+	for(i=leftMostX;i<=rightMostX;i++)\
+		for(j=bottomMostZ;j<=topMostZ;j++)\
+			if(i==leftMostX || i==rightMostX || j==bottomMostZ || j==topMostZ)\
+				maxDistTiles.Add(new Vector2(i,j));\
+	return maxDistTiles;\
+\}}

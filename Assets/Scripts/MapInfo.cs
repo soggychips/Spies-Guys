@@ -11,7 +11,6 @@ public class MapInfo{
 	
 	private int winner;
 	private Tile[,] map;
-	private bool updateMap = false;
 	private int[,] visibility;
 	private int currentPlayer; //used for visibility reference, set to 1 or 2 only!
 	
@@ -147,6 +146,15 @@ public class MapInfo{
 			}
 		}
 		Debug.Log ("All Tiles Invisible");
+	}
+	
+	public void ResetHighlights(){
+		for(int i=0; i<mapSize; i++){
+			for(int j=0; j<mapSize; j++){
+				map[i,j].Highlight=false;
+			}
+		}
+		Debug.Log ("All Tile Highlights Reset");
 	}
 	
 	public void FindAllVisibleTiles(){
@@ -363,5 +371,152 @@ public class MapInfo{
 			Debug.Log ("error: currentPlayer set incorrectly (AllTeammatesDead())");
 		}
 		return true;
+	}
+	
+	public Tile TileAt(Vector2 v){
+		return map[(int)v.x,(int)v.y];	
+	}
+	
+	
+	public List<Vector2> BFS(int x, int z, int maxDistance){
+		Vector2 v = new Vector2(x,z);
+		List<Vector2> V = new List<Vector2>();
+		Queue q = new Queue();
+		int depth = 0;
+		q.Enqueue(v);
+		V.Add(v);
+		TileAt(v).Depth=depth;
+		while(q.Count!=0){
+			Vector2 t = (Vector2)q.Dequeue();
+			depth = TileAt(t).Depth;
+			if(depth>maxDistance){
+				q.Clear();	
+			}else{
+				foreach(Vector2 tile in GetAdjacentOpenTiles((int)t.x,(int)t.y)){
+					bool VContainsTile = (bool)V.Contains(tile);
+					bool tileAtTileIsOpen = (bool)TileAt(tile).isOpen();
+					if(tileAtTileIsOpen && !VContainsTile){
+						q.Enqueue(tile);
+						TileAt (tile).Depth = depth+1;
+						TileAt(tile).PathPredecessor = t;
+						if(depth+1<=maxDistance) V.Add (tile);
+					}
+				}
+			}
+		}
+		return V;
+	}
+	
+	/* BFS algorithm: */
+	/* returns a List of tile coordinates, V
+	 BFS(Vector2 v,int maxDistance)  //where v is the starting Vector2 
+	 	int depth = 0
+	 	queue Q
+	 	List V
+	 	Q.enqueue(v)
+	 	V.Add(v)
+	 	TileAt(v).Depth=depth
+	 	while(Q is not empty)
+	 		t=Q.dequeue
+	 		depth = TileAt(t).Depth
+	 		if(depth > maxDistance) 
+	 			Q.Clear
+	 		else
+	 			foreach(Vector2 tile in GetAdjacentOpenTiles(t.x,t.z)
+	 				if(tile is open and not already in V)
+	 					Q.enqueue(tile)
+	 					TileAt(tile).Depth = depth+1
+	 					TileAt(tile).PathPredecessor = t
+	 					if(depth+1<=maxDistance) V.Add(tile)
+		return V
+	 */ 
+	
+	//only returns OPEN adjacent tiles
+	public List<Vector2> GetAdjacentOpenTiles(int x, int z){
+		List<Vector2> adjTiles = new List<Vector2>();
+		if(x>=mapSize || z>=mapSize || x<0 || z<0){
+			Debug.Log ("Error: MapInfo.getAdjacentTiles");	
+		}
+		if(x-1>=0 && map[x-1,z].isOpen()) adjTiles.Add(new Vector2(x-1,z));
+		if(z-1>=0 && map[x,z-1].isOpen()) adjTiles.Add(new Vector2(x,z-1));
+		if(x+1<mapSize && map[x+1,z].isOpen()) adjTiles.Add(new Vector2(x+1,z));
+		if(z+1<mapSize && map[x,z+1].isOpen()) adjTiles.Add(new Vector2(x,z+1));
+		return adjTiles;
+	}
+	
+	public void FoVForCurrentPlayer(int maxViewDist){
+		if(currentPlayer==1){
+			foreach(Spy spy in spies){
+				FoV(spy.TileLocation,maxViewDist);	
+			}
+		}else if(currentPlayer==2){
+			foreach(Guy guy in guys){
+				FoV (guy.TileLocation,maxViewDist);	
+			}
+		}else{
+			Debug.Log ("Error: MapInfo.FoVForCurrentPlayer");	
+		}
+		FindAllVisibleTiles();
+	}
+	
+	public void FoV(Vector2 playerLocation, int maxDistance){
+		RemoveVisibility();
+		List<Vector2> edgeOfVisionTiles = ReturnAllMaxDistanceTiles((int)playerLocation.x,(int)playerLocation.y,maxDistance);
+		foreach(Vector2 endpoint in edgeOfVisionTiles)
+			ScanLine(playerLocation,endpoint);
+	}
+
+	public void ScanLine(Vector2 start, Vector2 end){
+		Vector2 vect = end-start;
+		float norm = Mathf.Sqrt((vect.x*vect.x) + (vect.y*vect.y));
+		Vector2 unitVect = new Vector2(vect.x/norm,vect.y/norm);
+		TileAt(start).Visible=true;
+		Debug.Log ("starting start = "+start.ToString());
+		Debug.Log ("end = "+end.ToString());
+		while(start!=end){
+			start+=unitVect;
+			Debug.Log ("start="+start.ToString());
+			if(!TileAt(start).Visible){
+				TileAt(start).Visible=true;
+				if(!TileAt(start).isOpen()) return;
+			}
+		}
+	}
+	
+	public void ScanningLineTest(){
+		Vector2 start = new Vector2(3,8);
+		Vector2 end = new Vector2(0,0);
+		Vector2 vect = end-start;
+		double norm = Mathf.Sqrt((vect.x*vect.x) + (vect.y*vect.y));
+		Debug.Log ("norm = "+norm);
+		Vector2 unitVect = new Vector2((float)(vect.x/norm),(float)(vect.y/norm));
+		Debug.Log ("vector = "+ vect.ToString());
+		Debug.Log ("Unit vector = ["+unitVect.x+","+unitVect.y+"]");
+		while(start!=end){
+			start+=unitVect;
+			Debug.Log ("location = ["+start.x+","+start.y+"]");
+			Debug.Log ("rounded location = ["+(int)start.x+","+(int)start.y+"]");
+			if(start.x<0 || start.y<0){ 
+				Debug.Log("ScanningLineTest error");
+				return;
+			}
+		}
+	}
+
+	public List<Vector2> ReturnAllMaxDistanceTiles(int x, int z, int maxDistance){
+		List<Vector2> maxDistTiles = new List<Vector2>();
+		int leftMostX = x-maxDistance; int rightMostX = x+maxDistance;
+		int topMostZ = z+maxDistance; int bottomMostZ = z-maxDistance;
+		if(leftMostX<0) leftMostX=0;
+		if(rightMostX>=mapSize) rightMostX=mapSize-1;
+		if(bottomMostZ<0) bottomMostZ=0;
+		if(topMostZ>=mapSize) topMostZ = mapSize-1;
+		for(int i=leftMostX;i<=rightMostX;i++)
+			for(int j=bottomMostZ;j<=topMostZ;j++)
+				if(i==leftMostX || i==rightMostX || j==bottomMostZ || j==topMostZ)
+					maxDistTiles.Add(new Vector2(i,j));
+		Debug.Log ("x="+x+", z="+z+", maxDistance="+maxDistance);
+		Debug.Log ("l,d,u,r: "+leftMostX+" "+ bottomMostZ + " " +topMostZ+" "+rightMostX);
+		return maxDistTiles;
 	}
 }
