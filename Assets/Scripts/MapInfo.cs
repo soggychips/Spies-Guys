@@ -86,15 +86,14 @@ public class MapInfo{
 		GiveWallInRange(27,1,27,7);
 		GiveWallInRange(27,10,32,10);
 		
-		guys = new Guy[3];
+		guys = new Guy[2];
 		guys[0] = new Guy(30,3);
 		guys[1] = new Guy(29,5);
-		guys[2] = new Guy(30,7);
 		spies = new Spy[2];
 		spies[0] = new Spy(3,8);
 		spies[1] = new Spy(3,16);
 		map[3,8].Take(); map[3,16].Take(); //spies
-		map[30,7].Take(); map[29,5].Take(); map[30,3].Take(); //guys
+		map[29,5].Take(); map[30,3].Take(); //guys
 		
 		SetAllTilesVisible();
 	}
@@ -279,12 +278,11 @@ public class MapInfo{
 	
 	public void DeselectCharacter(){
 		if(currentPlayer==1){ //spies
-			if(spies[0].Selected) spies[0].Selected=false;
-			if(spies[1].Selected) spies[1].Selected=false;
+			foreach(Spy spy in spies)
+				spy.Selected=false;
 		}else if(currentPlayer==2){ //guys
-			if(guys[0].Selected) guys[0].Selected=false;
-			if(guys[1].Selected) guys[1].Selected=false;
-			if(guys[2].Selected) guys[2].Selected=false;
+			foreach(Guy guy in guys)
+				guy.Selected=false;
 		}	
 		Debug.Log ("Players Deselected");
 	}
@@ -314,6 +312,11 @@ public class MapInfo{
 	public bool OpenTileAt(int x, int z){
 		if(x==-1000 || z==-1000) return false;
 		if(map[x,z].Type == (int)TileType.Open)	return true;
+		return false;
+	}
+	
+	public bool HighlightedTileAt(int x, int z){
+		if(map[x,z].Highlight) return true;
 		return false;
 	}
 	
@@ -448,11 +451,13 @@ public class MapInfo{
 		RemoveVisibility();
 		if(currentPlayer==1){
 			foreach(Spy spy in spies){
-				FoV(spy.TileLocation,maxViewDist);	
+				if(spy.Alive)
+					FoV(spy.TileLocation,maxViewDist);	
 			}
 		}else if(currentPlayer==2){
 			foreach(Guy guy in guys){
-				FoV (guy.TileLocation,maxViewDist);	
+				if(guy.Alive)
+					FoV (guy.TileLocation,maxViewDist);	
 			}
 		}else{
 			Debug.Log ("Error: MapInfo.FoVForCurrentPlayer");	
@@ -471,14 +476,14 @@ public class MapInfo{
 		float norm = Mathf.Sqrt((vect.x*vect.x) + (vect.y*vect.y));
 		Vector2 unitVect = new Vector2(vect.x/norm,vect.y/norm);
 		TileAt(start).Visible=true;
-		Debug.Log ("starting start = "+start.ToString());
-		Debug.Log ("end = "+end.ToString());
+		//Debug.Log ("starting start = "+start.ToString());
+		//Debug.Log ("end = "+end.ToString());
 		Vector2 roundedLocation = new Vector2((int)start.x,(int)start.y);
 		while(roundedLocation!=end){
 			start+=unitVect;
 			roundedLocation = new Vector2(Mathf.Round(start.x),Mathf.Round(start.y));
-			Debug.Log ("location = ["+start.x+","+start.y+"]");
-			Debug.Log ("rounded location = ["+roundedLocation.x+","+roundedLocation.y+"]");
+			//Debug.Log ("location = ["+start.x+","+start.y+"]");
+			//Debug.Log ("rounded location = ["+roundedLocation.x+","+roundedLocation.y+"]");
 			if(!TileAt(roundedLocation).Visible){
 				TileAt(roundedLocation).Visible=true;
 			}
@@ -516,8 +521,8 @@ public class MapInfo{
 			for(int j=bottomMostZ;j<=topMostZ;j++)
 				if(i==leftMostX || i==rightMostX || j==bottomMostZ || j==topMostZ)
 					maxDistTiles.Add(new Vector2(i,j));
-		Debug.Log ("x="+x+", z="+z+", maxDistance="+maxDistance);
-		Debug.Log ("l,d,u,r: "+leftMostX+" "+ bottomMostZ + " " +topMostZ+" "+rightMostX);
+		//Debug.Log ("x="+x+", z="+z+", maxDistance="+maxDistance);
+		//Debug.Log ("l,d,u,r: "+leftMostX+" "+ bottomMostZ + " " +topMostZ+" "+rightMostX);
 		return maxDistTiles;
 	}
 }

@@ -187,6 +187,10 @@ public class GameEngine : MonoBehaviour {
 		return map.OpenTileAt(x,z);
 	}
 	
+	public bool HighlightedTileAt(int x, int z){
+		return map.HighlightedTileAt(x,z);
+	}
+	
 	public bool VisibleTileAt(int x, int z){
 		return map.VisibleTileAt(x,z);	
 	}
