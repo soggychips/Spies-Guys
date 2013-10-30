@@ -30,14 +30,6 @@ public class GameEngine : MonoBehaviour {
 		tileGraphics = new Transform[map.MapSize,map.MapSize];
 	}
 	
-	public void DefineVisibility(){
-		if(gstate.CurrentState==(int)GameState.States.P1)
-			map.CurrentPlayer = 1;
-		else if(gstate.CurrentState==(int)GameState.States.P2)
-			map.CurrentPlayer = 2;
-		else Debug.Log("GameEngine.DefineVisibility called during an improper state: "+gstate.CurrentState);
-		
-	}
 	
 	// Update is called once per frame
 	void Update () {
@@ -90,6 +82,7 @@ public class GameEngine : MonoBehaviour {
 	public void GiveControlToPlayer1(){
 		map.CurrentPlayer = 1;
 		SetPlayerVisibility();
+		//SetPlayerVisibilityUsingFoV();
 		gstate.GiveControlToPlayer1();	
 	}
 	
@@ -141,6 +134,7 @@ public class GameEngine : MonoBehaviour {
 	public void HighlightTiles(int x, int z){
 		List<Vector2> BFSFromOrigin = map.BFS (x,z,5);
 		foreach(Vector2 tile in BFSFromOrigin){
+			map.TileAt(tile).Highlight=true;
 			Instantiate(sneakHighlight,new Vector3(tile.x*Tile.spacing,.2f,tile.y*Tile.spacing),Quaternion.identity);
 		}
 	}
@@ -148,6 +142,7 @@ public class GameEngine : MonoBehaviour {
 	public void DestroyHighlights(){
 		foreach(GameObject g in GameObject.FindGameObjectsWithTag("highlight"))
 			Destroy(g);
+		map.ResetHighlights();
 	}
 	
 	public void RemoveVisibility(){
@@ -159,6 +154,11 @@ public class GameEngine : MonoBehaviour {
 		map.RemoveVisibility();
 		map.FindVisibleTilesForPlayer();
 		map.FindAllVisibleTiles();
+		UpdateTileMaterials();
+	}
+	
+	public void SetPlayerVisibilityUsingFoV(){
+		map.FoVForCurrentPlayer(8);
 		UpdateTileMaterials();
 	}
 	

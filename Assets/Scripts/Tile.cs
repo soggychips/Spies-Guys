@@ -38,6 +38,11 @@ public class Tile {
 		set{depth=value;}
 	}
 	
+	public bool Highlight{
+		get{return highlighted;}
+		set{highlighted=value;}
+	}
+	
 	public Vector2 PathPredecessor{
 		get{return pathPredecessor;}
 		set{pathPredecessor=value;}

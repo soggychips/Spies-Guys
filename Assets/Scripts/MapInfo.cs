@@ -148,6 +148,15 @@ public class MapInfo{
 		Debug.Log ("All Tiles Invisible");
 	}
 	
+	public void ResetHighlights(){
+		for(int i=0; i<mapSize; i++){
+			for(int j=0; j<mapSize; j++){
+				map[i,j].Highlight=false;
+			}
+		}
+		Debug.Log ("All Tile Highlights Reset");
+	}
+	
 	public void FindAllVisibleTiles(){
 		for(int i=0; i<mapSize; i++){
 			for(int j=0; j<mapSize; j++){
@@ -433,5 +442,81 @@ public class MapInfo{
 		if(x+1<mapSize && map[x+1,z].isOpen()) adjTiles.Add(new Vector2(x+1,z));
 		if(z+1<mapSize && map[x,z+1].isOpen()) adjTiles.Add(new Vector2(x,z+1));
 		return adjTiles;
+	}
+	
+	public void FoVForCurrentPlayer(int maxViewDist){
+		if(currentPlayer==1){
+			foreach(Spy spy in spies){
+				FoV(spy.TileLocation,maxViewDist);	
+			}
+		}else if(currentPlayer==2){
+			foreach(Guy guy in guys){
+				FoV (guy.TileLocation,maxViewDist);	
+			}
+		}else{
+			Debug.Log ("Error: MapInfo.FoVForCurrentPlayer");	
+		}
+		FindAllVisibleTiles();
+	}
+	
+	public void FoV(Vector2 playerLocation, int maxDistance){
+		RemoveVisibility();
+		List<Vector2> edgeOfVisionTiles = ReturnAllMaxDistanceTiles((int)playerLocation.x,(int)playerLocation.y,maxDistance);
+		foreach(Vector2 endpoint in edgeOfVisionTiles)
+			ScanLine(playerLocation,endpoint);
+	}
+
+	public void ScanLine(Vector2 start, Vector2 end){
+		Vector2 vect = end-start;
+		float norm = Mathf.Sqrt((vect.x*vect.x) + (vect.y*vect.y));
+		Vector2 unitVect = new Vector2(vect.x/norm,vect.y/norm);
+		TileAt(start).Visible=true;
+		Debug.Log ("starting start = "+start.ToString());
+		Debug.Log ("end = "+end.ToString());
+		while(start!=end){
+			start+=unitVect;
+			Debug.Log ("start="+start.ToString());
+			if(!TileAt(start).Visible){
+				TileAt(start).Visible=true;
+				if(!TileAt(start).isOpen()) return;
+			}
+		}
+	}
+	
+	public void ScanningLineTest(){
+		Vector2 start = new Vector2(3,8);
+		Vector2 end = new Vector2(0,0);
+		Vector2 vect = end-start;
+		double norm = Mathf.Sqrt((vect.x*vect.x) + (vect.y*vect.y));
+		Debug.Log ("norm = "+norm);
+		Vector2 unitVect = new Vector2((float)(vect.x/norm),(float)(vect.y/norm));
+		Debug.Log ("vector = "+ vect.ToString());
+		Debug.Log ("Unit vector = ["+unitVect.x+","+unitVect.y+"]");
+		while(start!=end){
+			start+=unitVect;
+			Debug.Log ("location = ["+start.x+","+start.y+"]");
+			Debug.Log ("rounded location = ["+(int)start.x+","+(int)start.y+"]");
+			if(start.x<0 || start.y<0){ 
+				Debug.Log("ScanningLineTest error");
+				return;
+			}
+		}
+	}
+
+	public List<Vector2> ReturnAllMaxDistanceTiles(int x, int z, int maxDistance){
+		List<Vector2> maxDistTiles = new List<Vector2>();
+		int leftMostX = x-maxDistance; int rightMostX = x+maxDistance;
+		int topMostZ = z+maxDistance; int bottomMostZ = z-maxDistance;
+		if(leftMostX<0) leftMostX=0;
+		if(rightMostX>=mapSize) rightMostX=mapSize-1;
+		if(bottomMostZ<0) bottomMostZ=0;
+		if(topMostZ>=mapSize) topMostZ = mapSize-1;
+		for(int i=leftMostX;i<=rightMostX;i++)
+			for(int j=bottomMostZ;j<=topMostZ;j++)
+				if(i==leftMostX || i==rightMostX || j==bottomMostZ || j==topMostZ)
+					maxDistTiles.Add(new Vector2(i,j));
+		Debug.Log ("x="+x+", z="+z+", maxDistance="+maxDistance);
+		Debug.Log ("l,d,u,r: "+leftMostX+" "+ bottomMostZ + " " +topMostZ+" "+rightMostX);
+		return maxDistTiles;
 	}
 }
