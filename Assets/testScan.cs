@@ -25,14 +25,12 @@ public class testScan : MonoBehaviour {
 		Vector2 unitVect = new Vector2((float)(vect.x/norm),(float)(vect.y/norm));
 		Debug.Log ("vector = "+ vect.ToString());
 		Debug.Log ("Unit vector = ["+unitVect.x+","+unitVect.y+"]");
-		while(start!=end){
+		Vector2 roundedLocation = new Vector2((int)start.x,(int)start.y);
+		while(roundedLocation!=end){
 			start+=unitVect;
+			roundedLocation = new Vector2((int)start.x,(int)start.y);
 			Debug.Log ("location = ["+start.x+","+start.y+"]");
 			Debug.Log ("rounded location = ["+(int)start.x+","+(int)start.y+"]");
-			if(start.x<0 || start.y<0){ 
-				Debug.Log("ScanningLineTest error");
-				return;
-			}
 		}
 	}
 }

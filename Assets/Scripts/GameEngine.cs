@@ -81,14 +81,14 @@ public class GameEngine : MonoBehaviour {
 	
 	public void GiveControlToPlayer1(){
 		map.CurrentPlayer = 1;
-		SetPlayerVisibility();
-		//SetPlayerVisibilityUsingFoV();
+		//SetPlayerVisibility();
+		SetPlayerVisibilityUsingFoV();
 		gstate.GiveControlToPlayer1();	
 	}
 	
 	public void GiveControlToPlayer2(){
 		map.CurrentPlayer=2;
-		SetPlayerVisibility();
+		SetPlayerVisibilityUsingFoV();
 		gstate.SwitchPlayers();
 	}
 	
@@ -158,7 +158,7 @@ public class GameEngine : MonoBehaviour {
 	}
 	
 	public void SetPlayerVisibilityUsingFoV(){
-		map.FoVForCurrentPlayer(8);
+		map.FoVForCurrentPlayer((int)map.MapSize/2);
 		UpdateTileMaterials();
 	}
 	
@@ -199,7 +199,7 @@ public class GameEngine : MonoBehaviour {
 		DestroyHighlights();
 		map.MoveSelectedCharTo(x,z);
 		tstate.Neutralize();
-		SetPlayerVisibility();
+		SetPlayerVisibilityUsingFoV();
 	}
 	
 	public void EliminatePlayerAt(int x, int z){

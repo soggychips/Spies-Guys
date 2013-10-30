@@ -445,6 +445,7 @@ public class MapInfo{
 	}
 	
 	public void FoVForCurrentPlayer(int maxViewDist){
+		RemoveVisibility();
 		if(currentPlayer==1){
 			foreach(Spy spy in spies){
 				FoV(spy.TileLocation,maxViewDist);	
@@ -460,7 +461,6 @@ public class MapInfo{
 	}
 	
 	public void FoV(Vector2 playerLocation, int maxDistance){
-		RemoveVisibility();
 		List<Vector2> edgeOfVisionTiles = ReturnAllMaxDistanceTiles((int)playerLocation.x,(int)playerLocation.y,maxDistance);
 		foreach(Vector2 endpoint in edgeOfVisionTiles)
 			ScanLine(playerLocation,endpoint);
@@ -473,13 +473,16 @@ public class MapInfo{
 		TileAt(start).Visible=true;
 		Debug.Log ("starting start = "+start.ToString());
 		Debug.Log ("end = "+end.ToString());
-		while(start!=end){
+		Vector2 roundedLocation = new Vector2((int)start.x,(int)start.y);
+		while(roundedLocation!=end){
 			start+=unitVect;
-			Debug.Log ("start="+start.ToString());
-			if(!TileAt(start).Visible){
-				TileAt(start).Visible=true;
-				if(!TileAt(start).isOpen()) return;
+			roundedLocation = new Vector2(Mathf.Round(start.x),Mathf.Round(start.y));
+			Debug.Log ("location = ["+start.x+","+start.y+"]");
+			Debug.Log ("rounded location = ["+roundedLocation.x+","+roundedLocation.y+"]");
+			if(!TileAt(roundedLocation).Visible){
+				TileAt(roundedLocation).Visible=true;
 			}
+			if(!TileAt(roundedLocation).isOpen()) return;
 		}
 	}
 	
@@ -492,14 +495,12 @@ public class MapInfo{
 		Vector2 unitVect = new Vector2((float)(vect.x/norm),(float)(vect.y/norm));
 		Debug.Log ("vector = "+ vect.ToString());
 		Debug.Log ("Unit vector = ["+unitVect.x+","+unitVect.y+"]");
-		while(start!=end){
+		Vector2 roundedLocation = new Vector2((int)start.x,(int)start.y);
+		while(roundedLocation!=end){
 			start+=unitVect;
+			roundedLocation = new Vector2((int)start.x,(int)start.y);
 			Debug.Log ("location = ["+start.x+","+start.y+"]");
 			Debug.Log ("rounded location = ["+(int)start.x+","+(int)start.y+"]");
-			if(start.x<0 || start.y<0){ 
-				Debug.Log("ScanningLineTest error");
-				return;
-			}
 		}
 	}
 

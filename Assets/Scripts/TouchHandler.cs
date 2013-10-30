@@ -40,7 +40,7 @@ public class TouchHandler : MonoBehaviour {
 						Debug.Log("Enemy at "+mouseClick.x+","+mouseClick.y+" eliminated!");
 						scene.EliminatePlayerAt((int)mouseClick.x,(int)mouseClick.y);
 						scene.DeselectCharacter();
-						scene.SetPlayerVisibility();
+						scene.SetPlayerVisibilityUsingFoV();
 					}
 					break;
 			} //end switch
