@@ -32,15 +32,15 @@ public class TouchHandler : MonoBehaviour {
 				//if turnState: CharSelected
 				case (int)TurnState.States.CharSelected:
 					mouseClick = MouseClickToTileCoords();
-					if(scene.OpenTileAt((int)mouseClick.x,(int)mouseClick.y) && scene.VisibleTileAt((int)mouseClick.x,(int)mouseClick.y)){
+					if(scene.OpenTileAt((int)mouseClick.x,(int)mouseClick.y) && scene.HighlightedTileAt((int)mouseClick.x,(int)mouseClick.y)){
 						scene.MoveSelectedCharTo((int)mouseClick.x,(int)mouseClick.y);
 					}else if(scene.CurrentPlayerAt((int)mouseClick.x,(int)mouseClick.y)){
 						scene.DeselectCharacter();
-					}else if(scene.TileTakenByEnemy((int)mouseClick.x,(int)mouseClick.y) && scene.VisibleTileAt((int)mouseClick.x,(int)mouseClick.y)){
+					}else if(scene.TileTakenByEnemy((int)mouseClick.x,(int)mouseClick.y) && scene.HighlightedTileAt((int)mouseClick.x,(int)mouseClick.y)){
 						Debug.Log("Enemy at "+mouseClick.x+","+mouseClick.y+" eliminated!");
 						scene.EliminatePlayerAt((int)mouseClick.x,(int)mouseClick.y);
 						scene.DeselectCharacter();
-						scene.SetPlayerVisibility();
+						scene.SetPlayerVisibilityUsingFoV();
 					}
 					break;
 			} //end switch
