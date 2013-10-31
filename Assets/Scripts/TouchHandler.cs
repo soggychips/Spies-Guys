@@ -43,6 +43,9 @@ public class TouchHandler : MonoBehaviour {
 						scene.SetPlayerVisibilityUsingFoV();
 					}
 					break;
+				case (int)TurnState.States.Confirmation:
+					
+					break;
 			} //end switch
 		}
 	}
