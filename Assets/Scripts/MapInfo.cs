@@ -294,20 +294,21 @@ public class MapInfo{
 	}
 	
 	public void MoveSelectedCharTo(int x, int z){
+		int depth  = map[x,z].Depth;
 		if(currentPlayer==1){ //spies
 			foreach(Spy spy in spies){
-				if(spy.Selected && spy.CanMove (x,z)){ 
+				if(spy.Selected && spy.CanMove (depth)){ 
 					map[(int)spy.TileLocation.x,(int)spy.TileLocation.y].Open();
-					spy.Move(x,z);
+					spy.Move(x,z, depth);
 					spy.Selected=false;
 					map[(int)spy.TileLocation.x,(int)spy.TileLocation.y].Take();
 				}
 			}
 		}else if(currentPlayer==2){ //guys
 			foreach(Guy guy in guys){
-				if(guy.Selected && guy.CanMove(x,z)){ 
+				if(guy.Selected && guy.CanMove(depth)){ 
 					map[(int)guy.TileLocation.x,(int)guy.TileLocation.y].Open();
-					guy.Move(x,z);
+					guy.Move(x,z, depth);
 					guy.Selected=false;
 					map[(int)guy.TileLocation.x,(int)guy.TileLocation.y].Take();
 				}

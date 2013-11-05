@@ -138,7 +138,7 @@ public class GameEngine : MonoBehaviour {
 		List<Vector2> BFSFromOrigin = map.BFS (x,z,totalMovementDistance);
 		foreach(Vector2 tile in BFSFromOrigin){
 			map.TileAt(tile).Highlight=true;
-			if(map.TileAt(tile).Depth<(int)totalMovementDistance/2)
+			if(map.TileAt(tile).Depth<=(int)(totalMovementDistance/2)+1)
 				Instantiate(sneakHighlight,new Vector3(tile.x*Tile.spacing,.2f,tile.y*Tile.spacing),Quaternion.identity);
 			else
 				Instantiate(sprintHighlight,new Vector3(tile.x*Tile.spacing,.2f,tile.y*Tile.spacing),Quaternion.identity);

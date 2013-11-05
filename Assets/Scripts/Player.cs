@@ -62,16 +62,14 @@ public class Player {
 		movesLeft=totalMovementPoints;	
 	}
 	
-	public void Move(int x, int z){
-		int distance = (int) Vector2.Distance(tileLocation,new Vector2(x,z));
-		SpendPoints(distance);
+	public void Move(int x, int z, int dist){
+		SpendPoints(dist);
 		tileLocation = new Vector2(x,z);
 		realWorldLocation = tileLocation*Tile.spacing;
 	}
 	
-	public bool CanMove(int x, int z){
-		int distance = (int) Vector2.Distance(tileLocation,new Vector2(x,z));
-		if(distance>movesLeft) return false;
+	public bool CanMove(int dist){
+		if(dist>movesLeft) return false;
 		return true;
 	}
 	
