@@ -146,6 +146,12 @@ public class MapInfo{
 		}
 		Debug.Log ("All Tiles Invisible");
 	}
+
+	public void ResetPoints ()
+	{
+		foreach(Spy spy in spies) spy.ResetPoints();
+		foreach(Guy guy in guys) guy.ResetPoints();
+	}
 	
 	public void ResetHighlights(){
 		for(int i=0; i<mapSize; i++){
@@ -290,7 +296,7 @@ public class MapInfo{
 	public void MoveSelectedCharTo(int x, int z){
 		if(currentPlayer==1){ //spies
 			foreach(Spy spy in spies){
-				if(spy.Selected){ 
+				if(spy.Selected && spy.CanMove (x,z)){ 
 					map[(int)spy.TileLocation.x,(int)spy.TileLocation.y].Open();
 					spy.Move(x,z);
 					spy.Selected=false;
@@ -299,7 +305,7 @@ public class MapInfo{
 			}
 		}else if(currentPlayer==2){ //guys
 			foreach(Guy guy in guys){
-				if(guy.Selected){ 
+				if(guy.Selected && guy.CanMove(x,z)){ 
 					map[(int)guy.TileLocation.x,(int)guy.TileLocation.y].Open();
 					guy.Move(x,z);
 					guy.Selected=false;
@@ -342,17 +348,60 @@ public class MapInfo{
 		return false;
 	}
 	
-	public void EliminatePlayerAt(int x, int z){
+	public List<int> MovesLeftForCurrentPlayer(){
+		List<int> moves = new List<int>();
 		if(currentPlayer==1){
+			foreach(Spy spy in spies){
+				if(spy.Alive) moves.Add(spy.MovesLeft);
+				else moves.Add (-1);
+			}
+		}else if(currentPlayer==2){
 			foreach(Guy guy in guys){
-				if(guy.TileLocation.x==x && guy.TileLocation.y==z){ 
+				if(guy.Alive) moves.Add(guy.MovesLeft);
+				else moves.Add (-1);
+			}
+		}
+		return moves;
+	}
+	
+	public int MovesLeftForPlayer(int x, int z){
+		if(currentPlayer==1){
+			foreach(Spy spy in spies){
+				if(spy.TileLocation.x==x && spy.TileLocation.y ==z)
+					return spy.MovesLeft;
+			}
+		}else if(currentPlayer==2){
+			foreach(Guy guy in guys){
+				if(guy.TileLocation.x==x && guy.TileLocation.y ==z)
+					return guy.MovesLeft;
+			}
+		}
+		Debug.Log ("Error: MapInfo.MovesLeftForPlayer");
+		return 0;
+	}
+	
+	public void EliminatePlayerAt(int x, int z){
+		bool kill=false;
+		if(currentPlayer==1){
+			foreach(Spy spy in spies){
+				if(spy.Selected){
+					if(spy.SpendAllPoints()) kill=true;	
+				}
+			}
+			foreach(Guy guy in guys){
+				if(guy.TileLocation.x==x && guy.TileLocation.y==z && kill){ 
 					map[x,z].Open();
 					guy.Die();
 				}
 			}
 		}else if(currentPlayer==2){
+			foreach(Guy guy in guys){
+				if(guy.Selected){
+					if(guy.SpendAllPoints()) kill=true;	
+				}
+			}
 			foreach(Spy spy in spies){
-				if(spy.TileLocation.x==x && spy.TileLocation.y==z){ 
+				if(spy.TileLocation.x==x && spy.TileLocation.y==z && kill){ 
 					map[x,z].Open ();
 					spy.Die();
 				}

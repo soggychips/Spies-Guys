@@ -10,7 +10,12 @@ public class Player {
 	protected bool selected;
 	protected Vector2 tileLocation;
 	protected Vector3 realWorldLocation;
-	protected int movesLeft { get; set; }
+	protected int movesLeft;
+	
+	public int MovesLeft{
+		get{return movesLeft;}
+		set{movesLeft=value;}
+	}
 	
 	public bool Alive{
 		get{return alive;}	
@@ -45,8 +50,29 @@ public class Player {
 		}
 	}
 	
+	public bool SpendAllPoints(){
+		if(movesLeft>0){ 
+			movesLeft=0;
+			return true;
+		}
+		return false;
+	}
+	
+	public void ResetPoints(){
+		movesLeft=totalMovementPoints;	
+	}
+	
 	public void Move(int x, int z){
+		int distance = (int) Vector2.Distance(tileLocation,new Vector2(x,z));
+		SpendPoints(distance);
 		tileLocation = new Vector2(x,z);
+		realWorldLocation = tileLocation*Tile.spacing;
+	}
+	
+	public bool CanMove(int x, int z){
+		int distance = (int) Vector2.Distance(tileLocation,new Vector2(x,z));
+		if(distance>movesLeft) return false;
+		return true;
 	}
 	
 	public void Die(){

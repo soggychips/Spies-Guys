@@ -7,6 +7,7 @@ public class GameEngine : MonoBehaviour {
 	public Transform tile;
 	public Material ft_hidden, ft_open, ft_taken, ft_wall, ft_item;
 	public Transform sneakHighlight;
+	public Transform sprintHighlight;
 	
 	
 	private int winner;
@@ -81,13 +82,14 @@ public class GameEngine : MonoBehaviour {
 	
 	public void GiveControlToPlayer1(){
 		map.CurrentPlayer = 1;
-		//SetPlayerVisibility();
+		map.ResetPoints();
 		SetPlayerVisibilityUsingFoV();
 		gstate.GiveControlToPlayer1();	
 	}
 	
 	public void GiveControlToPlayer2(){
 		map.CurrentPlayer=2;
+		map.ResetPoints();
 		SetPlayerVisibilityUsingFoV();
 		gstate.SwitchPlayers();
 	}
@@ -132,10 +134,14 @@ public class GameEngine : MonoBehaviour {
 	}
 	
 	public void HighlightTiles(int x, int z){
-		List<Vector2> BFSFromOrigin = map.BFS (x,z,5);
+		int totalMovementDistance = map.MovesLeftForPlayer(x,z);
+		List<Vector2> BFSFromOrigin = map.BFS (x,z,totalMovementDistance);
 		foreach(Vector2 tile in BFSFromOrigin){
 			map.TileAt(tile).Highlight=true;
-			Instantiate(sneakHighlight,new Vector3(tile.x*Tile.spacing,.2f,tile.y*Tile.spacing),Quaternion.identity);
+			if(map.TileAt(tile).Depth<(int)totalMovementDistance/2)
+				Instantiate(sneakHighlight,new Vector3(tile.x*Tile.spacing,.2f,tile.y*Tile.spacing),Quaternion.identity);
+			else
+				Instantiate(sprintHighlight,new Vector3(tile.x*Tile.spacing,.2f,tile.y*Tile.spacing),Quaternion.identity);
 		}
 	}
 	
@@ -208,5 +214,9 @@ public class GameEngine : MonoBehaviour {
 	
 	public void EliminatePlayerAt(int x, int z){
 		map.EliminatePlayerAt(x,z);	
+	}
+	
+	public List<int> MovesLeftForCurrentPlayer(){
+		return map.MovesLeftForCurrentPlayer();	
 	}
 }
