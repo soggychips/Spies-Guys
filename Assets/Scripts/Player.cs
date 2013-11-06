@@ -3,7 +3,7 @@ using System.Collections;
 
 public class Player {
 	
-	public static int totalMovementPoints = 10;
+	public static int totalMovementPoints = 8;
 	public static int yPlayerHeight = 0;
 	
 	protected bool alive;
@@ -63,15 +63,12 @@ public class Player {
 	}
 	
 	public void Move(int x, int z, int dist){
-		SpendPoints(dist);
+		bool lastMove = !SpendPoints(dist);
+		if(lastMove) SpendAllPoints();
 		tileLocation = new Vector2(x,z);
 		realWorldLocation = tileLocation*Tile.spacing;
 	}
 	
-	public bool CanMove(int dist){
-		if(dist>movesLeft) return false;
-		return true;
-	}
 	
 	public void Die(){
 		alive=false;

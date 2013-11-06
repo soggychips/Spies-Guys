@@ -297,18 +297,18 @@ public class MapInfo{
 		int depth  = map[x,z].Depth;
 		if(currentPlayer==1){ //spies
 			foreach(Spy spy in spies){
-				if(spy.Selected && spy.CanMove (depth)){ 
+				if(spy.Selected){ 
 					map[(int)spy.TileLocation.x,(int)spy.TileLocation.y].Open();
-					spy.Move(x,z, depth);
+					spy.Move(x,z,depth);
 					spy.Selected=false;
 					map[(int)spy.TileLocation.x,(int)spy.TileLocation.y].Take();
 				}
 			}
 		}else if(currentPlayer==2){ //guys
 			foreach(Guy guy in guys){
-				if(guy.Selected && guy.CanMove(depth)){ 
+				if(guy.Selected){ 
 					map[(int)guy.TileLocation.x,(int)guy.TileLocation.y].Open();
-					guy.Move(x,z, depth);
+					guy.Move(x,z,depth);
 					guy.Selected=false;
 					map[(int)guy.TileLocation.x,(int)guy.TileLocation.y].Take();
 				}
