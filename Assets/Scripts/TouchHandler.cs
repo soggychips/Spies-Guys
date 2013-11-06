@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class TouchHandler : MonoBehaviour {
 	
@@ -36,7 +37,7 @@ public class TouchHandler : MonoBehaviour {
 						scene.MoveSelectedCharTo((int)mouseClick.x,(int)mouseClick.y);
 					}else if(scene.CurrentPlayerAt((int)mouseClick.x,(int)mouseClick.y)){
 						scene.DeselectCharacter();
-					}else if(scene.TileTakenByEnemy((int)mouseClick.x,(int)mouseClick.y) && scene.HighlightedTileAt((int)mouseClick.x,(int)mouseClick.y)){
+					}else if(scene.TileTakenByEnemy((int)mouseClick.x,(int)mouseClick.y)){
 						Debug.Log("Enemy at "+mouseClick.x+","+mouseClick.y+" eliminated!");
 						scene.EliminatePlayerAt((int)mouseClick.x,(int)mouseClick.y);
 						scene.DeselectCharacter();
@@ -79,6 +80,7 @@ public class TouchHandler : MonoBehaviour {
 		DebugButton();
 		if(debug){
 			DisplayStates();
+			DisplayPlayerData();
 		}
 		if(scene.CurrentGameState==(int)GameState.States.Menu){
 			//Debug.Log("Menu GUI");
@@ -162,6 +164,21 @@ public class TouchHandler : MonoBehaviour {
 		}
 		GUI.Label(new Rect(Screen.width-200,0,150,30),"Game State: "+gameStateString);
 		GUI.Label(new Rect(Screen.width-200,30,150,30),"Turn State: "+turnStateString);
+	}
+	
+	public void DisplayPlayerData(){
+		List<int> movesLeftForPlayers = scene.MovesLeftForCurrentPlayer();
+		switch(scene.CurrentGameState){
+		case (int)GameState.States.P1:
+			GUI.Label(new Rect(Screen.width-500,0,150,30),"Spy[0]: "+movesLeftForPlayers[0]);
+			GUI.Label(new Rect(Screen.width-500,30,150,30),"Spy[1]: "+movesLeftForPlayers[1]);
+			break;
+		case (int)GameState.States.P2:
+			GUI.Label(new Rect(Screen.width-500,0,150,30),"Guy[0]: "+movesLeftForPlayers[0]);
+			GUI.Label(new Rect(Screen.width-500,30,150,30),"Guy[1]: "+movesLeftForPlayers[1]);
+			break;
+		}
+		
 	}
 
 	public void DisplayPlayerButtons ()

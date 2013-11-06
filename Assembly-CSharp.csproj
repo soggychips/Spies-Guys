@@ -54,7 +54,6 @@
      <Compile Include="Assets\Scripts\Tile.cs" />
      <Compile Include="Assets\Scripts\TouchHandler.cs" />
      <Compile Include="Assets\Scripts\TurnState.cs" />
-     <Compile Include="Assets\testScan.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -3,14 +3,19 @@ using System.Collections;
 
 public class Player {
 	
-	public static int totalMovementPoints = 10;
+	public static int totalMovementPoints = 8;
 	public static int yPlayerHeight = 0;
 	
 	protected bool alive;
 	protected bool selected;
 	protected Vector2 tileLocation;
 	protected Vector3 realWorldLocation;
-	protected int movesLeft { get; set; }
+	protected int movesLeft;
+	
+	public int MovesLeft{
+		get{return movesLeft;}
+		set{movesLeft=value;}
+	}
 	
 	public bool Alive{
 		get{return alive;}	
@@ -45,9 +50,25 @@ public class Player {
 		}
 	}
 	
-	public void Move(int x, int z){
-		tileLocation = new Vector2(x,z);
+	public bool SpendAllPoints(){
+		if(movesLeft>0){ 
+			movesLeft=0;
+			return true;
+		}
+		return false;
 	}
+	
+	public void ResetPoints(){
+		movesLeft=totalMovementPoints;	
+	}
+	
+	public void Move(int x, int z, int dist){
+		bool lastMove = !SpendPoints(dist);
+		if(lastMove) SpendAllPoints();
+		tileLocation = new Vector2(x,z);
+		realWorldLocation = tileLocation*Tile.spacing;
+	}
+	
 	
 	public void Die(){
 		alive=false;
