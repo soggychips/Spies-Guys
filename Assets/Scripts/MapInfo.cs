@@ -96,6 +96,7 @@ public class MapInfo{
 		map[29,5].Take(); map[30,3].Take(); //guys
 		
 		SetAllTilesVisible();
+		Debug.Log("Level Loaded.");
 	}
 	
 	
@@ -144,7 +145,7 @@ public class MapInfo{
 					map[i,j].Visible=false;
 			}
 		}
-		Debug.Log ("All Tiles Invisible");
+		//Debug.Log ("All Tiles Invisible");
 	}
 
 	public void ResetPoints ()
@@ -159,7 +160,7 @@ public class MapInfo{
 				map[i,j].Highlight=false;
 			}
 		}
-		Debug.Log ("All Tile Highlights Reset");
+		//Debug.Log ("All Tile Highlights Reset");
 	}
 	
 	public void FindAllVisibleTiles(){
@@ -361,6 +362,8 @@ public class MapInfo{
 				if(guy.Alive) moves.Add(guy.MovesLeft);
 				else moves.Add (-1);
 			}
+		}else{
+			Debug.Log ("MapInfo.MovesLeftForCurrentPlayer");
 		}
 		return moves;
 	}

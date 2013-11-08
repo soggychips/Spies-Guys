@@ -12,6 +12,7 @@ public class TouchHandler : MonoBehaviour {
 	private bool gameMenu;
 	private Vector2 mouseClick;
 	
+	
 	// Use this for initialization
 	void Start () {
 		scene = GameObject.Find("Engine").GetComponent("GameEngine") as GameEngine; //gives us access to the GameEngine script
@@ -26,7 +27,8 @@ public class TouchHandler : MonoBehaviour {
 				case (int)TurnState.States.Neutral:
 					mouseClick = MouseClickToTileCoords();
 					if(scene.CurrentPlayerAt((int)mouseClick.x,(int)mouseClick.y)){
-						Debug.Log("Player clicked on");
+						scene.SaveGame();
+						//Debug.Log("Player clicked on");
 						scene.SelectCharacter((int)mouseClick.x,(int)mouseClick.y);	
 					}
 					break;
@@ -68,7 +70,7 @@ public class TouchHandler : MonoBehaviour {
 				else
 					z = Mathf.Floor(z) + (Tile.spacing-Mathf.Floor(z)%Tile.spacing);
 				x=x/Tile.spacing; z=z/Tile.spacing;
-				Debug.Log("Clicked on ("+x+","+z+")");
+				//Debug.Log("Clicked on ("+x+","+z+")");
 				return new Vector2(x,z);
 			}
 		}
@@ -80,7 +82,6 @@ public class TouchHandler : MonoBehaviour {
 		DebugButton();
 		if(debug){
 			DisplayStates();
-			DisplayPlayerData();
 		}
 		if(scene.CurrentGameState==(int)GameState.States.Menu){
 			//Debug.Log("Menu GUI");
@@ -92,11 +93,13 @@ public class TouchHandler : MonoBehaviour {
 			//Debug.Log("P1 turn");
 			if(scene.CurrentTurnState==(int)TurnState.States.Neutral){
 				DisplayPlayerButtons();
+				DisplayPlayerData();
 			}
 		}else if(scene.CurrentGameState==(int)GameState.States.P2){
 			//Debug.Log("P2 turn");
 			if(scene.CurrentTurnState==(int)TurnState.States.Neutral){
 				DisplayPlayerButtons();
+				DisplayPlayerData();
 			}
 		}else if(scene.CurrentGameState==(int)GameState.States.GameOver){
 			DisplayEndGameMenu();
@@ -164,6 +167,7 @@ public class TouchHandler : MonoBehaviour {
 		}
 		GUI.Label(new Rect(Screen.width-200,0,150,30),"Game State: "+gameStateString);
 		GUI.Label(new Rect(Screen.width-200,30,150,30),"Turn State: "+turnStateString);
+		GUI.Label(new Rect(Screen.width-200,60,150,30),"Turn: "+ scene.Turn);
 	}
 	
 	public void DisplayPlayerData(){
@@ -187,7 +191,8 @@ public class TouchHandler : MonoBehaviour {
 	
 		// Undo
 		if(GUI.Button(new Rect(Screen.width-90,Screen.height-60,80,20), "Undo")) { 
-			
+			scene.LoadGame ();
+			Debug.Log ("Undo button pressed");
 		}
 		// Submit
 		if(GUI.Button(new Rect(Screen.width-90,Screen.height-30,80,20), "Submit")) { 

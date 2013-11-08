@@ -12,11 +12,14 @@ public class GameEngine : MonoBehaviour {
 	
 	private int winner;
 	private Transform[,] tileGraphics;
-	private MapInfo map;
-	private GameState gstate;
-	private TurnState tstate;
-	private int[,] visibility;
+	private MapInfo map, mapBackup;
+	private GameState gstate, gstateBackup;
+	private TurnState tstate, tstateBackup;
+	private int turn;
+	//private int[,] visibility;
 	private bool updateFlag;
+	
+	private MapInfo jokeMap; private int currentPlayer;
 	
 	public int Winner{
 		get{return winner;}	
@@ -24,7 +27,8 @@ public class GameEngine : MonoBehaviour {
 	
 	// Use this for initialization
 	void Start () {
-		map = new MapInfo();
+		turn=0;
+		map = new MapInfo(); jokeMap = new MapInfo(); jokeMap.SetUpSGData(); jokeMap.CurrentPlayer=1;
 		gstate = new GameState(); //Default: Menu
 		tstate = new TurnState(); //Default: Neutral
 		updateFlag = false;
@@ -64,8 +68,29 @@ public class GameEngine : MonoBehaviour {
 		get{return tstate.CurrentState;}	
 	}
 	
+	public int Turn{
+		get{return turn;}	
+	}
+	
 	public void StartGame(){
 		gstate.StartGame();	
+	}
+	
+	public void SaveGame(){
+		Debug.Log ("Game State saved");
+		mapBackup = map;
+		tstateBackup = tstate;
+		gstateBackup = gstate;
+	}
+	
+	public void LoadGame(){
+		Debug.Log ("Attempting to reload saved state");
+		MapInfo test = new MapInfo();
+		test = jokeMap;
+		map = test; 
+		gstate=gstateBackup;
+		tstate = tstateBackup;
+		SetPlayerVisibilityUsingFoV();
 	}
 	
 	public void SelectCharacter(int x, int z){
@@ -81,6 +106,7 @@ public class GameEngine : MonoBehaviour {
 	}
 	
 	public void GiveControlToPlayer1(){
+		turn++;
 		map.CurrentPlayer = 1;
 		map.ResetPoints();
 		SetPlayerVisibilityUsingFoV();
@@ -88,6 +114,7 @@ public class GameEngine : MonoBehaviour {
 	}
 	
 	public void GiveControlToPlayer2(){
+		turn++;
 		map.CurrentPlayer=2;
 		map.ResetPoints();
 		SetPlayerVisibilityUsingFoV();
@@ -112,7 +139,7 @@ public class GameEngine : MonoBehaviour {
 			for(int j=0; j<map.MapSize;j++){
 				Material temp = AssignMaterial(i,j);
 				tileGraphics[i,j].renderer.material = temp;
-				Debug.Log("tile "+i+","+j+" mat set to "+ temp);
+				//Debug.Log("tile "+i+","+j+" mat set to "+ temp);
 			}
 		}
 	}
@@ -150,8 +177,7 @@ public class GameEngine : MonoBehaviour {
 	}
 	
 	public void DestroyHighlights(){
-		foreach(GameObject g in GameObject.FindGameObjectsWithTag("highlight"))
-			Destroy(g);
+		foreach(GameObject g in GameObject.FindGameObjectsWithTag("highlight")) Destroy(g);
 		map.ResetHighlights();
 	}
 	
