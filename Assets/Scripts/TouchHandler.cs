@@ -27,7 +27,6 @@ public class TouchHandler : MonoBehaviour {
 				case (int)TurnState.States.Neutral:
 					mouseClick = MouseClickToTileCoords();
 					if(scene.CurrentPlayerAt((int)mouseClick.x,(int)mouseClick.y)){
-						scene.SaveGame();
 						//Debug.Log("Player clicked on");
 						scene.SelectCharacter((int)mouseClick.x,(int)mouseClick.y);	
 					}
@@ -191,7 +190,6 @@ public class TouchHandler : MonoBehaviour {
 	
 		// Undo
 		if(GUI.Button(new Rect(Screen.width-90,Screen.height-60,80,20), "Undo")) { 
-			scene.LoadGame ();
 			Debug.Log ("Undo button pressed");
 		}
 		// Submit

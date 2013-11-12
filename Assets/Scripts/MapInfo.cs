@@ -11,8 +11,7 @@ public class MapInfo{
 	
 	private int winner;
 	private Tile[,] map;
-	private int[,] visibility;
-	private int currentPlayer; //used for visibility reference, set to 1 or 2 only!
+	private int[,] visibility; //used for visibility reference, set to 1 or 2 only!
 	
 	public Guy[] guys;
 	public Spy[] spies;
@@ -34,8 +33,10 @@ public class MapInfo{
 		set{ mapSize = value;}
 	}
 	
-	public int CurrentPlayer{
-		set{currentPlayer=value;}	
+	
+	public Tile[,] Map{
+		get{return map;}
+		set{map=value;}
 	}
 	
 	// Use this for initialization
@@ -44,6 +45,8 @@ public class MapInfo{
 		visibility = new int[mapSize,mapSize];
 		MapInit();
 	}
+	
+	
 	
 	public void MapInit(){
 		for(int i=0;i<mapSize;i++){
@@ -201,7 +204,7 @@ public class MapInfo{
 	}*/
 	
 	//above method, rewritten using lists and checking for dead players
-	public void FindVisibleTilesForPlayer(){
+	public void FindVisibleTilesForPlayer(int currentPlayer){
 		//for the spies:
 		if(currentPlayer==1){
 			List<Vector2> spyLocations = new List<Vector2>();
@@ -255,7 +258,7 @@ public class MapInfo{
 	}
 	
 	
-	public bool CurrentPlayerAtTile(int x, int z){
+	public bool CurrentPlayerAtTile(int x, int z, int currentPlayer){
 		Vector2 tile = new Vector2(x,z);
 		if(currentPlayer==1){
 			foreach(Spy spy in spies){
@@ -271,7 +274,7 @@ public class MapInfo{
 		return false;
 	}
 	
-	public void SelectCharacterAtTile(int x, int z){
+	public void SelectCharacterAtTile(int x, int z, int currentPlayer){
 		if(currentPlayer==1){ //spies
 			if(spies[0].TileLocation.x==x && spies[0].TileLocation.y==z) spies[0].Selected=true;
 			else if(spies[1].TileLocation.x==x && spies[1].TileLocation.y==z) spies[1].Selected=true;
@@ -283,7 +286,7 @@ public class MapInfo{
 		Debug.Log ("Player selected");
 	}
 	
-	public void DeselectCharacter(){
+	public void DeselectCharacter(int currentPlayer){
 		if(currentPlayer==1){ //spies
 			foreach(Spy spy in spies)
 				spy.Selected=false;
@@ -294,7 +297,7 @@ public class MapInfo{
 		Debug.Log ("Players Deselected");
 	}
 	
-	public void MoveSelectedCharTo(int x, int z){
+	public void MoveSelectedCharTo(int x, int z, int currentPlayer){
 		int depth  = map[x,z].Depth;
 		if(currentPlayer==1){ //spies
 			foreach(Spy spy in spies){
@@ -332,7 +335,7 @@ public class MapInfo{
 		return map[x,z].Visible;	
 	}
 	
-	public bool TileTakenByEnemy(int x, int z){
+	public bool TileTakenByEnemy(int x, int z, int currentPlayer){
 		if(currentPlayer==1){
 			foreach(Guy guy in guys){
 				if(guy.TileLocation.x==x && guy.TileLocation.y==z){ 
@@ -350,7 +353,7 @@ public class MapInfo{
 		return false;
 	}
 	
-	public List<int> MovesLeftForCurrentPlayer(){
+	public List<int> MovesLeftForCurrentPlayer(int currentPlayer){
 		List<int> moves = new List<int>();
 		if(currentPlayer==1){
 			foreach(Spy spy in spies){
@@ -368,7 +371,7 @@ public class MapInfo{
 		return moves;
 	}
 	
-	public int MovesLeftForPlayer(int x, int z){
+	public int MovesLeftForPlayer(int x, int z, int currentPlayer){
 		if(currentPlayer==1){
 			foreach(Spy spy in spies){
 				if(spy.TileLocation.x==x && spy.TileLocation.y ==z)
@@ -384,7 +387,7 @@ public class MapInfo{
 		return 0;
 	}
 	
-	public void EliminatePlayerAt(int x, int z){
+	public void EliminatePlayerAt(int x, int z, int currentPlayer){
 		bool kill=false;
 		if(currentPlayer==1){
 			foreach(Spy spy in spies){
@@ -414,7 +417,7 @@ public class MapInfo{
 			Debug.Log ("error: currentPlayer in MapInfo set incorrectly (TileTakenByEnemy(int x,int z))");
 	}
 	
-	public bool AllTeammatesDead(){
+	public bool AllTeammatesDead(int currentPlayer){
 		if(currentPlayer==1){
 			foreach(Spy spy in spies)
 				if(spy.Alive) return false;
@@ -500,7 +503,7 @@ public class MapInfo{
 		return adjTiles;
 	}
 	
-	public void FoVForCurrentPlayer(int maxViewDist){
+	public void FoVForCurrentPlayer(int maxViewDist, int currentPlayer){
 		RemoveVisibility();
 		if(currentPlayer==1){
 			foreach(Spy spy in spies){
