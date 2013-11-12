@@ -15,8 +15,11 @@ public class GameEngine : MonoBehaviour {
 	private MapInfo map;
 	private GameState gstate;
 	private TurnState tstate;
-	private int[,] visibility;
+	private int turn;
+	//private int[,] visibility;
 	private bool updateFlag;
+	private int currentPlayer;
+	
 	
 	public int Winner{
 		get{return winner;}	
@@ -24,7 +27,8 @@ public class GameEngine : MonoBehaviour {
 	
 	// Use this for initialization
 	void Start () {
-		map = new MapInfo();
+		turn=0;
+		map = new MapInfo(); 
 		gstate = new GameState(); //Default: Menu
 		tstate = new TurnState(); //Default: Neutral
 		updateFlag = false;
@@ -43,7 +47,7 @@ public class GameEngine : MonoBehaviour {
 
 	void CheckForWinner ()
 	{
-		if(map.AllTeammatesDead()){
+		if(map.AllTeammatesDead(currentPlayer)){
 			winner = map.Winner;
 			gstate.EndGame();
 			tstate.Neutralize();
@@ -64,31 +68,37 @@ public class GameEngine : MonoBehaviour {
 		get{return tstate.CurrentState;}	
 	}
 	
+	public int Turn{
+		get{return turn;}	
+	}
+	
 	public void StartGame(){
 		gstate.StartGame();	
 	}
 	
 	public void SelectCharacter(int x, int z){
-		map.SelectCharacterAtTile(x,z);
+		map.SelectCharacterAtTile(x,z,currentPlayer);
 		HighlightTiles(x,z);
 		tstate.SelectCharacter();	
 	}
 	
 	public void DeselectCharacter(){
-		map.DeselectCharacter();
+		map.DeselectCharacter(currentPlayer);
 		DestroyHighlights();
 		tstate.Neutralize();
 	}
 	
 	public void GiveControlToPlayer1(){
-		map.CurrentPlayer = 1;
+		turn++;
+		currentPlayer = 1;
 		map.ResetPoints();
 		SetPlayerVisibilityUsingFoV();
 		gstate.GiveControlToPlayer1();	
 	}
 	
 	public void GiveControlToPlayer2(){
-		map.CurrentPlayer=2;
+		turn++;
+		currentPlayer=2;
 		map.ResetPoints();
 		SetPlayerVisibilityUsingFoV();
 		gstate.SwitchPlayers();
@@ -112,7 +122,7 @@ public class GameEngine : MonoBehaviour {
 			for(int j=0; j<map.MapSize;j++){
 				Material temp = AssignMaterial(i,j);
 				tileGraphics[i,j].renderer.material = temp;
-				Debug.Log("tile "+i+","+j+" mat set to "+ temp);
+				//Debug.Log("tile "+i+","+j+" mat set to "+ temp);
 			}
 		}
 	}
@@ -134,7 +144,7 @@ public class GameEngine : MonoBehaviour {
 	}
 	
 	public void HighlightTiles(int x, int z){
-		int totalSneakDistance = map.MovesLeftForPlayer(x,z)-1;
+		int totalSneakDistance = map.MovesLeftForPlayer(x,z,currentPlayer)-1;
 		List<Vector2> BFSFromOrigin = new List<Vector2>();
 		if(totalSneakDistance>=1)
 			BFSFromOrigin = map.BFS (x,z,totalSneakDistance);
@@ -150,8 +160,7 @@ public class GameEngine : MonoBehaviour {
 	}
 	
 	public void DestroyHighlights(){
-		foreach(GameObject g in GameObject.FindGameObjectsWithTag("highlight"))
-			Destroy(g);
+		foreach(GameObject g in GameObject.FindGameObjectsWithTag("highlight")) Destroy(g);
 		map.ResetHighlights();
 	}
 	
@@ -162,13 +171,13 @@ public class GameEngine : MonoBehaviour {
 	
 	public void SetPlayerVisibility(){
 		map.RemoveVisibility();
-		map.FindVisibleTilesForPlayer();
+		map.FindVisibleTilesForPlayer(currentPlayer);
 		map.FindAllVisibleTiles();
 		UpdateTileMaterials();
 	}
 	
 	public void SetPlayerVisibilityUsingFoV(){
-		map.FoVForCurrentPlayer((int)map.MapSize/2);
+		map.FoVForCurrentPlayer((int)map.MapSize/2,currentPlayer);
 		UpdateTileMaterials();
 	}
 	
@@ -190,7 +199,7 @@ public class GameEngine : MonoBehaviour {
 	}
 	
 	public bool CurrentPlayerAt(int x, int z){
-		return map.CurrentPlayerAtTile(x,z);	
+		return map.CurrentPlayerAtTile(x,z,currentPlayer);	
 	}
 	
 	public bool OpenTileAt(int x, int z){
@@ -206,21 +215,21 @@ public class GameEngine : MonoBehaviour {
 	}
 	
 	public bool TileTakenByEnemy(int x, int z){
-		return map.TileTakenByEnemy(x,z);
+		return map.TileTakenByEnemy(x,z,currentPlayer);
 	}
 	
 	public void MoveSelectedCharTo(int x, int z){
 		DestroyHighlights();
-		map.MoveSelectedCharTo(x,z);
+		map.MoveSelectedCharTo(x,z,currentPlayer);
 		tstate.Neutralize();
 		SetPlayerVisibilityUsingFoV();
 	}
 	
 	public void EliminatePlayerAt(int x, int z){
-		map.EliminatePlayerAt(x,z);	
+		map.EliminatePlayerAt(x,z,currentPlayer);	
 	}
 	
 	public List<int> MovesLeftForCurrentPlayer(){
-		return map.MovesLeftForCurrentPlayer();	
+		return map.MovesLeftForCurrentPlayer(currentPlayer);	
 	}
 }
