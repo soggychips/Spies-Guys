@@ -11,6 +11,7 @@ public class TouchHandler : MonoBehaviour {
 	private bool mainMenu;
 	private bool gameMenu;
 	private Vector2 mouseClick;
+	private bool submitButtonPressed;
 	
 	
 	// Use this for initialization
@@ -37,7 +38,6 @@ public class TouchHandler : MonoBehaviour {
 					if(scene.OpenTileAt((int)mouseClick.x,(int)mouseClick.y) && scene.HighlightedTileAt((int)mouseClick.x,(int)mouseClick.y)){
 						scene.PrepareMovement();
 						scene.BeginMovement((int)mouseClick.x,(int)mouseClick.y);
-						//scene.MoveSelectedCharTo((int)mouseClick.x,(int)mouseClick.y);
 					}else if(scene.CurrentPlayerAt((int)mouseClick.x,(int)mouseClick.y)){
 						scene.DeselectCharacter();
 					}else if(scene.TileTakenByEnemy((int)mouseClick.x,(int)mouseClick.y)){
@@ -90,14 +90,18 @@ public class TouchHandler : MonoBehaviour {
 		}else if(scene.CurrentGameState==(int)GameState.States.P1){ //P1
 			//Debug.Log("P1 turn");
 			if(scene.CurrentTurnState==(int)TurnState.States.Neutral){
-				DisplayPlayerButtons();
+				if(submitButtonPressed) CompleteTurnConfirmationButtons(); //set in DisplayPlayerButtons()
+				else DisplaySubmitButton();
 				DisplayPlayerData();
+				
 			}
 		}else if(scene.CurrentGameState==(int)GameState.States.P2){
 			//Debug.Log("P2 turn");
 			if(scene.CurrentTurnState==(int)TurnState.States.Neutral){
-				DisplayPlayerButtons();
+				if(submitButtonPressed) CompleteTurnConfirmationButtons(); //set in DisplayPlayerButtons()
+				else DisplaySubmitButton(); 
 				DisplayPlayerData();
+				
 			}
 		}else if(scene.CurrentGameState==(int)GameState.States.GameOver){
 			DisplayEndGameMenu();
@@ -106,7 +110,7 @@ public class TouchHandler : MonoBehaviour {
 		}
 		
 		if(scene.CurrentTurnState==(int)TurnState.States.Confirmation){
-			ConfirmationButtons();	
+			MovementConfirmationButtons();
 		}
 		
 	}
@@ -186,20 +190,40 @@ public class TouchHandler : MonoBehaviour {
 		
 	}
 
-	public void DisplayPlayerButtons ()
+	public void DisplaySubmitButton ()
 	{
-		GUI.Box(new Rect(Screen.width-100,Screen.height-120,100,120), "Actions");
+		List<int> movesLeftForPlayers = scene.MovesLeftForCurrentPlayer();
+		if(movesLeftForPlayers[0]>0 && movesLeftForPlayers[1]>0)
+			GUI.Box(new Rect(Screen.width-150,Screen.height-120,150,120), "Turn: Incomplete");
+		else
+			GUI.Box(new Rect(Screen.width-150,Screen.height-120,150,120), "Turn: Complete");
 	
 		// Submit
-		if(GUI.Button(new Rect(Screen.width-90,Screen.height-95,80,80), "Submit")) { 
-			if(scene.CurrentGameState==(int)GameState.States.P1) scene.GiveControlToPlayer2();
+		if(GUI.Button(new Rect(Screen.width-140,Screen.height-95,130,80), "Submit")) { 
+			submitButtonPressed=true;
+			/*if(scene.CurrentGameState==(int)GameState.States.P1) scene.GiveControlToPlayer2();
 			else if(scene.CurrentGameState==(int)GameState.States.P2) scene.GiveControlToPlayer1();
-			scene.CheckForWinner();
+			scene.CheckForWinner();*/
 			
 		}
 	}
 
-	void ConfirmationButtons ()
+	public void CompleteTurnConfirmationButtons ()
+	{
+		GUI.Box (new Rect(Screen.width-100,Screen.height/2 -120,100,240),"");
+		if(GUI.Button(new Rect(Screen.width-95,Screen.height/2-115,90,110), "Confirm")) {
+			if(scene.CurrentGameState==(int)GameState.States.P1) scene.GiveControlToPlayer2();
+			else if(scene.CurrentGameState==(int)GameState.States.P2) scene.GiveControlToPlayer1();
+			scene.CheckForWinner();	
+			submitButtonPressed=false;
+		}
+		if(GUI.Button (new Rect(Screen.width-95,Screen.height/2,90,110),"Cancel")) {
+			submitButtonPressed=false;
+		}
+		
+	}
+
+	public void MovementConfirmationButtons ()
 	{
 		GUI.Box (new Rect(Screen.width-100,Screen.height/2 -120,100,240),"");
 		if(GUI.Button(new Rect(Screen.width-95,Screen.height/2-115,90,110), "Confirm")) {

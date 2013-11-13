@@ -317,6 +317,21 @@ public class MapInfo{
 		Debug.Log ("Player selected");
 	}
 	
+	public bool SelectedCharacterAtTile(int x, int z, int currentPlayer){
+		Vector2 location = new Vector2(x,z);
+		switch(currentPlayer){
+			case 1:
+				foreach(Spy spy in spies)
+					if(spy.Selected && spy.TileLocation==location) return true;
+				break;
+			case 2:
+				foreach(Guy guy in guys)
+					if(guy.Selected && guy.TileLocation==location) return true;
+				break;
+		}
+		return false;
+	}
+	
 	public void DeselectCharacter(int currentPlayer){
 		if(currentPlayer==1){ //spies
 			foreach(Spy spy in spies)
@@ -335,7 +350,7 @@ public class MapInfo{
 				if(spy.Selected){ 
 					map[(int)spy.TileLocation.x,(int)spy.TileLocation.y].Open();
 					spy.Move(x,z,depth);
-					spy.Selected=false;
+					//spy.Selected=false;
 					map[(int)spy.TileLocation.x,(int)spy.TileLocation.y].Take();
 				}
 			}
@@ -344,7 +359,7 @@ public class MapInfo{
 				if(guy.Selected){ 
 					map[(int)guy.TileLocation.x,(int)guy.TileLocation.y].Open();
 					guy.Move(x,z,depth);
-					guy.Selected=false;
+					//guy.Selected=false;
 					map[(int)guy.TileLocation.x,(int)guy.TileLocation.y].Take();
 				}
 			}

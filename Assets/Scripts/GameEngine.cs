@@ -123,7 +123,7 @@ public class GameEngine : MonoBehaviour {
 		int[,] tileVisibility = map.ReturnAllVisibleTiles();
 		for(int i=0; i<map.MapSize;i++){
 			for(int j=0; j<map.MapSize;j++){
-				if(tileVisibility[i,j]==0){
+				if(tileVisibility[i,j]==0 && !map.SelectedCharacterAtTile(i,j,currentPlayer)){
 					tileGraphics[i,j].renderer.material.SetColor("_Color",ft_hidden.color);
 					//Debug.Log("INVIS TILE "+i+","+j);
 				}else{
@@ -215,6 +215,7 @@ public class GameEngine : MonoBehaviour {
 		//save revert information
 		selectedPlayerIdx = map.ReturnSelectedPlayerIdx(currentPlayer);
 		originalPosition = map.ReturnSelectedPlayerPosition(selectedPlayerIdx, currentPlayer);
+		
 		Debug.Log ("CurrentPlayer: "+currentPlayer+". Idx: "+selectedPlayerIdx+". OG Position: "+originalPosition);
 		Debug.Log ("Prepared for movement");
 	}
@@ -246,12 +247,14 @@ public class GameEngine : MonoBehaviour {
 		tstate.Neutralize();
 		selectedPlayerIdx=new int(); originalPosition = new Vector2();
 		SetPlayerVisibilityUsingFoV();
+		map.DeselectCharacter(currentPlayer);
 	}
 	
 	public void CancelMove(){
 		tstate.Neutralize();
 		map.RevertMovement(selectedPlayerIdx,originalPosition,currentPlayer);
 		UpdateTileMaterials();
+		map.DeselectCharacter(currentPlayer);
 	}
 	
 	public void EliminatePlayerAt(int x, int z){
