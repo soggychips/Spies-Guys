@@ -256,6 +256,37 @@ public class MapInfo{
 		FindAllVisibleTiles();
 		return visibility;	
 	}
+
+	public int ReturnSelectedPlayerIdx (int currentPlayer)
+	{	//must use indexes to iterate through spies/guys instead of foreach
+		switch(currentPlayer){
+		case 1:
+			for(int i=0;i<spies.Length;i++)
+				if(spies[i].Selected) return i;
+			break;
+		case 2:
+			for(int i=0;i<guys.Length;i++)
+				if(guys[i].Selected) return i;
+			break;
+		default:
+			Debug.Log ("Error: MapInfo.ReturnSelectedPlayerIdx");
+			break;
+		}
+		return -1;
+	}
+
+	public Vector2 ReturnSelectedPlayerPosition (int selectedPlayerIdx, int currentPlayer)
+	{
+		switch(currentPlayer){
+		case 1:
+			return spies[selectedPlayerIdx].TileLocation;
+		case 2:
+			return guys[selectedPlayerIdx].TileLocation;
+		default:
+			Debug.Log ("Error: MapInfo.ReturnSelectedPlayerPosition");
+			return Vector2.zero;
+		}
+	}
 	
 	
 	public bool CurrentPlayerAtTile(int x, int z, int currentPlayer){
@@ -317,6 +348,25 @@ public class MapInfo{
 					map[(int)guy.TileLocation.x,(int)guy.TileLocation.y].Take();
 				}
 			}
+		}
+	}
+
+	public void RevertMovement (int selectedPlayerIdx, Vector2 originalPosition, int currentPlayer)
+	{
+		int depth;
+		switch(currentPlayer){
+		case 1:
+			depth = map[(int)spies[selectedPlayerIdx].TileLocation.x,(int)spies[selectedPlayerIdx].TileLocation.y].Depth;
+			map[(int)spies[selectedPlayerIdx].TileLocation.x,(int)spies[selectedPlayerIdx].TileLocation.y].Open();
+			spies[selectedPlayerIdx].MoveBack((int)originalPosition.x,(int)originalPosition.y, depth);
+			map[(int)spies[selectedPlayerIdx].TileLocation.x,(int)spies[selectedPlayerIdx].TileLocation.y].Take();
+			break;
+		case 2:
+			depth = map[(int)guys[selectedPlayerIdx].TileLocation.x,(int)guys[selectedPlayerIdx].TileLocation.y].Depth;
+			map[(int)guys[selectedPlayerIdx].TileLocation.x,(int)guys[selectedPlayerIdx].TileLocation.y].Open();
+			guys[selectedPlayerIdx].MoveBack((int)originalPosition.x,(int)originalPosition.y, depth);
+			map[(int)guys[selectedPlayerIdx].TileLocation.x,(int)guys[selectedPlayerIdx].TileLocation.y].Take();
+			break;
 		}
 	}
 	

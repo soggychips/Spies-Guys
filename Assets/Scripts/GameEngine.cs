@@ -19,6 +19,7 @@ public class GameEngine : MonoBehaviour {
 	//private int[,] visibility;
 	private bool updateFlag;
 	private int currentPlayer;
+	private Vector2 originalPosition; private int selectedPlayerIdx;
 	
 	
 	public int Winner{
@@ -35,17 +36,8 @@ public class GameEngine : MonoBehaviour {
 		tileGraphics = new Transform[map.MapSize,map.MapSize];
 	}
 	
-	
-	// Update is called once per frame
-	void Update () {
-		if(updateFlag){
-			CheckForWinner();
-			updateFlag = false;
-		}
-		
-	}
 
-	void CheckForWinner ()
+	public void CheckForWinner ()
 	{
 		if(map.AllTeammatesDead(currentPlayer)){
 			winner = map.Winner;
@@ -217,12 +209,49 @@ public class GameEngine : MonoBehaviour {
 	public bool TileTakenByEnemy(int x, int z){
 		return map.TileTakenByEnemy(x,z,currentPlayer);
 	}
+
+	public void PrepareMovement ()
+	{
+		//save revert information
+		selectedPlayerIdx = map.ReturnSelectedPlayerIdx(currentPlayer);
+		originalPosition = map.ReturnSelectedPlayerPosition(selectedPlayerIdx, currentPlayer);
+		Debug.Log ("CurrentPlayer: "+currentPlayer+". Idx: "+selectedPlayerIdx+". OG Position: "+originalPosition);
+		Debug.Log ("Prepared for movement");
+	}
+
+	public void BeginMovement (int par1, int par2)
+	{
+		Debug.Log ("Beginning movement to: "+par1+","+par2);
+		tstate.BeginMovement();
+		AnimateMovement(par1,par2);
+	}
+
+	public void AnimateMovement (int goalX, int goalZ)
+	{
+		bool done = false;
+		tstate.AnimateMovement();
+		MoveSelectedCharTo(goalX,goalZ);
+		
+	}
 	
 	public void MoveSelectedCharTo(int x, int z){
 		DestroyHighlights();
 		map.MoveSelectedCharTo(x,z,currentPlayer);
+		tstate.ConfirmOrCancel();
+		UpdateTileMaterials();
+		//SetPlayerVisibilityUsingFoV();
+	}
+	
+	public void ConfirmMove(){
 		tstate.Neutralize();
+		selectedPlayerIdx=new int(); originalPosition = new Vector2();
 		SetPlayerVisibilityUsingFoV();
+	}
+	
+	public void CancelMove(){
+		tstate.Neutralize();
+		map.RevertMovement(selectedPlayerIdx,originalPosition,currentPlayer);
+		UpdateTileMaterials();
 	}
 	
 	public void EliminatePlayerAt(int x, int z){

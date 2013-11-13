@@ -35,7 +35,9 @@ public class TouchHandler : MonoBehaviour {
 				case (int)TurnState.States.CharSelected:
 					mouseClick = MouseClickToTileCoords();
 					if(scene.OpenTileAt((int)mouseClick.x,(int)mouseClick.y) && scene.HighlightedTileAt((int)mouseClick.x,(int)mouseClick.y)){
-						scene.MoveSelectedCharTo((int)mouseClick.x,(int)mouseClick.y);
+						scene.PrepareMovement();
+						scene.BeginMovement((int)mouseClick.x,(int)mouseClick.y);
+						//scene.MoveSelectedCharTo((int)mouseClick.x,(int)mouseClick.y);
 					}else if(scene.CurrentPlayerAt((int)mouseClick.x,(int)mouseClick.y)){
 						scene.DeselectCharacter();
 					}else if(scene.TileTakenByEnemy((int)mouseClick.x,(int)mouseClick.y)){
@@ -44,9 +46,6 @@ public class TouchHandler : MonoBehaviour {
 						scene.DeselectCharacter();
 						scene.SetPlayerVisibilityUsingFoV();
 					}
-					break;
-				case (int)TurnState.States.Confirmation:
-					
 					break;
 			} //end switch
 		}
@@ -106,6 +105,9 @@ public class TouchHandler : MonoBehaviour {
 			Debug.Log("TouchHandler's currentGameState: "+scene.CurrentGameState);	
 		}
 		
+		if(scene.CurrentTurnState==(int)TurnState.States.Confirmation){
+			ConfirmationButtons();	
+		}
 		
 	}
 
@@ -188,16 +190,23 @@ public class TouchHandler : MonoBehaviour {
 	{
 		GUI.Box(new Rect(Screen.width-100,Screen.height-120,100,120), "Actions");
 	
-		// Undo
-		if(GUI.Button(new Rect(Screen.width-90,Screen.height-60,80,20), "Undo")) { 
-			Debug.Log ("Undo button pressed");
-		}
 		// Submit
-		if(GUI.Button(new Rect(Screen.width-90,Screen.height-30,80,20), "Submit")) { 
+		if(GUI.Button(new Rect(Screen.width-90,Screen.height-95,80,80), "Submit")) { 
 			if(scene.CurrentGameState==(int)GameState.States.P1) scene.GiveControlToPlayer2();
 			else if(scene.CurrentGameState==(int)GameState.States.P2) scene.GiveControlToPlayer1();
-			scene.FlagForUpdate();
+			scene.CheckForWinner();
 			
+		}
+	}
+
+	void ConfirmationButtons ()
+	{
+		GUI.Box (new Rect(Screen.width-100,Screen.height/2 -120,100,240),"");
+		if(GUI.Button(new Rect(Screen.width-95,Screen.height/2-115,90,110), "Confirm")) {
+			scene.ConfirmMove();
+		}
+		if(GUI.Button (new Rect(Screen.width-95,Screen.height/2,90,110),"Cancel")) {
+			scene.CancelMove();
 		}
 	}
 	
