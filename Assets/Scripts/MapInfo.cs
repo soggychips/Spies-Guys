@@ -256,6 +256,37 @@ public class MapInfo{
 		FindAllVisibleTiles();
 		return visibility;	
 	}
+
+	public int ReturnSelectedPlayerIdx (int currentPlayer)
+	{	//must use indexes to iterate through spies/guys instead of foreach
+		switch(currentPlayer){
+		case 1:
+			for(int i=0;i<spies.Length;i++)
+				if(spies[i].Selected) return i;
+			break;
+		case 2:
+			for(int i=0;i<guys.Length;i++)
+				if(guys[i].Selected) return i;
+			break;
+		default:
+			Debug.Log ("Error: MapInfo.ReturnSelectedPlayerIdx");
+			break;
+		}
+		return -1;
+	}
+
+	public Vector2 ReturnSelectedPlayerPosition (int selectedPlayerIdx, int currentPlayer)
+	{
+		switch(currentPlayer){
+		case 1:
+			return spies[selectedPlayerIdx].TileLocation;
+		case 2:
+			return guys[selectedPlayerIdx].TileLocation;
+		default:
+			Debug.Log ("Error: MapInfo.ReturnSelectedPlayerPosition");
+			return Vector2.zero;
+		}
+	}
 	
 	
 	public bool CurrentPlayerAtTile(int x, int z, int currentPlayer){
@@ -286,6 +317,21 @@ public class MapInfo{
 		Debug.Log ("Player selected");
 	}
 	
+	public bool SelectedCharacterAtTile(int x, int z, int currentPlayer){
+		Vector2 location = new Vector2(x,z);
+		switch(currentPlayer){
+			case 1:
+				foreach(Spy spy in spies)
+					if(spy.Selected && spy.TileLocation==location) return true;
+				break;
+			case 2:
+				foreach(Guy guy in guys)
+					if(guy.Selected && guy.TileLocation==location) return true;
+				break;
+		}
+		return false;
+	}
+	
 	public void DeselectCharacter(int currentPlayer){
 		if(currentPlayer==1){ //spies
 			foreach(Spy spy in spies)
@@ -304,7 +350,7 @@ public class MapInfo{
 				if(spy.Selected){ 
 					map[(int)spy.TileLocation.x,(int)spy.TileLocation.y].Open();
 					spy.Move(x,z,depth);
-					spy.Selected=false;
+					//spy.Selected=false;
 					map[(int)spy.TileLocation.x,(int)spy.TileLocation.y].Take();
 				}
 			}
@@ -313,10 +359,29 @@ public class MapInfo{
 				if(guy.Selected){ 
 					map[(int)guy.TileLocation.x,(int)guy.TileLocation.y].Open();
 					guy.Move(x,z,depth);
-					guy.Selected=false;
+					//guy.Selected=false;
 					map[(int)guy.TileLocation.x,(int)guy.TileLocation.y].Take();
 				}
 			}
+		}
+	}
+
+	public void RevertMovement (int selectedPlayerIdx, Vector2 originalPosition, int currentPlayer)
+	{
+		int depth;
+		switch(currentPlayer){
+		case 1:
+			depth = map[(int)spies[selectedPlayerIdx].TileLocation.x,(int)spies[selectedPlayerIdx].TileLocation.y].Depth;
+			map[(int)spies[selectedPlayerIdx].TileLocation.x,(int)spies[selectedPlayerIdx].TileLocation.y].Open();
+			spies[selectedPlayerIdx].MoveBack((int)originalPosition.x,(int)originalPosition.y, depth);
+			map[(int)spies[selectedPlayerIdx].TileLocation.x,(int)spies[selectedPlayerIdx].TileLocation.y].Take();
+			break;
+		case 2:
+			depth = map[(int)guys[selectedPlayerIdx].TileLocation.x,(int)guys[selectedPlayerIdx].TileLocation.y].Depth;
+			map[(int)guys[selectedPlayerIdx].TileLocation.x,(int)guys[selectedPlayerIdx].TileLocation.y].Open();
+			guys[selectedPlayerIdx].MoveBack((int)originalPosition.x,(int)originalPosition.y, depth);
+			map[(int)guys[selectedPlayerIdx].TileLocation.x,(int)guys[selectedPlayerIdx].TileLocation.y].Take();
+			break;
 		}
 	}
 	

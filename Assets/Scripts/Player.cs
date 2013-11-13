@@ -50,6 +50,10 @@ public class Player {
 		}
 	}
 	
+	public void GivePoints(int points){
+		movesLeft += points;	
+	}
+	
 	public bool SpendAllPoints(){
 		if(movesLeft>0){ 
 			movesLeft=0;
@@ -62,11 +66,20 @@ public class Player {
 		movesLeft=totalMovementPoints;	
 	}
 	
+	public void FreeMove(int x, int z){
+		tileLocation = new Vector2(x,z);	
+	}
+	
 	public void Move(int x, int z, int dist){
 		bool lastMove = !SpendPoints(dist);
 		if(lastMove) SpendAllPoints();
 		tileLocation = new Vector2(x,z);
-		realWorldLocation = tileLocation*Tile.spacing;
+	}
+	
+	public void MoveBack(int x, int z, int dist){
+		if(movesLeft==0) GivePoints(1);
+		else GivePoints(dist);
+		tileLocation = new Vector2(x,z);
 	}
 	
 	
