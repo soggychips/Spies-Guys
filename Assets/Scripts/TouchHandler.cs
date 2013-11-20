@@ -11,7 +11,6 @@ public class TouchHandler : MonoBehaviour {
 	private bool mainMenu;
 	private bool gameMenu;
 	private Vector2 mouseClick;
-	private bool submitButtonPressed;
 	
 	
 	// Use this for initialization
@@ -84,24 +83,45 @@ public class TouchHandler : MonoBehaviour {
 		if(scene.CurrentGameState==(int)GameState.States.Menu){
 			//Debug.Log("Menu GUI");
 			LoadMainMenu();
-		}else if(scene.CurrentGameState==(int)GameState.States.MatchStart){
+		}else if(scene.CurrentGameState==(int)GameState.States.MatchCreated){
 			//Debug.Log("Match Start");
 			ReadyMenu();
 		}else if(scene.CurrentGameState==(int)GameState.States.P1){ //P1
 			//Debug.Log("P1 turn");
-			if(scene.CurrentTurnState==(int)TurnState.States.Neutral){
-				if(submitButtonPressed) CompleteTurnConfirmationButtons(); //set in DisplayPlayerButtons()
-				else DisplaySubmitButton();
+			switch(scene.CurrentTurnState){
+			case (int)TurnState.States.Begin:
+				scene.CheckForWinner();
+				scene.RemoveVisibility();
+				BeginTurnMenu();
+				break;
+			case (int)TurnState.States.Neutral:
+				DisplaySubmitButton();
 				DisplayPlayerData();
-				
+				break;
+			case (int)TurnState.States.MoveConfirm:
+				MovementConfirmationButtons();
+				break;
+			case (int)TurnState.States.End:
+				CompleteTurnConfirmationButtons();
+				break;
 			}
 		}else if(scene.CurrentGameState==(int)GameState.States.P2){
 			//Debug.Log("P2 turn");
-			if(scene.CurrentTurnState==(int)TurnState.States.Neutral){
-				if(submitButtonPressed) CompleteTurnConfirmationButtons(); //set in DisplayPlayerButtons()
-				else DisplaySubmitButton(); 
+			switch(scene.CurrentTurnState){
+			case (int)TurnState.States.Begin:
+				scene.RemoveVisibility();
+				BeginTurnMenu();
+				break;
+			case (int)TurnState.States.Neutral:
+				DisplaySubmitButton();
 				DisplayPlayerData();
-				
+				break;
+			case (int)TurnState.States.MoveConfirm:
+				MovementConfirmationButtons();
+				break;
+			case (int)TurnState.States.End:
+				CompleteTurnConfirmationButtons();
+				break;
 			}
 		}else if(scene.CurrentGameState==(int)GameState.States.GameOver){
 			DisplayEndGameMenu();
@@ -109,17 +129,14 @@ public class TouchHandler : MonoBehaviour {
 			Debug.Log("TouchHandler's currentGameState: "+scene.CurrentGameState);	
 		}
 		
-		if(scene.CurrentTurnState==(int)TurnState.States.Confirmation){
-			MovementConfirmationButtons();
-		}
 		
 	}
 
 	void DisplayEndGameMenu ()
 	{
 		int winner = scene.Winner;
-		GUI.Box(new Rect(Screen.width/2-300,Screen.height/2-300,600,600), "Winner:");
-		GUI.Label(new Rect(Screen.width/2-50,Screen.height/2-25,100,50), "Player "+winner);
+		GUI.Box(new Rect(Screen.width/2-300,Screen.height/2-300,600,600), "Game Over");
+		GUI.Label(new Rect(Screen.width/2-50,Screen.height/2-25,100,50), "Player "+winner+" wins!");
 	}
 
 	void DebugButton ()
@@ -134,7 +151,7 @@ public class TouchHandler : MonoBehaviour {
 		case (int)GameState.States.Menu:
 			gameStateString = "Menu";
 			break;
-		case (int)GameState.States.MatchStart:
+		case (int)GameState.States.MatchCreated:
 			gameStateString = "Match Start";
 			break;
 		case (int)GameState.States.P1:
@@ -166,7 +183,7 @@ public class TouchHandler : MonoBehaviour {
 		case (int)TurnState.States.ActionAnimate:
 			turnStateString = "ActionAnimate";
 			break;
-		case (int)TurnState.States.Confirmation:
+		case (int)TurnState.States.MoveConfirm:
 			turnStateString = "Confirmation";
 			break;
 		}
@@ -200,11 +217,7 @@ public class TouchHandler : MonoBehaviour {
 	
 		// Submit
 		if(GUI.Button(new Rect(Screen.width-140,Screen.height-95,130,80), "Submit")) { 
-			submitButtonPressed=true;
-			/*if(scene.CurrentGameState==(int)GameState.States.P1) scene.GiveControlToPlayer2();
-			else if(scene.CurrentGameState==(int)GameState.States.P2) scene.GiveControlToPlayer1();
-			scene.CheckForWinner();*/
-			
+			scene.EndTurn();
 		}
 	}
 
@@ -212,13 +225,11 @@ public class TouchHandler : MonoBehaviour {
 	{
 		GUI.Box (new Rect(Screen.width-100,Screen.height/2 -120,100,240),"");
 		if(GUI.Button(new Rect(Screen.width-95,Screen.height/2-115,90,110), "Confirm")) {
-			if(scene.CurrentGameState==(int)GameState.States.P1) scene.GiveControlToPlayer2();
-			else if(scene.CurrentGameState==(int)GameState.States.P2) scene.GiveControlToPlayer1();
-			scene.CheckForWinner();	
-			submitButtonPressed=false;
+			scene.SwitchPlayers();
+			scene.BeginTurn();
 		}
 		if(GUI.Button (new Rect(Screen.width-95,Screen.height/2,90,110),"Cancel")) {
-			submitButtonPressed=false;
+			scene.CancelEndTurn();
 		}
 		
 	}
@@ -236,16 +247,24 @@ public class TouchHandler : MonoBehaviour {
 	
 	public void LoadMainMenu(){
 		GUI.Box(new Rect(Screen.width/2-300,Screen.height/2-300,600,600), "Spies Guys: Murders and Lies");
-		if(GUI.Button(new Rect(Screen.width/2-50,Screen.height/2-25,100,50), "Start")) { 
-			scene.StartGame();
+		if(GUI.Button(new Rect(Screen.width/2-50,Screen.height/2-25,100,50), "Create a Match")) { 
+			scene.CreateMatch();
 			scene.SGDataInit();
 		}
 	}
 	
 	public void ReadyMenu(){
-		GUI.Box(new Rect(Screen.width/2-300,Screen.height/2-300,500,500), "Match about to begin...");
+		GUI.Box(new Rect(Screen.width/2-300,Screen.height/2-300,500,500), "Match Ready...");
+		if(GUI.Button(new Rect(Screen.width/2-100,Screen.height/2-50,100,50), "Start Game")) { 
+			scene.StartGame(); 
+		}	
+	}
+	
+	public void BeginTurnMenu(){
+		GUI.Box(new Rect(Screen.width/2-300,Screen.height/2-300,500,500), "Your Turn");
 		if(GUI.Button(new Rect(Screen.width/2-100,Screen.height/2-50,100,50), "Begin")) { 
-			scene.GiveControlToPlayer1();
+			if(scene.CurrentGameState==(int)GameState.States.P1) scene.GiveControlToPlayer1();
+			else if(scene.CurrentGameState==(int)GameState.States.P2) scene.GiveControlToPlayer2();
 		}	
 	}
 }

@@ -3,7 +3,7 @@ using System.Collections;
 
 public class TurnState {
 	
-	public enum States{Neutral, CharSelected, MoveBegin, MoveAnimate, ActionBegin, ActionAnimate, Confirmation};
+	public enum States: int{Begin, Neutral, CharSelected, MoveBegin, MoveAnimate, MoveConfirm, ActionBegin, ActionAnimate, ActionConfirm, End};
 	
 	private int currentState;
 	
@@ -13,7 +13,11 @@ public class TurnState {
 	}
 	
 	public TurnState(){
-		this.CurrentState = (int) States.Neutral;
+		this.CurrentState = (int) States.Neutral; //TODO: change to begin
+	}
+	
+	public void BeginTurn(){
+		CurrentState = (int)States.Begin;	
 	}
 	
 	public void SelectCharacter(){
@@ -36,8 +40,16 @@ public class TurnState {
 		CurrentState = (int) States.ActionAnimate;	
 	}
 	
-	public void ConfirmOrCancel(){
-		CurrentState = (int) States.Confirmation;	
+	public void EndMovement(){
+		CurrentState = (int) States.MoveConfirm;	
+	}
+	
+	public void EndAction(){
+		CurrentState = (int) States.ActionConfirm;	
+	}
+	
+	public void EndTurn(){
+		CurrentState = (int)States.End;
 	}
 	
 	public void Neutralize(){

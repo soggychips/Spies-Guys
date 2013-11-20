@@ -11,6 +11,7 @@ public class Player {
 	protected Vector2 tileLocation;
 	protected Vector3 realWorldLocation;
 	protected int movesLeft;
+	protected int gearEquipped;
 	
 	public int MovesLeft{
 		get{return movesLeft;}
@@ -38,6 +39,7 @@ public class Player {
 		this.movesLeft = totalMovementPoints;
 		alive=true;
 		selected=false;
+		gearEquipped=0;
 	}
 	
 	public bool SpendPoints(int points){

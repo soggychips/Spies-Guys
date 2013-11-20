@@ -40,6 +40,7 @@ public class GameEngine : MonoBehaviour {
 	public void CheckForWinner ()
 	{
 		if(map.AllTeammatesDead(currentPlayer)){
+			Debug.Log ("All Teammates for player "+currentPlayer+" dead.");
 			winner = map.Winner;
 			gstate.EndGame();
 			tstate.Neutralize();
@@ -64,8 +65,19 @@ public class GameEngine : MonoBehaviour {
 		get{return turn;}	
 	}
 	
+	public void CreateMatch(){
+		gstate.CreateMatch();	
+	}
+	
 	public void StartGame(){
-		gstate.StartGame();	
+		gstate.GiveControlToPlayer1();
+		currentPlayer=1;
+		tstate.BeginTurn();
+	}
+
+	public void BeginTurn ()
+	{
+		tstate.BeginTurn();
 	}
 	
 	public void SelectCharacter(int x, int z){
@@ -82,18 +94,31 @@ public class GameEngine : MonoBehaviour {
 	
 	public void GiveControlToPlayer1(){
 		turn++;
-		currentPlayer = 1;
 		map.ResetPoints();
-		SetPlayerVisibilityUsingFoV();
-		gstate.GiveControlToPlayer1();	
+		SetPlayerVisibilityUsingFoV();	
+		tstate.Neutralize();
 	}
 	
 	public void GiveControlToPlayer2(){
 		turn++;
-		currentPlayer=2;
 		map.ResetPoints();
 		SetPlayerVisibilityUsingFoV();
+		tstate.Neutralize();
+	}
+
+	public void EndTurn ()
+	{
+		tstate.EndTurn();
+	}
+	
+	public void CancelEndTurn(){
+		tstate.Neutralize();	
+	}
+	
+	public void SwitchPlayers(){
 		gstate.SwitchPlayers();
+		if(currentPlayer==1) currentPlayer=2;
+		else if(currentPlayer==2) currentPlayer=1;
 	}
 	
 	public void FlagForUpdate(){
@@ -238,9 +263,8 @@ public class GameEngine : MonoBehaviour {
 	public void MoveSelectedCharTo(int x, int z){
 		DestroyHighlights();
 		map.MoveSelectedCharTo(x,z,currentPlayer);
-		tstate.ConfirmOrCancel();
+		tstate.EndMovement();
 		UpdateTileMaterials();
-		//SetPlayerVisibilityUsingFoV();
 	}
 	
 	public void ConfirmMove(){
