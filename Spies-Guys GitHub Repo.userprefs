@@ -4,7 +4,7 @@
     <Files>
       <File FileName="Assets/Scripts/GameEngine.cs" Line="1" Column="1" />
       <File FileName="Assets/Scripts/MapInfo.cs" Line="1" Column="1" />
-      <File FileName="Assets/Scripts/TouchHandler.cs" Line="252" Column="1" />
+      <File FileName="Assets/Scripts/TouchHandler.cs" Line="36" Column="44" />
       <File FileName="Assets/Scripts/Tile.cs" Line="1" Column="1" />
       <File FileName="Assets/Scripts/Player.cs" Line="1" Column="1" />
       <File FileName="Assets/Scripts/Spy.cs" Line="1" Column="1" />

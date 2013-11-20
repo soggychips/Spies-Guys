@@ -1,0 +1,10 @@
+fileFormatVersion: 2
+guid: 98b268e58589d4cc8b96fe967aa114c5
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences:
+  - sneakHighlight: {fileID: 100000, guid: 8d3668bbfd3ab45b4a921f4d4078f599, type: 2}
+  - sprintHighlight: {fileID: 100000, guid: 47822cdc2dc22430b8ac751c088d7706, type: 2}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 

@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 877d008ed869d4b0f974225a4be3708d
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences:
+  - tile: {fileID: 400000, guid: 0361df402bfac492e8315bcc602bc860, type: 2}
+  - ft_hidden: {instanceID: 0}
+  - ft_open: {instanceID: 0}
+  - ft_taken: {instanceID: 0}
+  - ft_wall: {instanceID: 0}
+  - ft_item: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 

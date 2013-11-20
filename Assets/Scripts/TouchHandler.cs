@@ -99,10 +99,13 @@ public class TouchHandler : MonoBehaviour {
 				DisplayPlayerData();
 				break;
 			case (int)TurnState.States.MoveConfirm:
-				MovementConfirmationButtons();
+				MovementConfirmation();
+				break;
+			case (int)TurnState.States.ActionConfirm:
+				//ActionConfirmation();
 				break;
 			case (int)TurnState.States.End:
-				CompleteTurnConfirmationButtons();
+				CompleteTurnConfirmation();
 				break;
 			}
 		}else if(scene.CurrentGameState==(int)GameState.States.P2){
@@ -117,10 +120,10 @@ public class TouchHandler : MonoBehaviour {
 				DisplayPlayerData();
 				break;
 			case (int)TurnState.States.MoveConfirm:
-				MovementConfirmationButtons();
+				MovementConfirmation();
 				break;
 			case (int)TurnState.States.End:
-				CompleteTurnConfirmationButtons();
+				CompleteTurnConfirmation();
 				break;
 			}
 		}else if(scene.CurrentGameState==(int)GameState.States.GameOver){
@@ -221,28 +224,42 @@ public class TouchHandler : MonoBehaviour {
 		}
 	}
 
-	public void CompleteTurnConfirmationButtons ()
+	public void CompleteTurnConfirmation ()
 	{
-		GUI.Box (new Rect(Screen.width-100,Screen.height/2 -120,100,240),"");
-		if(GUI.Button(new Rect(Screen.width-95,Screen.height/2-115,90,110), "Confirm")) {
+		int buttonPressed = ConfirmationButtons();	
+		if(buttonPressed==1){ 		
 			scene.SwitchPlayers();
 			scene.BeginTurn();
-		}
-		if(GUI.Button (new Rect(Screen.width-95,Screen.height/2,90,110),"Cancel")) {
+		}else if(buttonPressed==2){ 	
 			scene.CancelEndTurn();
 		}
 		
 	}
 
-	public void MovementConfirmationButtons ()
+	
+	public void MovementConfirmation()
 	{
+		int buttonPressed = ConfirmationButtons();	
+		if(buttonPressed==1) 		scene.ConfirmMove();
+		else if(buttonPressed==2) 	scene.CancelMove();
+	}
+	
+	public void ActionConfirmation()
+	{
+		int buttonPressed = ConfirmationButtons();
+		if(buttonPressed==1)		buttonPressed++;//CHANGE THE TRASH
+		else if(buttonPressed==2) 	buttonPressed++;//CHANGE THE TRASH
+	}
+	
+	public int ConfirmationButtons(){
 		GUI.Box (new Rect(Screen.width-100,Screen.height/2 -120,100,240),"");
 		if(GUI.Button(new Rect(Screen.width-95,Screen.height/2-115,90,110), "Confirm")) {
-			scene.ConfirmMove();
+			return 1;
 		}
 		if(GUI.Button (new Rect(Screen.width-95,Screen.height/2,90,110),"Cancel")) {
-			scene.CancelMove();
+			return 2;
 		}
+		return 0;
 	}
 	
 	public void LoadMainMenu(){
