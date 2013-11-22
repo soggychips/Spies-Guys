@@ -374,16 +374,14 @@ public class MapInfo{
 		int depth;
 		switch(currentPlayer){
 		case 1:
-			depth = map[(int)spies[selectedPlayerIdx].TileLocation.x,(int)spies[selectedPlayerIdx].TileLocation.y].Depth;
 			map[(int)spies[selectedPlayerIdx].TileLocation.x,(int)spies[selectedPlayerIdx].TileLocation.y].LoadStoredType();
-			spies[selectedPlayerIdx].MoveBack((int)originalPosition.x,(int)originalPosition.y, depth);
+			spies[selectedPlayerIdx].MoveBack((int)originalPosition.x,(int)originalPosition.y);
 			map[(int)spies[selectedPlayerIdx].TileLocation.x,(int)spies[selectedPlayerIdx].TileLocation.y].StoreType();
 			map[(int)spies[selectedPlayerIdx].TileLocation.x,(int)spies[selectedPlayerIdx].TileLocation.y].Take();
 			break;
 		case 2:
-			depth = map[(int)guys[selectedPlayerIdx].TileLocation.x,(int)guys[selectedPlayerIdx].TileLocation.y].Depth;
 			map[(int)guys[selectedPlayerIdx].TileLocation.x,(int)guys[selectedPlayerIdx].TileLocation.y].LoadStoredType();
-			guys[selectedPlayerIdx].MoveBack((int)originalPosition.x,(int)originalPosition.y, depth);
+			guys[selectedPlayerIdx].MoveBack((int)originalPosition.x,(int)originalPosition.y);
 			map[(int)guys[selectedPlayerIdx].TileLocation.x,(int)guys[selectedPlayerIdx].TileLocation.y].StoreType();
 			map[(int)guys[selectedPlayerIdx].TileLocation.x,(int)guys[selectedPlayerIdx].TileLocation.y].Take();
 			break;
@@ -463,7 +461,10 @@ public class MapInfo{
 		if(currentPlayer==1){
 			foreach(Spy spy in spies){
 				if(spy.Selected){
-					if(spy.SpendAllPoints()) kill=true;	
+					if(spy.HasPoint()){ 
+						kill=true;
+						spy.SpendPoint();
+					}
 				}
 			}
 			foreach(Guy guy in guys){
@@ -475,7 +476,10 @@ public class MapInfo{
 		}else if(currentPlayer==2){
 			foreach(Guy guy in guys){
 				if(guy.Selected){
-					if(guy.SpendAllPoints()) kill=true;	
+					if(guy.HasPoint()){ 
+						kill=true;
+						guy.SpendPoint();
+					}
 				}
 			}
 			foreach(Spy spy in spies){

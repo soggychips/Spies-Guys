@@ -5,6 +5,8 @@ public class Player {
 	
 	public static int totalMovementPoints = 3;
 	public static int yPlayerHeight = 0;
+	public static int sneakDistance = 4;
+	public static int sprintDistnace = 2; //in addition to sneakDistance
 	
 	protected bool alive;
 	protected bool selected;
@@ -44,7 +46,7 @@ public class Player {
 		health = 10;
 	}
 	
-	public bool SpendPoints(int points){
+	/*public bool SpendPoints(int points){
 		if(points>movesLeft){
 			Debug.Log("points>movesLeft :: public void SpendPoints in Player.cs");
 			return false;
@@ -53,8 +55,8 @@ public class Player {
 			return true;
 		}
 	}
-	
-	public void GivePoints(int points){
+
+	 public void GivePoints(int points){
 		movesLeft += points;	
 	}
 	
@@ -64,6 +66,18 @@ public class Player {
 			return true;
 		}
 		return false;
+	}*/
+	public bool HasPoint(){
+		return(MovesLeft>=1);
+	}
+
+	public void SpendPoint(){
+		if(MovesLeft<=0) Debug.Log ("Player.SpendPoint() ERROR");
+		MovesLeft--;
+	}
+
+	public void GivePoint(){
+		MovesLeft++;
 	}
 	
 	public void ResetPoints(){
@@ -75,14 +89,12 @@ public class Player {
 	}
 	
 	public void Move(int x, int z, int dist){
-		bool lastMove = !SpendPoints(dist);
-		if(lastMove) SpendAllPoints();
+		SpendPoint();
 		tileLocation = new Vector2(x,z);
 	}
 	
-	public void MoveBack(int x, int z, int dist){
-		if(movesLeft==0) GivePoints(1);
-		else GivePoints(dist);
+	public void MoveBack(int x, int z){
+		GivePoint();
 		tileLocation = new Vector2(x,z);
 	}
 	
