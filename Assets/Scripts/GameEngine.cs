@@ -19,7 +19,10 @@ public class GameEngine : MonoBehaviour {
 	//private int[,] visibility;
 	private bool updateFlag;
 	private int currentPlayer;
+	//movement variables
 	private Vector2 originalPosition; private int selectedPlayerIdx;
+	//attack variables
+
 	
 	
 	public int Winner{
@@ -74,6 +77,7 @@ public class GameEngine : MonoBehaviour {
 		currentPlayer=1;
 		tstate.BeginTurn();
 	}
+	
 
 	public void BeginTurn ()
 	{
@@ -235,6 +239,12 @@ public class GameEngine : MonoBehaviour {
 		return map.TileTakenByEnemy(x,z,currentPlayer);
 	}
 
+	public void Movement(int goalX, int goalZ) //(goalX,goalZ) is the location being moved to
+	{
+		PrepareMovement();
+		BeginMovement(goalX,goalZ);
+	}
+
 	public void PrepareMovement ()
 	{
 		//save revert information
@@ -245,11 +255,11 @@ public class GameEngine : MonoBehaviour {
 		Debug.Log ("Prepared for movement");
 	}
 
-	public void BeginMovement (int par1, int par2)
+	public void BeginMovement (int goalX, int goalZ)
 	{
-		Debug.Log ("Beginning movement to: "+par1+","+par2);
+		Debug.Log ("Beginning movement to: "+goalX+","+goalZ);
 		tstate.BeginMovement();
-		AnimateMovement(par1,par2);
+		AnimateMovement(goalX,goalZ);
 	}
 
 	public void AnimateMovement (int goalX, int goalZ)
@@ -259,14 +269,14 @@ public class GameEngine : MonoBehaviour {
 		MoveSelectedCharTo(goalX,goalZ);
 		
 	}
-	
+
 	public void MoveSelectedCharTo(int x, int z){
 		DestroyHighlights();
 		map.MoveSelectedCharTo(x,z,currentPlayer);
 		tstate.EndMovement();
 		UpdateTileMaterials();
 	}
-	
+
 	public void ConfirmMove(){
 		tstate.Neutralize();
 		selectedPlayerIdx=new int(); originalPosition = new Vector2();
@@ -280,6 +290,27 @@ public class GameEngine : MonoBehaviour {
 		UpdateTileMaterials();
 		map.DeselectCharacter(currentPlayer);
 	}
+
+	public void Attack(int enemyX, int enemyZ)
+	{
+		Debug.Log ("This will kill the enemy, are you sure?");
+		tstate.EndAction();
+	}
+	
+
+	public void BeginAction(){
+		tstate.BeginAction();
+	}
+
+	public void AnimateAction(){
+		tstate.AnimateAction();
+	}
+
+	public void ConfirmAttack(){
+
+	}
+
+
 	
 	public void EliminatePlayerAt(int x, int z){
 		map.EliminatePlayerAt(x,z,currentPlayer);	

@@ -97,7 +97,9 @@ public class MapInfo{
 		spies[1] = new Spy(3,16);
 		map[3,8].Take(); map[3,16].Take(); //spies
 		map[29,5].Take(); map[30,3].Take(); //guys
-		
+
+		map[4,9].GiveItem();
+
 		SetAllTilesVisible();
 		Debug.Log("Level Loaded.");
 	}
@@ -348,18 +350,18 @@ public class MapInfo{
 		if(currentPlayer==1){ //spies
 			foreach(Spy spy in spies){
 				if(spy.Selected){ 
-					map[(int)spy.TileLocation.x,(int)spy.TileLocation.y].Open();
+					map[(int)spy.TileLocation.x,(int)spy.TileLocation.y].LoadStoredType();
 					spy.Move(x,z,depth);
-					//spy.Selected=false;
+					map[(int)spy.TileLocation.x,(int)spy.TileLocation.y].StoreType();
 					map[(int)spy.TileLocation.x,(int)spy.TileLocation.y].Take();
 				}
 			}
 		}else if(currentPlayer==2){ //guys
 			foreach(Guy guy in guys){
 				if(guy.Selected){ 
-					map[(int)guy.TileLocation.x,(int)guy.TileLocation.y].Open();
+					map[(int)guy.TileLocation.x,(int)guy.TileLocation.y].LoadStoredType();
 					guy.Move(x,z,depth);
-					//guy.Selected=false;
+					map[(int)guy.TileLocation.x,(int)guy.TileLocation.y].StoreType();
 					map[(int)guy.TileLocation.x,(int)guy.TileLocation.y].Take();
 				}
 			}
@@ -372,14 +374,16 @@ public class MapInfo{
 		switch(currentPlayer){
 		case 1:
 			depth = map[(int)spies[selectedPlayerIdx].TileLocation.x,(int)spies[selectedPlayerIdx].TileLocation.y].Depth;
-			map[(int)spies[selectedPlayerIdx].TileLocation.x,(int)spies[selectedPlayerIdx].TileLocation.y].Open();
+			map[(int)spies[selectedPlayerIdx].TileLocation.x,(int)spies[selectedPlayerIdx].TileLocation.y].LoadStoredType();
 			spies[selectedPlayerIdx].MoveBack((int)originalPosition.x,(int)originalPosition.y, depth);
+			map[(int)spies[selectedPlayerIdx].TileLocation.x,(int)spies[selectedPlayerIdx].TileLocation.y].StoreType();
 			map[(int)spies[selectedPlayerIdx].TileLocation.x,(int)spies[selectedPlayerIdx].TileLocation.y].Take();
 			break;
 		case 2:
 			depth = map[(int)guys[selectedPlayerIdx].TileLocation.x,(int)guys[selectedPlayerIdx].TileLocation.y].Depth;
-			map[(int)guys[selectedPlayerIdx].TileLocation.x,(int)guys[selectedPlayerIdx].TileLocation.y].Open();
+			map[(int)guys[selectedPlayerIdx].TileLocation.x,(int)guys[selectedPlayerIdx].TileLocation.y].LoadStoredType();
 			guys[selectedPlayerIdx].MoveBack((int)originalPosition.x,(int)originalPosition.y, depth);
+			map[(int)guys[selectedPlayerIdx].TileLocation.x,(int)guys[selectedPlayerIdx].TileLocation.y].StoreType();
 			map[(int)guys[selectedPlayerIdx].TileLocation.x,(int)guys[selectedPlayerIdx].TileLocation.y].Take();
 			break;
 		}
@@ -392,6 +396,7 @@ public class MapInfo{
 	}
 	
 	public bool HighlightedTileAt(int x, int z){
+		if(x==-1000 || z==-1000) return false;
 		if(map[x,z].Highlight) return true;
 		return false;
 	}
@@ -516,10 +521,9 @@ public class MapInfo{
 			if(depth>maxDistance){
 				q.Clear();	
 			}else{
-				foreach(Vector2 tile in GetAdjacentOpenTiles((int)t.x,(int)t.y)){
+				foreach(Vector2 tile in GetAdjacentUnblockedTiles((int)t.x,(int)t.y)){
 					bool VContainsTile = (bool)V.Contains(tile);
-					bool tileAtTileIsOpen = (bool)TileAt(tile).isOpen();
-					if(tileAtTileIsOpen && !VContainsTile){
+					if(!VContainsTile){
 						q.Enqueue(tile);
 						TileAt (tile).Depth = depth+1;
 						TileAt(tile).PathPredecessor = t;
@@ -556,15 +560,15 @@ public class MapInfo{
 	 */ 
 	
 	//only returns OPEN adjacent tiles
-	public List<Vector2> GetAdjacentOpenTiles(int x, int z){
+	public List<Vector2> GetAdjacentUnblockedTiles(int x, int z){
 		List<Vector2> adjTiles = new List<Vector2>();
 		if(x>=mapSize || z>=mapSize || x<0 || z<0){
 			Debug.Log ("Error: MapInfo.getAdjacentTiles");	
 		}
-		if(x-1>=0 && map[x-1,z].isOpen()) adjTiles.Add(new Vector2(x-1,z));
-		if(z-1>=0 && map[x,z-1].isOpen()) adjTiles.Add(new Vector2(x,z-1));
-		if(x+1<mapSize && map[x+1,z].isOpen()) adjTiles.Add(new Vector2(x+1,z));
-		if(z+1<mapSize && map[x,z+1].isOpen()) adjTiles.Add(new Vector2(x,z+1));
+		if(x-1>=0 && !map[x-1,z].isBlocked()) adjTiles.Add(new Vector2(x-1,z));
+		if(z-1>=0 && !map[x,z-1].isBlocked()) adjTiles.Add(new Vector2(x,z-1));
+		if(x+1<mapSize && !map[x+1,z].isBlocked()) adjTiles.Add(new Vector2(x+1,z));
+		if(z+1<mapSize && !map[x,z+1].isBlocked()) adjTiles.Add(new Vector2(x,z+1));
 		return adjTiles;
 	}
 	
@@ -608,7 +612,7 @@ public class MapInfo{
 			if(!TileAt(roundedLocation).Visible){
 				TileAt(roundedLocation).Visible=true;
 			}
-			if(!TileAt(roundedLocation).isOpen()) return;
+			if(TileAt(roundedLocation).isBlocked()) return;
 		}
 	}
 	

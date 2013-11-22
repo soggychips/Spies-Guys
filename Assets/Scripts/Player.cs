@@ -12,6 +12,7 @@ public class Player {
 	protected Vector3 realWorldLocation;
 	protected int movesLeft;
 	protected int gearEquipped;
+	protected int health;
 	
 	public int MovesLeft{
 		get{return movesLeft;}
@@ -40,6 +41,7 @@ public class Player {
 		alive=true;
 		selected=false;
 		gearEquipped=0;
+		health = 10;
 	}
 	
 	public bool SpendPoints(int points){

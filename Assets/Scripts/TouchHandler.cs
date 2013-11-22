@@ -11,6 +11,12 @@ public class TouchHandler : MonoBehaviour {
 	private bool mainMenu;
 	private bool gameMenu;
 	private Vector2 mouseClick;
+
+	int page = 1;
+	int gadget1=0, gadget2=0;
+	int spyToAssignGear=1;
+	int guyToAssignGear=1;
+
 	
 	
 	// Use this for initialization
@@ -34,9 +40,8 @@ public class TouchHandler : MonoBehaviour {
 				//if turnState: CharSelected
 				case (int)TurnState.States.CharSelected:
 					mouseClick = MouseClickToTileCoords();
-					if(scene.OpenTileAt((int)mouseClick.x,(int)mouseClick.y) && scene.HighlightedTileAt((int)mouseClick.x,(int)mouseClick.y)){
-						scene.PrepareMovement();
-						scene.BeginMovement((int)mouseClick.x,(int)mouseClick.y);
+				if(scene.HighlightedTileAt((int)mouseClick.x,(int)mouseClick.y) && !scene.CurrentPlayerAt((int)mouseClick.x,(int)mouseClick.y)){
+						scene.Movement((int)mouseClick.x,(int)mouseClick.y);
 					}else if(scene.CurrentPlayerAt((int)mouseClick.x,(int)mouseClick.y)){
 						scene.DeselectCharacter();
 					}else if(scene.TileTakenByEnemy((int)mouseClick.x,(int)mouseClick.y)){
@@ -112,6 +117,7 @@ public class TouchHandler : MonoBehaviour {
 			//Debug.Log("P2 turn");
 			switch(scene.CurrentTurnState){
 			case (int)TurnState.States.Begin:
+				scene.CheckForWinner();
 				scene.RemoveVisibility();
 				BeginTurnMenu();
 				break;
@@ -155,7 +161,7 @@ public class TouchHandler : MonoBehaviour {
 			gameStateString = "Menu";
 			break;
 		case (int)GameState.States.MatchCreated:
-			gameStateString = "Match Start";
+			gameStateString = "Match Created";
 			break;
 		case (int)GameState.States.P1:
 			gameStateString = "P1";
@@ -188,6 +194,12 @@ public class TouchHandler : MonoBehaviour {
 			break;
 		case (int)TurnState.States.MoveConfirm:
 			turnStateString = "Confirmation";
+			break;
+		case (int)TurnState.States.Begin:
+			turnStateString = "Begin";
+			break;
+		case (int)TurnState.States.End:
+			turnStateString = "End";
 			break;
 		}
 		GUI.Label(new Rect(Screen.width-200,0,150,30),"Game State: "+gameStateString);
@@ -263,10 +275,50 @@ public class TouchHandler : MonoBehaviour {
 	}
 	
 	public void LoadMainMenu(){
+		 
 		GUI.Box(new Rect(Screen.width/2-300,Screen.height/2-300,600,600), "Spies Guys: Murders and Lies");
-		if(GUI.Button(new Rect(Screen.width/2-50,Screen.height/2-25,100,50), "Create a Match")) { 
+		switch(page){
+		case 1:
+			if(GUI.Button(new Rect(Screen.width/2-50,Screen.height/2-25,100,50), "Create a Match")) { 
+				page=2;
+			}
+			if(GUI.Button(new Rect(Screen.width/2-50,Screen.height/2+50,100,50), "About")) { 
+
+			}
+			break;
+		case 2:
+			switch(spyToAssignGear){
+			case 1:
+				GUI.Label(new Rect(Screen.width/2,Screen.height/2-250,600,50), "Spy #1");
+				GUI.Box(new Rect(Screen.width/2-300,Screen.height/2-300,600,600), "Choose A Gadget");
+				if(GUI.Button(new Rect(Screen.width/2-150,Screen.height/2-25,100,50), "Emp Pistol")) { 
+					gadget1=1;
+					spyToAssignGear=2;
+				}
+				if(GUI.Button(new Rect(Screen.width/2+50,Screen.height/2-25,100,50), "Shock Rifle")) { 
+					gadget1=2;
+					spyToAssignGear=2;
+				}
+				break;
+			case 2:
+				GUI.Label(new Rect(Screen.width/2,Screen.height/2-250,600,50), "Spy #2");
+				GUI.Box(new Rect(Screen.width/2-300,Screen.height/2-300,600,600), "Choose A Gadget");
+				if(GUI.Button(new Rect(Screen.width/2-150,Screen.height/2-25,100,50), "Emp Pistol")) { 
+					gadget2=1;
+					page++;
+				}
+				if(GUI.Button(new Rect(Screen.width/2+50,Screen.height/2-25,100,50), "Shock Rifle")) { 
+					gadget2=2;
+					page++;
+				}
+				break;
+			}
+			break;
+		case 3:
 			scene.CreateMatch();
 			scene.SGDataInit();
+			page=1;
+			break;
 		}
 	}
 	
