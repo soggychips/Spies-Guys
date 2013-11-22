@@ -23,6 +23,7 @@ public class GameEngine : MonoBehaviour {
 	private Vector2 originalPosition; private int selectedPlayerIdx;
 	//attack variables
 
+
 	
 	
 	public int Winner{

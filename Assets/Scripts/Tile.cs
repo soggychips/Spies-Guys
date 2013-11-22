@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public enum TileType : int {Wall,Item,Open,Taken,Door,Data};
+public enum TileType : int {Wall,Item,Open,Taken,Door_Closed,Door_Open,Data};
 
 
 public class Tile {
@@ -70,16 +70,25 @@ public class Tile {
 		type = (int)TileType.Open;	
 	}
 	
-	public void GiveDoor(){
-		type = (int)TileType.Door;	
+	public void CloseDoor(){
+		type = (int)TileType.Door_Closed;	
 	}
+
+	public void OpenDoor(){
+		type = (int)TileType.Door_Open;
+	}
+	
 
 	public bool isOpen(){
 		return (type==(int)TileType.Open);	
 	}
 
 	public bool isBlocked(){
-		return (type==(int)TileType.Taken || type==(int)TileType.Wall || type==(int)TileType.Door || type==(int)TileType.Data);
+		return (type==(int)TileType.Taken || type==(int)TileType.Wall || type==(int)TileType.Door_Closed || type==(int)TileType.Data);
+	}
+
+	public bool hasClosedDoor(){
+		return (type==(int)TileType.Door_Closed);
 	}
 
 	public void StoreType(){

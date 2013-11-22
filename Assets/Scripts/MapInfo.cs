@@ -15,7 +15,7 @@ public class MapInfo{
 	
 	public Guy[] guys;
 	public Spy[] spies;
-	
+
 	public int Winner{
 		get{return winner;}	
 	}
@@ -254,6 +254,7 @@ public class MapInfo{
 		return playerBounds;
 	}
 	
+
 	public int[,] ReturnAllVisibleTiles(){
 		FindAllVisibleTiles();
 		return visibility;	
@@ -634,6 +635,10 @@ public class MapInfo{
 		}
 	}
 
+
+	/*
+	 *ReturnAllMaxDistnaceTiles returns all edge tiles of the square [(maxDistnace*2)*(maxDistnace*2)] surrounding (x,z)  
+	 */
 	public List<Vector2> ReturnAllMaxDistanceTiles(int x, int z, int maxDistance){
 		List<Vector2> maxDistTiles = new List<Vector2>();
 		int leftMostX = x-maxDistance; int rightMostX = x+maxDistance;

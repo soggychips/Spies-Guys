@@ -3,7 +3,7 @@ using System.Collections;
 
 public class Player {
 	
-	public static int totalMovementPoints = 8;
+	public static int totalMovementPoints = 3;
 	public static int yPlayerHeight = 0;
 	
 	protected bool alive;
