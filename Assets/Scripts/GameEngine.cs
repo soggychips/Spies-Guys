@@ -18,7 +18,7 @@ public class GameEngine : MonoBehaviour {
 	private int turn;
 	//private int[,] visibility;
 	private bool updateFlag;
-	private int currentPlayer;
+	public int currentPlayer;
 	//movement variables
 	private Vector2 originalPosition; private int selectedPlayerIdx;
 	//attack variables
@@ -166,15 +166,19 @@ public class GameEngine : MonoBehaviour {
 	}
 	
 	public void HighlightTiles(int x, int z){
-		int totalSneakDistance = map.MovesLeftForPlayer(x,z,currentPlayer)-1;
+		int movesForPlayer = map.MovesLeftForPlayer(x,z,currentPlayer); 
+		int totalSneakDistance = Player.sneakDistance;
+		int totalDistance = totalSneakDistance+Player.sprintDistnace;
 		List<Vector2> BFSFromOrigin = new List<Vector2>();
-		if(totalSneakDistance>=1)
-			BFSFromOrigin = map.BFS (x,z,totalSneakDistance);
-		else if(totalSneakDistance==0) 
-			BFSFromOrigin = map.BFS (x,z,2);
+		if(movesForPlayer==0){ 
+			//do nothing
+		}else
+			BFSFromOrigin = map.BFS (x,z,totalDistance);
+		//else if(totalSneakDistance==0) 
+		//	BFSFromOrigin = map.BFS (x,z,2);
 		foreach(Vector2 tile in BFSFromOrigin){
 			map.TileAt(tile).Highlight=true;
-			if(map.TileAt(tile).Depth<=totalSneakDistance+1)
+			if(map.TileAt(tile).Depth<=totalSneakDistance)
 				Instantiate(sneakHighlight,new Vector3(tile.x*Tile.spacing,.2f,tile.y*Tile.spacing),Quaternion.identity);
 			else
 				Instantiate(sprintHighlight,new Vector3(tile.x*Tile.spacing,.2f,tile.y*Tile.spacing),Quaternion.identity);
