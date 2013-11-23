@@ -2,7 +2,8 @@
 using System.Collections;
 
 public enum TileType : int {Wall,Item,Open,Taken,Door_Closed,Door_Open,Data};
-
+public enum WallTypes : int {SE_Corner, SW_Corner, NW_Corner, NE_Corner,
+							Horizontal_Mid, Vertical_Mid, W_Horizontal_End, E_Horizontal_End, S_Vertical_End, N_Vertical_End};
 
 public class Tile {
 	
@@ -10,6 +11,7 @@ public class Tile {
 	public static int yTileHeight = 0;
 	
 	private int type;
+	private int wallType;
 	private bool visible;
 	private bool highlighted;
 	private Vector3 realWorldLocation;
@@ -28,6 +30,10 @@ public class Tile {
 	
 	public int Type{
 		get{ return type; }	
+	}
+
+	public int WallType{
+		get{return wallType;}
 	}
 	
 	public bool Visible{
@@ -56,6 +62,11 @@ public class Tile {
 	
 	public void GiveWall(){
 		type = (int)TileType.Wall;	
+	}
+
+	public void GiveWall(int typeOfWall){
+		type = (int)TileType.Wall;
+		wallType = typeOfWall;
 	}
 	
 	public void GiveItem(){
@@ -89,6 +100,10 @@ public class Tile {
 
 	public bool hasClosedDoor(){
 		return (type==(int)TileType.Door_Closed);
+	}
+
+	public bool hasWall(){
+		return (type==(int)TileType.Wall);
 	}
 
 	public void StoreType(){

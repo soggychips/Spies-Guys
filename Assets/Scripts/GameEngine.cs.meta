@@ -9,6 +9,8 @@ MonoImporter:
   - ft_taken: {instanceID: 0}
   - ft_wall: {instanceID: 0}
   - ft_item: {instanceID: 0}
+  - sneakHighlight: {fileID: 400000, guid: 8d3668bbfd3ab45b4a921f4d4078f599, type: 2}
+  - sprintHighlight: {fileID: 400000, guid: 47822cdc2dc22430b8ac751c088d7706, type: 2}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 
