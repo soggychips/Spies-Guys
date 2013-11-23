@@ -3,7 +3,7 @@ using System.Collections;
 
 public class Guy : Player {
 	
-	public static int spacing = 10;
+	public enum GuyGear{shotgun,rifle};
 	
 	public Guy(int x, int z){
 		this.tileLocation = new Vector2(x,z);
@@ -11,5 +11,10 @@ public class Guy : Player {
 		this.alive=true;
 	}
 	
-	
+	public void Equip(int gear){
+		if(gear!=(int)GuyGear.shotgun && gear!=(int)GuyGear.rifle) 
+			Debug.Log("Guy.Equip() ERROR");
+		else 
+			this.gearEquipped = gear;	
+	}
 }

@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public enum TileType : int {Wall,Item,Open,Taken,Door};
+public enum TileType : int {Wall,Item,Open,Taken,Door_Closed,Door_Open,Data};
 
 
 public class Tile {
@@ -13,7 +13,8 @@ public class Tile {
 	private bool visible;
 	private bool highlighted;
 	private Vector3 realWorldLocation;
-	
+	private bool stored; private int storedType;
+
 	private int depth;
 	private Vector2 pathPredecessor;
 	
@@ -22,6 +23,7 @@ public class Tile {
 		visible = false; highlighted = false;
 		depth = 0;
 		realWorldLocation = new Vector3(x*spacing,yTileHeight,z*spacing);
+		stored=false; storedType=(int)TileType.Open;
 	}
 	
 	public int Type{
@@ -32,7 +34,11 @@ public class Tile {
 		get{ return visible;}
 		set{ visible = value;}
 	}
-	
+
+	public bool Stored{
+		get{return stored;}
+	}
+
 	public int Depth{
 		get{return depth;}
 		set{depth=value;}
@@ -64,15 +70,39 @@ public class Tile {
 		type = (int)TileType.Open;	
 	}
 	
-	public void GiveDoor(){
-		type = (int)TileType.Door;	
+	public void CloseDoor(){
+		type = (int)TileType.Door_Closed;	
+	}
+
+	public void OpenDoor(){
+		type = (int)TileType.Door_Open;
 	}
 	
 
-	
 	public bool isOpen(){
 		return (type==(int)TileType.Open);	
 	}
-	
-	
+
+	public bool isBlocked(){
+		return (type==(int)TileType.Taken || type==(int)TileType.Wall || type==(int)TileType.Door_Closed || type==(int)TileType.Data);
+	}
+
+	public bool hasClosedDoor(){
+		return (type==(int)TileType.Door_Closed);
+	}
+
+	public void StoreType(){
+		stored=true;
+		storedType=type;
+	}
+
+	public void StoreTypeAs(int newType){
+		stored=true;
+		storedType=newType;
+	}
+
+	public void LoadStoredType(){
+		type=storedType;
+		stored=false;
+	}
 }

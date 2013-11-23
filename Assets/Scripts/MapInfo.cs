@@ -11,12 +11,11 @@ public class MapInfo{
 	
 	private int winner;
 	private Tile[,] map;
-	private int[,] visibility;
-	private int currentPlayer; //used for visibility reference, set to 1 or 2 only!
+	private int[,] visibility; //used for visibility reference, set to 1 or 2 only!
 	
 	public Guy[] guys;
 	public Spy[] spies;
-	
+
 	public int Winner{
 		get{return winner;}	
 	}
@@ -34,8 +33,10 @@ public class MapInfo{
 		set{ mapSize = value;}
 	}
 	
-	public int CurrentPlayer{
-		set{currentPlayer=value;}	
+	
+	public Tile[,] Map{
+		get{return map;}
+		set{map=value;}
 	}
 	
 	// Use this for initialization
@@ -44,6 +45,8 @@ public class MapInfo{
 		visibility = new int[mapSize,mapSize];
 		MapInit();
 	}
+	
+	
 	
 	public void MapInit(){
 		for(int i=0;i<mapSize;i++){
@@ -94,8 +97,11 @@ public class MapInfo{
 		spies[1] = new Spy(3,16);
 		map[3,8].Take(); map[3,16].Take(); //spies
 		map[29,5].Take(); map[30,3].Take(); //guys
-		
+
+		map[4,9].GiveItem();
+
 		SetAllTilesVisible();
+		Debug.Log("Level Loaded.");
 	}
 	
 	
@@ -144,7 +150,13 @@ public class MapInfo{
 					map[i,j].Visible=false;
 			}
 		}
-		Debug.Log ("All Tiles Invisible");
+		//Debug.Log ("All Tiles Invisible");
+	}
+
+	public void ResetPoints ()
+	{
+		foreach(Spy spy in spies) spy.ResetPoints();
+		foreach(Guy guy in guys) guy.ResetPoints();
 	}
 	
 	public void ResetHighlights(){
@@ -153,7 +165,7 @@ public class MapInfo{
 				map[i,j].Highlight=false;
 			}
 		}
-		Debug.Log ("All Tile Highlights Reset");
+		//Debug.Log ("All Tile Highlights Reset");
 	}
 	
 	public void FindAllVisibleTiles(){
@@ -194,7 +206,7 @@ public class MapInfo{
 	}*/
 	
 	//above method, rewritten using lists and checking for dead players
-	public void FindVisibleTilesForPlayer(){
+	public void FindVisibleTilesForPlayer(int currentPlayer){
 		//for the spies:
 		if(currentPlayer==1){
 			List<Vector2> spyLocations = new List<Vector2>();
@@ -242,13 +254,45 @@ public class MapInfo{
 		return playerBounds;
 	}
 	
+
 	public int[,] ReturnAllVisibleTiles(){
 		FindAllVisibleTiles();
 		return visibility;	
 	}
+
+	public int ReturnSelectedPlayerIdx (int currentPlayer)
+	{	//must use indexes to iterate through spies/guys instead of foreach
+		switch(currentPlayer){
+		case 1:
+			for(int i=0;i<spies.Length;i++)
+				if(spies[i].Selected) return i;
+			break;
+		case 2:
+			for(int i=0;i<guys.Length;i++)
+				if(guys[i].Selected) return i;
+			break;
+		default:
+			Debug.Log ("Error: MapInfo.ReturnSelectedPlayerIdx");
+			break;
+		}
+		return -1;
+	}
+
+	public Vector2 ReturnSelectedPlayerPosition (int selectedPlayerIdx, int currentPlayer)
+	{
+		switch(currentPlayer){
+		case 1:
+			return spies[selectedPlayerIdx].TileLocation;
+		case 2:
+			return guys[selectedPlayerIdx].TileLocation;
+		default:
+			Debug.Log ("Error: MapInfo.ReturnSelectedPlayerPosition");
+			return Vector2.zero;
+		}
+	}
 	
 	
-	public bool CurrentPlayerAtTile(int x, int z){
+	public bool CurrentPlayerAtTile(int x, int z, int currentPlayer){
 		Vector2 tile = new Vector2(x,z);
 		if(currentPlayer==1){
 			foreach(Spy spy in spies){
@@ -264,7 +308,7 @@ public class MapInfo{
 		return false;
 	}
 	
-	public void SelectCharacterAtTile(int x, int z){
+	public void SelectCharacterAtTile(int x, int z, int currentPlayer){
 		if(currentPlayer==1){ //spies
 			if(spies[0].TileLocation.x==x && spies[0].TileLocation.y==z) spies[0].Selected=true;
 			else if(spies[1].TileLocation.x==x && spies[1].TileLocation.y==z) spies[1].Selected=true;
@@ -276,7 +320,22 @@ public class MapInfo{
 		Debug.Log ("Player selected");
 	}
 	
-	public void DeselectCharacter(){
+	public bool SelectedCharacterAtTile(int x, int z, int currentPlayer){
+		Vector2 location = new Vector2(x,z);
+		switch(currentPlayer){
+			case 1:
+				foreach(Spy spy in spies)
+					if(spy.Selected && spy.TileLocation==location) return true;
+				break;
+			case 2:
+				foreach(Guy guy in guys)
+					if(guy.Selected && guy.TileLocation==location) return true;
+				break;
+		}
+		return false;
+	}
+	
+	public void DeselectCharacter(int currentPlayer){
 		if(currentPlayer==1){ //spies
 			foreach(Spy spy in spies)
 				spy.Selected=false;
@@ -287,25 +346,45 @@ public class MapInfo{
 		Debug.Log ("Players Deselected");
 	}
 	
-	public void MoveSelectedCharTo(int x, int z){
+	public void MoveSelectedCharTo(int x, int z, int currentPlayer){
+		int depth  = map[x,z].Depth;
 		if(currentPlayer==1){ //spies
 			foreach(Spy spy in spies){
 				if(spy.Selected){ 
-					map[(int)spy.TileLocation.x,(int)spy.TileLocation.y].Open();
-					spy.Move(x,z);
-					spy.Selected=false;
+					map[(int)spy.TileLocation.x,(int)spy.TileLocation.y].LoadStoredType();
+					spy.Move(x,z,depth);
+					map[(int)spy.TileLocation.x,(int)spy.TileLocation.y].StoreType();
 					map[(int)spy.TileLocation.x,(int)spy.TileLocation.y].Take();
 				}
 			}
 		}else if(currentPlayer==2){ //guys
 			foreach(Guy guy in guys){
 				if(guy.Selected){ 
-					map[(int)guy.TileLocation.x,(int)guy.TileLocation.y].Open();
-					guy.Move(x,z);
-					guy.Selected=false;
+					map[(int)guy.TileLocation.x,(int)guy.TileLocation.y].LoadStoredType();
+					guy.Move(x,z,depth);
+					map[(int)guy.TileLocation.x,(int)guy.TileLocation.y].StoreType();
 					map[(int)guy.TileLocation.x,(int)guy.TileLocation.y].Take();
 				}
 			}
+		}
+	}
+
+	public void RevertMovement (int selectedPlayerIdx, Vector2 originalPosition, int currentPlayer)
+	{
+		int depth;
+		switch(currentPlayer){
+		case 1:
+			map[(int)spies[selectedPlayerIdx].TileLocation.x,(int)spies[selectedPlayerIdx].TileLocation.y].LoadStoredType();
+			spies[selectedPlayerIdx].MoveBack((int)originalPosition.x,(int)originalPosition.y);
+			map[(int)spies[selectedPlayerIdx].TileLocation.x,(int)spies[selectedPlayerIdx].TileLocation.y].StoreType();
+			map[(int)spies[selectedPlayerIdx].TileLocation.x,(int)spies[selectedPlayerIdx].TileLocation.y].Take();
+			break;
+		case 2:
+			map[(int)guys[selectedPlayerIdx].TileLocation.x,(int)guys[selectedPlayerIdx].TileLocation.y].LoadStoredType();
+			guys[selectedPlayerIdx].MoveBack((int)originalPosition.x,(int)originalPosition.y);
+			map[(int)guys[selectedPlayerIdx].TileLocation.x,(int)guys[selectedPlayerIdx].TileLocation.y].StoreType();
+			map[(int)guys[selectedPlayerIdx].TileLocation.x,(int)guys[selectedPlayerIdx].TileLocation.y].Take();
+			break;
 		}
 	}
 	
@@ -316,6 +395,7 @@ public class MapInfo{
 	}
 	
 	public bool HighlightedTileAt(int x, int z){
+		if(x==-1000 || z==-1000) return false;
 		if(map[x,z].Highlight) return true;
 		return false;
 	}
@@ -324,7 +404,7 @@ public class MapInfo{
 		return map[x,z].Visible;	
 	}
 	
-	public bool TileTakenByEnemy(int x, int z){
+	public bool TileTakenByEnemy(int x, int z, int currentPlayer){
 		if(currentPlayer==1){
 			foreach(Guy guy in guys){
 				if(guy.TileLocation.x==x && guy.TileLocation.y==z){ 
@@ -342,17 +422,68 @@ public class MapInfo{
 		return false;
 	}
 	
-	public void EliminatePlayerAt(int x, int z){
+	public List<int> MovesLeftForCurrentPlayer(int currentPlayer){
+		List<int> moves = new List<int>();
 		if(currentPlayer==1){
+			foreach(Spy spy in spies){
+				if(spy.Alive) moves.Add(spy.MovesLeft);
+				else moves.Add (-1);
+			}
+		}else if(currentPlayer==2){
 			foreach(Guy guy in guys){
-				if(guy.TileLocation.x==x && guy.TileLocation.y==z){ 
+				if(guy.Alive) moves.Add(guy.MovesLeft);
+				else moves.Add (-1);
+			}
+		}else{
+			Debug.Log ("MapInfo.MovesLeftForCurrentPlayer");
+		}
+		return moves;
+	}
+	
+	public int MovesLeftForPlayer(int x, int z, int currentPlayer){
+		if(currentPlayer==1){
+			foreach(Spy spy in spies){
+				if(spy.TileLocation.x==x && spy.TileLocation.y ==z)
+					return spy.MovesLeft;
+			}
+		}else if(currentPlayer==2){
+			foreach(Guy guy in guys){
+				if(guy.TileLocation.x==x && guy.TileLocation.y ==z)
+					return guy.MovesLeft;
+			}
+		}
+		Debug.Log ("Error: MapInfo.MovesLeftForPlayer");
+		return 0;
+	}
+	
+	public void EliminatePlayerAt(int x, int z, int currentPlayer){
+		bool kill=false;
+		if(currentPlayer==1){
+			foreach(Spy spy in spies){
+				if(spy.Selected){
+					if(spy.HasPoint()){ 
+						kill=true;
+						spy.SpendPoint();
+					}
+				}
+			}
+			foreach(Guy guy in guys){
+				if(guy.TileLocation.x==x && guy.TileLocation.y==z && kill){ 
 					map[x,z].Open();
 					guy.Die();
 				}
 			}
 		}else if(currentPlayer==2){
+			foreach(Guy guy in guys){
+				if(guy.Selected){
+					if(guy.HasPoint()){ 
+						kill=true;
+						guy.SpendPoint();
+					}
+				}
+			}
 			foreach(Spy spy in spies){
-				if(spy.TileLocation.x==x && spy.TileLocation.y==z){ 
+				if(spy.TileLocation.x==x && spy.TileLocation.y==z && kill){ 
 					map[x,z].Open ();
 					spy.Die();
 				}
@@ -361,7 +492,7 @@ public class MapInfo{
 			Debug.Log ("error: currentPlayer in MapInfo set incorrectly (TileTakenByEnemy(int x,int z))");
 	}
 	
-	public bool AllTeammatesDead(){
+	public bool AllTeammatesDead(int currentPlayer){
 		if(currentPlayer==1){
 			foreach(Spy spy in spies)
 				if(spy.Alive) return false;
@@ -395,10 +526,9 @@ public class MapInfo{
 			if(depth>maxDistance){
 				q.Clear();	
 			}else{
-				foreach(Vector2 tile in GetAdjacentOpenTiles((int)t.x,(int)t.y)){
+				foreach(Vector2 tile in GetAdjacentUnblockedTiles((int)t.x,(int)t.y)){
 					bool VContainsTile = (bool)V.Contains(tile);
-					bool tileAtTileIsOpen = (bool)TileAt(tile).isOpen();
-					if(tileAtTileIsOpen && !VContainsTile){
+					if(!VContainsTile){
 						q.Enqueue(tile);
 						TileAt (tile).Depth = depth+1;
 						TileAt(tile).PathPredecessor = t;
@@ -435,19 +565,19 @@ public class MapInfo{
 	 */ 
 	
 	//only returns OPEN adjacent tiles
-	public List<Vector2> GetAdjacentOpenTiles(int x, int z){
+	public List<Vector2> GetAdjacentUnblockedTiles(int x, int z){
 		List<Vector2> adjTiles = new List<Vector2>();
 		if(x>=mapSize || z>=mapSize || x<0 || z<0){
 			Debug.Log ("Error: MapInfo.getAdjacentTiles");	
 		}
-		if(x-1>=0 && map[x-1,z].isOpen()) adjTiles.Add(new Vector2(x-1,z));
-		if(z-1>=0 && map[x,z-1].isOpen()) adjTiles.Add(new Vector2(x,z-1));
-		if(x+1<mapSize && map[x+1,z].isOpen()) adjTiles.Add(new Vector2(x+1,z));
-		if(z+1<mapSize && map[x,z+1].isOpen()) adjTiles.Add(new Vector2(x,z+1));
+		if(x-1>=0 && !map[x-1,z].isBlocked()) adjTiles.Add(new Vector2(x-1,z));
+		if(z-1>=0 && !map[x,z-1].isBlocked()) adjTiles.Add(new Vector2(x,z-1));
+		if(x+1<mapSize && !map[x+1,z].isBlocked()) adjTiles.Add(new Vector2(x+1,z));
+		if(z+1<mapSize && !map[x,z+1].isBlocked()) adjTiles.Add(new Vector2(x,z+1));
 		return adjTiles;
 	}
 	
-	public void FoVForCurrentPlayer(int maxViewDist){
+	public void FoVForCurrentPlayer(int maxViewDist, int currentPlayer){
 		RemoveVisibility();
 		if(currentPlayer==1){
 			foreach(Spy spy in spies){
@@ -487,7 +617,7 @@ public class MapInfo{
 			if(!TileAt(roundedLocation).Visible){
 				TileAt(roundedLocation).Visible=true;
 			}
-			if(!TileAt(roundedLocation).isOpen()) return;
+			if(TileAt(roundedLocation).isBlocked()) return;
 		}
 	}
 	
@@ -509,6 +639,10 @@ public class MapInfo{
 		}
 	}
 
+
+	/*
+	 *ReturnAllMaxDistnaceTiles returns all edge tiles of the square [(maxDistnace*2)*(maxDistnace*2)] surrounding (x,z)  
+	 */
 	public List<Vector2> ReturnAllMaxDistanceTiles(int x, int z, int maxDistance){
 		List<Vector2> maxDistTiles = new List<Vector2>();
 		int leftMostX = x-maxDistance; int rightMostX = x+maxDistance;

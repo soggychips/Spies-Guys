@@ -3,7 +3,7 @@ using System.Collections;
 
 public class GameState {
 
-	public enum States {Menu, MatchStart, P1, P2, GameOver};
+	public enum States {Menu, MatchCreated, P1, P2, GameOver};
 	
 	
 	
@@ -18,8 +18,8 @@ public class GameState {
 		this.CurrentState = (int)States.Menu;	
 	}
 	
-	public void StartGame(){
-		this.CurrentState = (int) States.MatchStart;	
+	public void CreateMatch(){
+		this.CurrentState = (int) States.MatchCreated;	
 	}
 	
 	public void GiveControlToPlayer1(){

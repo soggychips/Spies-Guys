@@ -3,6 +3,8 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 
 Project("{8515646D-52E8-D174-B842-E04DEFF5755F}") = "Spies-Guys GitHub Repo", "Assembly-CSharp.csproj", "{D6C0D515-2C35-5CBD-0959-422BA699F393}"
 EndProject
+Project("{8515646D-52E8-D174-B842-E04DEFF5755F}") = "Spies-Guys GitHub Repo", "Assembly-UnityScript.unityproj", "{1D43F76F-4BED-5B93-55CB-9CEF60C36054}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -13,11 +15,15 @@ Global
 		{D6C0D515-2C35-5CBD-0959-422BA699F393}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D6C0D515-2C35-5CBD-0959-422BA699F393}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D6C0D515-2C35-5CBD-0959-422BA699F393}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1D43F76F-4BED-5B93-55CB-9CEF60C36054}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1D43F76F-4BED-5B93-55CB-9CEF60C36054}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1D43F76F-4BED-5B93-55CB-9CEF60C36054}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1D43F76F-4BED-5B93-55CB-9CEF60C36054}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
-														GlobalSection(MonoDevelopProperties) = preSolution
+																																					GlobalSection(MonoDevelopProperties) = preSolution
 		StartupItem = Assembly-CSharp.csproj
 		Policies = $0
 		$0.TextStylePolicy = $1
