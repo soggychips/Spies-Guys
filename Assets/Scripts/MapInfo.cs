@@ -118,7 +118,27 @@ public class MapInfo{
 		GiveWallInRange(5,5,5,28);
 		GiveWallInRange(5,28,37,28);
 		GiveWallInRange(37,5,37,28);
-		//walls arranged from NW to SE corners
+		//walls arranged from SW to NE corners
+		GiveWallInRange(10,5,10,16);
+		GiveWallInRange(10,18,10,24);
+		GiveWallInRange(10,26,10,28);
+		GiveWallInRange(10,13,11,13);
+		GiveWallInRange(,,,);
+		GiveWallInRange(,,,);
+		GiveWallInRange(,,,);
+		GiveWallInRange(,,,);
+		GiveWallInRange(,,,);
+		GiveWallInRange(,,,);
+		GiveWallInRange(,,,);
+		GiveWallInRange(,,,);
+		GiveWallInRange(,,,);
+		GiveWallInRange(,,,);
+		GiveWallInRange(,,,);
+		GiveWallInRange(,,,);
+		GiveWallInRange(,,,);
+		GiveWallInRange(,,,);
+		GiveWallInRange(,,,);
+
 
 		
 		guys = new Guy[2];
@@ -173,6 +193,9 @@ public class MapInfo{
 					break;
 				case (int)WallTypes.W_Horizontal_End:
 					map[x2,z2].GiveWall((int)WallTypes.NW_Corner);
+					break;
+				default:
+					//t-section
 					break;
 			   }
 			}else{
