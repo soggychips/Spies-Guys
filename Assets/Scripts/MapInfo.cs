@@ -7,7 +7,7 @@ public class MapInfo{
 	public static int spacing = 10;
 	public int viewDistance = 4;
 	
-	private int mapSize = 35;
+	private int mapSize = 50;
 	
 	private int winner;
 	private Tile[,] map;
@@ -26,6 +26,11 @@ public class MapInfo{
 	
 	public int GetTileType(int x, int z){
 		return map[x,z].Type;	
+	}
+
+	public int GetWallType (int x, int z)
+	{
+		return map[x,z].WallType;
 	}
 	
 	public int MapSize{
@@ -56,24 +61,24 @@ public class MapInfo{
 		}	
 	}
 	
-	public void SetUpSGData(){
+	public void SetUpSGData_Old(){
 		Debug.Log ("Loading level...");
 		//walls,doors,player tiles
 		//outside walls
 		GiveWallInRange(0,0,12,0);
 		GiveWallInRange(16,0,32,0);
-		GiveWallInRange(0,1,0,23);
+		GiveWallInRange(0,0,0,23);
 		GiveWallInRange(1,23,32,23);
-		GiveWallInRange(32,22,32,1);
+		GiveWallInRange(32,1,32,22);
 		//walls arranged from NW to SE corners
-		GiveWallInRange(5,21,5,22);
+		GiveWallInRange(5,22,5,21);
 		GiveWallInRange(5,13,5,19);
 		GiveWallInRange(5,1,5,11);
 		map[6,8].GiveWall();
 		GiveWallInRange(8,8,13,8);
 		GiveWallInRange(8,1,8,4);
-		GiveWallInRange(9,19,9,15);
-		GiveWallInRange(9,13,9,9);
+		GiveWallInRange(9,15,9,19);
+		GiveWallInRange(9,9,9,13);
 		map[9,4].GiveWall();
 		GiveWallInRange(9,19,14,19);
 		GiveWallInRange(11,4,16,4);
@@ -82,10 +87,10 @@ public class MapInfo{
 		GiveWallInRange(16,19,20,19);
 		GiveWallInRange(15,8,20,8);
 		GiveWallInRange(16,1,16,4);
-		GiveWallInRange(20,19,20,14);
-		GiveWallInRange(20,12,20,8);
-		GiveWallInRange(27,23,27,21);
-		GiveWallInRange(27,19,27,9);
+		GiveWallInRange(20,14,20,19);
+		GiveWallInRange(20,8,20,12);
+		GiveWallInRange(27,21,27,23);
+		GiveWallInRange(27,9,27,19);
 		GiveWallInRange(27,1,27,7);
 		GiveWallInRange(27,10,32,10);
 		
@@ -103,31 +108,151 @@ public class MapInfo{
 		SetAllTilesVisible();
 		Debug.Log("Level Loaded.");
 	}
+
+	public void SetUpSGData(){
+		Debug.Log ("Loading level: SG_DATA...");
+		//walls,doors,player tiles
+		//outside walls
+		GiveWallInRange(5,5,18,5);
+		GiveWallInRange(22,5,37,5);
+		GiveWallInRange(5,5,5,28);
+		GiveWallInRange(5,28,37,28);
+		GiveWallInRange(37,5,37,28);
+		//walls arranged from SW to NE corners
+		GiveWallInRange(10,5,10,16);
+		GiveWallInRange(10,18,10,24);
+		GiveWallInRange(10,26,10,28);
+		GiveWallInRange(10,13,11,13);
+		GiveWallInRange(13,5,13,9);
+		GiveWallInRange(13,9,14,9);
+		GiveWallInRange(13,13,18,13);
+		GiveWallInRange(14,13,14,18);
+		GiveWallInRange(14,20,14,24);
+		GiveWallInRange(14,24,19,24);
+		GiveWallInRange(18,5,18,6);
+		GiveWallInRange(16,9,22,9);
+		GiveWallInRange(18,8,18,9);
+		GiveWallInRange(20,13,25,13);
+		GiveWallInRange(21,24,25,24);
+		GiveWallInRange(22,5,22,9);
+		GiveWallInRange(25,13,25,17);
+		GiveWallInRange(25,19,25,24);
+		GiveWallInRange(32,5,32,12);
+		GiveWallInRange(32,14,32,24);
+		GiveWallInRange(32,15,37,15);
+		GiveWallInRange(32,26,32,28);
+
+
+		//TODO: REPLACE WITH CREATE___ METHODS
+		guys = new Guy[2];
+		guys[0] = new Guy(35,25);
+		guys[1] = new Guy(35,11);
+		spies = new Spy[2];
+		spies[0] = new Spy(6,18);
+		spies[1] = new Spy(6,20);
+		map[6,18].Take(); map[6,20].Take(); //spies
+		map[35,25].Take(); map[35,11].Take(); //guys
+		
+		//map[4,9].GiveItem();
+		
+		SetAllTilesVisible();
+		Debug.Log("Level Loaded.");
+	}
+
+	public void CreateSpies(){
+
+	}
 	
 	
 	//creates a vertical or horizontal wall in the tiles [(x1,z1),(x2,z2)]
 	//Note: (x1==x2 || z1==z2) must be true
+	//wall coordinate arguments must be given in W->E or S->N for proper material assignment
 	public void GiveWallInRange(int x1, int z1, int x2, int z2){
-		int posOrNeg; int counter;
-		if(x1==x2){ //vertical wall
-			if(z2>z1) posOrNeg = 1;
-			else posOrNeg = -1;
-			counter = z1;
-			while(counter!=z2){
-				map[x1,counter].GiveWall();
-				counter+=posOrNeg;
+		int counter;
+		/*
+		 * Vertical Wall
+		 */ 
+		if(x1==x2){ 
+			//Southmost piece of wall
+			if(map[x1,z1].hasWall()){ 
+				switch(map[x1,z1].WallType){
+				case (int)WallTypes.E_Horizontal_End:
+					map[x1,z1].GiveWall((int)WallTypes.SE_Corner);
+					break;
+				case (int)WallTypes.W_Horizontal_End:
+					map[x1,z1].GiveWall((int)WallTypes.SW_Corner);
+					break;
+				default:
+					map[x1,z1].GiveWall((int)WallTypes.S_T);
+					break;
+				}
+			}else{
+				map[x1,z1].GiveWall((int)WallTypes.S_Vertical_End);
 			}
-			map[x2,z2].GiveWall();
-			
-		}else if(z1==z2){ //horizontal wall
-			if(x2>x1) posOrNeg = 1;
-			else posOrNeg = -1;
-			counter = x1;
-			while(counter!=x2){
-				map[counter,z1].GiveWall();
-				counter+=posOrNeg;
+			//midpieces
+			counter = z1+1;
+			while(counter<z2){
+				map[x1,counter].GiveWall((int)WallTypes.Vertical_Mid);
+				counter+=1;
 			}
-			map[x2,z2].GiveWall();
+			//northmost piece of wall
+			if(map[x2,z2].hasWall()){
+			   switch(map[x2,z2].WallType){
+				case (int)WallTypes.E_Horizontal_End:
+					map[x2,z2].GiveWall((int)WallTypes.NE_Corner);
+					break;
+				case (int)WallTypes.W_Horizontal_End:
+					map[x2,z2].GiveWall((int)WallTypes.NW_Corner);
+					break;
+				default:
+					map[x2,z2].GiveWall((int)WallTypes.N_T);
+					break;
+			   }
+			}else{
+				map[x2,z2].GiveWall((int)WallTypes.N_Vertical_End);
+			}
+		/*
+		 * Horizontal Wall
+		 */ 
+		}else if(z1==z2){ 
+			//Westmost piece of the wall
+			if(map[x1,z1].hasWall()){ 
+				switch(map[x1,z1].WallType){
+				case (int)WallTypes.S_Vertical_End:
+					map[x1,z1].GiveWall((int)WallTypes.SW_Corner);
+					break;
+				case (int)WallTypes.N_Vertical_End:
+					map[x1,z1].GiveWall((int)WallTypes.NW_Corner);
+					break;
+				default:
+					map[x1,z1].GiveWall((int)WallTypes.W_T);
+					break;
+				}
+			}else{
+				map[x1,z1].GiveWall((int)WallTypes.W_Horizontal_End);
+			}
+			//Mid pieces
+			counter = x1+1;
+			while(counter<x2){
+				map[counter,z1].GiveWall((int)WallTypes.Horizontal_Mid);
+				counter+=1;
+			}
+			//Eastmost piece of wall
+			if(map[x2,z2].hasWall()){ 
+				switch(map[x2,z2].WallType){
+				case (int)WallTypes.S_Vertical_End:
+					map[x2,z2].GiveWall((int)WallTypes.SE_Corner);
+					break;
+				case (int)WallTypes.N_Vertical_End:
+					map[x2,z2].GiveWall((int)WallTypes.NE_Corner);
+					break;
+				default:
+					map[x2,z2].GiveWall((int)WallTypes.E_T);
+					break;
+				}
+			}else{
+				map[x2,z2].GiveWall((int)WallTypes.E_Horizontal_End);
+			}
 		}else{
 			Debug.Log ("Error: straight line must be given in mapinfo.givewallinrange");	
 		}
