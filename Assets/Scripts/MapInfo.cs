@@ -113,8 +113,8 @@ public class MapInfo{
 		Debug.Log ("Loading level: SG_DATA...");
 		//walls,doors,player tiles
 		//outside walls
-		GiveWallInRange(5,5,17,5);
-		GiveWallInRange(21,5,37,5);
+		GiveWallInRange(5,5,18,5);
+		GiveWallInRange(22,5,37,5);
 		GiveWallInRange(5,5,5,28);
 		GiveWallInRange(5,28,37,28);
 		GiveWallInRange(37,5,37,28);
@@ -123,37 +123,44 @@ public class MapInfo{
 		GiveWallInRange(10,18,10,24);
 		GiveWallInRange(10,26,10,28);
 		GiveWallInRange(10,13,11,13);
-		GiveWallInRange(,,,);
-		GiveWallInRange(,,,);
-		GiveWallInRange(,,,);
-		GiveWallInRange(,,,);
-		GiveWallInRange(,,,);
-		GiveWallInRange(,,,);
-		GiveWallInRange(,,,);
-		GiveWallInRange(,,,);
-		GiveWallInRange(,,,);
-		GiveWallInRange(,,,);
-		GiveWallInRange(,,,);
-		GiveWallInRange(,,,);
-		GiveWallInRange(,,,);
-		GiveWallInRange(,,,);
-		GiveWallInRange(,,,);
+		GiveWallInRange(13,5,13,9);
+		GiveWallInRange(13,9,14,9);
+		GiveWallInRange(13,13,18,13);
+		GiveWallInRange(14,13,14,18);
+		GiveWallInRange(14,20,14,24);
+		GiveWallInRange(14,24,19,24);
+		GiveWallInRange(18,5,18,6);
+		GiveWallInRange(16,9,22,9);
+		GiveWallInRange(18,8,18,9);
+		GiveWallInRange(20,13,25,13);
+		GiveWallInRange(21,24,25,24);
+		GiveWallInRange(22,5,22,9);
+		GiveWallInRange(25,13,25,17);
+		GiveWallInRange(25,19,25,24);
+		GiveWallInRange(32,5,32,12);
+		GiveWallInRange(32,14,32,24);
+		GiveWallInRange(32,15,37,15);
+		GiveWallInRange(32,26,32,28);
 
 
-		
+		//TODO: REPLACE WITH CREATE___ METHODS
 		guys = new Guy[2];
-		guys[0] = new Guy(30,3);
-		guys[1] = new Guy(29,5);
+		guys[0] = new Guy(35,25);
+		guys[1] = new Guy(35,11);
 		spies = new Spy[2];
-		spies[0] = new Spy(3,8);
-		spies[1] = new Spy(3,16);
-		map[3,8].Take(); map[3,16].Take(); //spies
-		map[29,5].Take(); map[30,3].Take(); //guys
+		spies[0] = new Spy(6,18);
+		spies[1] = new Spy(6,20);
+		map[6,18].Take(); map[6,20].Take(); //spies
+		map[35,25].Take(); map[35,11].Take(); //guys
 		
-		map[4,9].GiveItem();
+		//map[4,9].GiveItem();
 		
 		SetAllTilesVisible();
 		Debug.Log("Level Loaded.");
+	}
+
+	public void CreateSpies(){
+
 	}
 	
 	
@@ -175,6 +182,9 @@ public class MapInfo{
 				case (int)WallTypes.W_Horizontal_End:
 					map[x1,z1].GiveWall((int)WallTypes.SW_Corner);
 					break;
+				default:
+					map[x1,z1].GiveWall((int)WallTypes.S_T);
+					break;
 				}
 			}else{
 				map[x1,z1].GiveWall((int)WallTypes.S_Vertical_End);
@@ -195,7 +205,7 @@ public class MapInfo{
 					map[x2,z2].GiveWall((int)WallTypes.NW_Corner);
 					break;
 				default:
-					//t-section
+					map[x2,z2].GiveWall((int)WallTypes.N_T);
 					break;
 			   }
 			}else{
@@ -213,6 +223,9 @@ public class MapInfo{
 					break;
 				case (int)WallTypes.N_Vertical_End:
 					map[x1,z1].GiveWall((int)WallTypes.NW_Corner);
+					break;
+				default:
+					map[x1,z1].GiveWall((int)WallTypes.W_T);
 					break;
 				}
 			}else{
@@ -232,6 +245,9 @@ public class MapInfo{
 					break;
 				case (int)WallTypes.N_Vertical_End:
 					map[x2,z2].GiveWall((int)WallTypes.NE_Corner);
+					break;
+				default:
+					map[x2,z2].GiveWall((int)WallTypes.E_T);
 					break;
 				}
 			}else{

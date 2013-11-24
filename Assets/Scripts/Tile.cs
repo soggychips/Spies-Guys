@@ -3,7 +3,7 @@ using System.Collections;
 
 public enum TileType : int {Wall,Item,Open,Taken,Door_Closed,Door_Open,Data};
 public enum WallTypes : int {SE_Corner, SW_Corner, NW_Corner, NE_Corner,
-							Horizontal_Mid, Vertical_Mid, W_Horizontal_End, E_Horizontal_End, S_Vertical_End, N_Vertical_End};
+							Horizontal_Mid, Vertical_Mid, W_Horizontal_End, E_Horizontal_End, S_Vertical_End, N_Vertical_End,W_T,E_T,S_T,N_T};
 
 public class Tile {
 	

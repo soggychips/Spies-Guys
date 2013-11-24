@@ -6,7 +6,8 @@ public class GameEngine : MonoBehaviour {
 
 	public Transform tile;
 	public Material ft_hidden, ft_open, ft_taken, ft_wall, ft_item;
-	public Material wall_n_end, wall_s_end, wall_e_end, wall_w_end, wall_ne_corn,wall_nw_corn,wall_se_corn,wall_sw_corn,wall_h_mid,wall_v_mid;
+	public Material wall_n_end, wall_s_end, wall_e_end, wall_w_end, wall_ne_corn,wall_nw_corn,
+					wall_se_corn,wall_sw_corn,wall_h_mid,wall_v_mid,wall_s_t,wall_n_t,wall_e_t,wall_w_t;
 	public Transform sneakHighlight;
 	public Transform sprintHighlight;
 	
@@ -233,6 +234,14 @@ public class GameEngine : MonoBehaviour {
 				return wall_h_mid;
 			case (int)WallTypes.Vertical_Mid:
 				return wall_v_mid;
+			case (int)WallTypes.N_T:
+				return wall_n_t;
+			case (int)WallTypes.S_T:
+				return wall_s_t;
+			case (int)WallTypes.E_T:
+				return wall_e_t;
+			case (int)WallTypes.W_T:
+				return wall_w_t;
 			}
 			return ft_wall;
 		}
