@@ -135,6 +135,7 @@ public class GameEngine : MonoBehaviour {
 		for(int i=0; i<map.MapSize;i++){
 			for(int j=0; j<map.MapSize;j++){
 				tileGraphics[i,j] = (Transform)Instantiate(tile,new Vector3(i*map.Spacing,0,j*map.Spacing),Quaternion.identity);
+				tileGraphics[i,j].Rotate(new Vector3(0,1,0),180); //textures on planes display rotated 180 degrees on z compared to texture in inspector pane -- ANNOYING!
 			}
 		}
 		LoadTileMaterials();

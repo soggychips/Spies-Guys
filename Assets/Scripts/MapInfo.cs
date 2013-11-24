@@ -7,7 +7,7 @@ public class MapInfo{
 	public static int spacing = 10;
 	public int viewDistance = 4;
 	
-	private int mapSize = 35;
+	private int mapSize = 50;
 	
 	private int winner;
 	private Tile[,] map;
@@ -61,13 +61,13 @@ public class MapInfo{
 		}	
 	}
 	
-	public void SetUpSGData(){
+	public void SetUpSGData_Old(){
 		Debug.Log ("Loading level...");
 		//walls,doors,player tiles
 		//outside walls
 		GiveWallInRange(0,0,12,0);
 		GiveWallInRange(16,0,32,0);
-		GiveWallInRange(0,1,0,23);
+		GiveWallInRange(0,0,0,23);
 		GiveWallInRange(1,23,32,23);
 		GiveWallInRange(32,1,32,22);
 		//walls arranged from NW to SE corners
@@ -105,6 +105,33 @@ public class MapInfo{
 
 		map[4,9].GiveItem();
 
+		SetAllTilesVisible();
+		Debug.Log("Level Loaded.");
+	}
+
+	public void SetUpSGData(){
+		Debug.Log ("Loading level: SG_DATA...");
+		//walls,doors,player tiles
+		//outside walls
+		GiveWallInRange(5,5,17,5);
+		GiveWallInRange(21,5,37,5);
+		GiveWallInRange(5,5,5,28);
+		GiveWallInRange(5,28,37,28);
+		GiveWallInRange(37,5,37,28);
+		//walls arranged from NW to SE corners
+
+		
+		guys = new Guy[2];
+		guys[0] = new Guy(30,3);
+		guys[1] = new Guy(29,5);
+		spies = new Spy[2];
+		spies[0] = new Spy(3,8);
+		spies[1] = new Spy(3,16);
+		map[3,8].Take(); map[3,16].Take(); //spies
+		map[29,5].Take(); map[30,3].Take(); //guys
+		
+		map[4,9].GiveItem();
+		
 		SetAllTilesVisible();
 		Debug.Log("Level Loaded.");
 	}
