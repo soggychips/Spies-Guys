@@ -27,6 +27,11 @@ public class MapInfo{
 	public int GetTileType(int x, int z){
 		return map[x,z].Type;	
 	}
+
+	public int GetWallType (int x, int z)
+	{
+		return map[x,z].WallType;
+	}
 	
 	public int MapSize{
 		get{ return mapSize;}

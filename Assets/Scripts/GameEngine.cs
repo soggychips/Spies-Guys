@@ -6,6 +6,7 @@ public class GameEngine : MonoBehaviour {
 
 	public Transform tile;
 	public Material ft_hidden, ft_open, ft_taken, ft_wall, ft_item;
+	public Material wall_n_end, wall_s_end, wall_e_end, wall_w_end, wall_ne_corn,wall_nw_corn,wall_se_corn,wall_sw_corn,wall_h_mid,wall_v_mid;
 	public Transform sneakHighlight;
 	public Transform sprintHighlight;
 	
@@ -210,6 +211,28 @@ public class GameEngine : MonoBehaviour {
 	public Material AssignMaterial(int x, int z){
 		int type = map.GetTileType(x,z);
 		if(type==(int)TileType.Wall){
+			switch(map.GetWallType(x,z)){
+			case (int)WallTypes.E_Horizontal_End:
+				return wall_e_end;
+			case (int)WallTypes.W_Horizontal_End:
+				return wall_w_end;
+			case (int)WallTypes.NE_Corner:
+				return wall_ne_corn;
+			case (int)WallTypes.NW_Corner:
+				return wall_nw_corn;
+			case (int)WallTypes.SE_Corner:
+				return wall_se_corn;
+			case (int)WallTypes.SW_Corner:
+				return wall_sw_corn;
+			case (int)WallTypes.S_Vertical_End:
+				return wall_s_end;
+			case (int)WallTypes.N_Vertical_End:
+				return wall_n_end;
+			case (int)WallTypes.Horizontal_Mid:
+				return wall_h_mid;
+			case (int)WallTypes.Vertical_Mid:
+				return wall_v_mid;
+			}
 			return ft_wall;
 		}
 		if(type==(int)TileType.Item){
