@@ -8,6 +8,7 @@ public class GameEngine : MonoBehaviour {
 	public Material ft_hidden, ft_open, ft_taken, ft_wall, ft_item;
 	public Material wall_n_end, wall_s_end, wall_e_end, wall_w_end, wall_ne_corn,wall_nw_corn,
 					wall_se_corn,wall_sw_corn,wall_h_mid,wall_v_mid,wall_s_t,wall_n_t,wall_e_t,wall_w_t;
+	public Material doorClosed, doorOpen;
 	public Transform sneakHighlight;
 	public Transform sprintHighlight;
 	
@@ -253,6 +254,9 @@ public class GameEngine : MonoBehaviour {
 		}
 		if(type==(int)TileType.Taken){
 			return ft_taken;
+		}
+		if(type==(int)TileType.Door_Closed){
+			return doorClosed;
 		}
 		return ft_hidden;
 	}
