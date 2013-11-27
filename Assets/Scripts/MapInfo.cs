@@ -154,6 +154,9 @@ public class MapInfo{
 		map[35,25].Take(); map[35,11].Take(); //guys
 		
 		//map[4,9].GiveItem();
+
+		//Doors
+		map[10,25].CloseDoor();
 		
 		SetAllTilesVisible();
 		Debug.Log("Level Loaded.");
@@ -701,13 +704,29 @@ public class MapInfo{
 		if(z+1<mapSize && !map[x,z+1].isBlocked()) adjTiles.Add(new Vector2(x,z+1));
 		return adjTiles;
 	}
+
+	public Vector2 GetAdjacentDoorLocation(int x, int z){
+		if(x>=mapSize || z>=mapSize || x<0 || z<0){
+			Debug.Log ("Error: MapInfo.GetAdjacentDoorLocation");	
+		}
+		if(x-1>=0 && map[x-1,z].hasClosedDoor()) return new Vector2(x-1,z);
+		if(z-1>=0 && map[x,z-1].hasClosedDoor()) return new Vector2(x,z-1);
+		if(x+1<mapSize && map[x+1,z].hasClosedDoor()) return new Vector2(x+1,z);
+		if(z+1<mapSize && map[x,z+1].hasClosedDoor()) return new Vector2(x,z+1);
+		Debug.Log ("Spy at "+x+","+z+" not next to a door");
+		return new Vector2(-1000,-1000);
+	}
 	
 	public void FoVForCurrentPlayer(int maxViewDist, int currentPlayer){
 		RemoveVisibility();
 		if(currentPlayer==1){
 			foreach(Spy spy in spies){
-				if(spy.Alive)
-					FoV(spy.TileLocation,maxViewDist);	
+				if(spy.Alive){
+					if(GetAdjacentDoorLocation((int)spy.TileLocation.x,(int)spy.TileLocation.y).x!=-1000)
+						FoVForSpy_IgnoreDoor(spy.TileLocation,(int)maxViewDist/2,GetAdjacentDoorLocation((int)spy.TileLocation.x,(int)spy.TileLocation.y));
+					else
+						FoV(spy.TileLocation,maxViewDist);
+				}
 			}
 		}else if(currentPlayer==2){
 			foreach(Guy guy in guys){
@@ -746,21 +765,33 @@ public class MapInfo{
 		}
 	}
 	
-	public void ScanningLineTest(){
-		Vector2 start = new Vector2(3,8);
-		Vector2 end = new Vector2(0,0);
-		Vector2 vect = end-start;
-		double norm = Mathf.Sqrt((vect.x*vect.x) + (vect.y*vect.y));
-		Debug.Log ("norm = "+norm);
-		Vector2 unitVect = new Vector2((float)(vect.x/norm),(float)(vect.y/norm));
-		Debug.Log ("vector = "+ vect.ToString());
-		Debug.Log ("Unit vector = ["+unitVect.x+","+unitVect.y+"]");
-		Vector2 roundedLocation = new Vector2((int)start.x,(int)start.y);
-		while(roundedLocation!=end){
-			start+=unitVect;
-			roundedLocation = new Vector2((int)start.x,(int)start.y);
-			Debug.Log ("location = ["+start.x+","+start.y+"]");
-			Debug.Log ("rounded location = ["+(int)start.x+","+(int)start.y+"]");
+	public void FoVForSpy_IgnoreDoor(Vector2 playerLocation, int maxViewDistance, Vector2 doorLocationToIgnore){
+		Debug.Log("Ignoring door at "+doorLocationToIgnore);
+		List<Vector2> edgeOfVisionTiles = ReturnAllMaxDistanceTiles((int)playerLocation.x,(int)playerLocation.y,maxViewDistance);
+		foreach(Vector2 endpoint in edgeOfVisionTiles){
+			Vector2 start = playerLocation;
+			Vector2 end = endpoint;
+			Debug.Log("Calculating vision from "+start+" to "+end);
+			Vector2 vect = end-start;
+			float norm = Mathf.Sqrt((vect.x*vect.x) + (vect.y*vect.y));
+			Vector2 unitVect = new Vector2(vect.x/norm,vect.y/norm);
+			TileAt(start).Visible=true;
+			//Debug.Log ("starting start = "+start.ToString());
+			//Debug.Log ("end = "+end.ToString());
+			Vector2 roundedLocation = new Vector2((int)start.x,(int)start.y);
+			while(roundedLocation!=end){
+				start+=unitVect;
+				roundedLocation = new Vector2(Mathf.Round(start.x),Mathf.Round(start.y));
+				if(roundedLocation==doorLocationToIgnore){
+					Debug.Log ("roundedLoc=doorLoc");
+				}
+				//Debug.Log ("location = ["+start.x+","+start.y+"]");
+				//Debug.Log ("rounded location = ["+roundedLocation.x+","+roundedLocation.y+"]");
+				if(!TileAt(roundedLocation).Visible){
+					TileAt(roundedLocation).Visible=true;
+				}
+				if(TileAt(roundedLocation).isBlocked() && roundedLocation!=doorLocationToIgnore) break;
+			}
 		}
 	}
 
