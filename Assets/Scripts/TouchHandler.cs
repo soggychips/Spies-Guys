@@ -41,7 +41,12 @@ public class TouchHandler : MonoBehaviour {
 				case (int)TurnState.States.CharSelected:
 					mouseClick = MouseClickToTileCoords();
 				if(scene.HighlightedTileAt((int)mouseClick.x,(int)mouseClick.y) && !scene.CurrentPlayerAt((int)mouseClick.x,(int)mouseClick.y)){
-						scene.Movement((int)mouseClick.x,(int)mouseClick.y);
+						if(scene.UnblockedTileAt(mouseClick)){
+							scene.Movement((int)mouseClick.x,(int)mouseClick.y);
+						}else if(scene.ClosedDoorAt(mouseClick)){
+							//unlock door
+							Debug.Log ("Unlock Door");
+						}
 					}else if(scene.CurrentPlayerAt((int)mouseClick.x,(int)mouseClick.y)){
 						scene.DeselectCharacter();
 					}else if(scene.TileTakenByEnemy((int)mouseClick.x,(int)mouseClick.y)){

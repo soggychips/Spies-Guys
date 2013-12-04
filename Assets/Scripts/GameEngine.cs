@@ -8,9 +8,10 @@ public class GameEngine : MonoBehaviour {
 	public Material ft_hidden, ft_open, ft_taken, ft_wall, ft_item;
 	public Material wall_n_end, wall_s_end, wall_e_end, wall_w_end, wall_ne_corn,wall_nw_corn,
 					wall_se_corn,wall_sw_corn,wall_h_mid,wall_v_mid,wall_s_t,wall_n_t,wall_e_t,wall_w_t;
-	public Material doorClosed, doorOpen;
+	public Material door_NS, door_EW;
 	public Transform sneakHighlight;
 	public Transform sprintHighlight;
+	public Transform lockedDoorHighlight;
 	
 	
 	private int winner;
@@ -91,6 +92,7 @@ public class GameEngine : MonoBehaviour {
 	public void SelectCharacter(int x, int z){
 		map.SelectCharacterAtTile(x,z,currentPlayer);
 		HighlightTiles(x,z);
+		HighlightInteractionObjects(x,z);
 		tstate.SelectCharacter();	
 	}
 	
@@ -168,6 +170,34 @@ public class GameEngine : MonoBehaviour {
 			}
 		}
 	}
+
+	public bool ClosedDoorAt (Vector2 mouseClick)
+	{
+		return(map.TileAt(mouseClick).hasClosedDoor());
+	}
+
+	public bool UnblockedTileAt (Vector2 mouseClick)
+	{
+		return(!map.TileAt(mouseClick).isBlocked());
+	}
+
+	public void HighlightPickableDoors (int x, int z)
+	{
+		Vector2 doorLocation = map.GetAdjacentClosedDoorLocation(x,z);
+		if(doorLocation.x!=-1000){
+			map.TileAt(doorLocation).Highlight();
+			Instantiate (lockedDoorHighlight, new Vector3(doorLocation.x*Tile.spacing,.2f,doorLocation.y*Tile.spacing),Quaternion.identity);
+		}
+	}
+
+	public void HighlightInteractionObjects (int x, int z)
+	{
+		if(currentPlayer==1){//spies
+			HighlightPickableDoors(x,z);
+		}else{//guys
+
+		}
+	}
 	
 	public void HighlightTiles(int x, int z){
 		int movesForPlayer = map.MovesLeftForPlayer(x,z,currentPlayer); 
@@ -176,12 +206,11 @@ public class GameEngine : MonoBehaviour {
 		List<Vector2> BFSFromOrigin = new List<Vector2>();
 		if(movesForPlayer==0){ 
 			//do nothing
-		}else
+		}else{
 			BFSFromOrigin = map.BFS (x,z,totalDistance);
-		//else if(totalSneakDistance==0) 
-		//	BFSFromOrigin = map.BFS (x,z,2);
+		}
 		foreach(Vector2 tile in BFSFromOrigin){
-			map.TileAt(tile).Highlight=true;
+			map.TileAt(tile).Highlight();
 			if(map.TileAt(tile).Depth<=totalSneakDistance)
 				Instantiate(sneakHighlight,new Vector3(tile.x*Tile.spacing,.2f,tile.y*Tile.spacing),Quaternion.identity);
 			else
@@ -256,7 +285,16 @@ public class GameEngine : MonoBehaviour {
 			return ft_taken;
 		}
 		if(type==(int)TileType.Door_Closed){
-			return doorClosed;
+			switch(map.GetDoorFacing(x,z)){
+				case (int)DoorFacings.EW: return door_EW;
+				case (int)DoorFacings.NS: return door_NS;
+			}
+		}
+		if(type==(int)TileType.Door_Open){
+			switch(map.GetDoorFacing(x,z)){
+			case (int)DoorFacings.EW: return door_NS;
+			case (int)DoorFacings.NS: return door_EW;
+			}
 		}
 		return ft_hidden;
 	}

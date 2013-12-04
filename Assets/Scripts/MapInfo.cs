@@ -32,6 +32,11 @@ public class MapInfo{
 	{
 		return map[x,z].WallType;
 	}
+
+	public int GetDoorFacing(int x, int z)
+	{
+		return map[x,z].DoorFacing;
+	}
 	
 	public int MapSize{
 		get{ return mapSize;}
@@ -156,10 +161,24 @@ public class MapInfo{
 		//map[4,9].GiveItem();
 
 		//Doors
-		map[10,25].CloseDoor();
+		CreateDoor(10,25);
+		CreateDoor(10,17);
+		CreateDoor(15,9);
+		CreateDoor(14,19);
+		CreateDoor(12,13);
+		CreateDoor(17,7);
+		CreateDoor(19,13);
+		CreateDoor(20,24);
+		CreateDoor(32,13);
 		
 		SetAllTilesVisible();
 		Debug.Log("Level Loaded.");
+	}
+
+	public void CreateDoor (int x, int z)
+	{
+		int facing = GetAppropriateDoorFacing(x,z);
+		map[x,z].GiveDoor(facing);
 	}
 
 	public void CreateSpies(){
@@ -274,7 +293,7 @@ public class MapInfo{
 	public void RemoveVisibility(){
 		for(int i=0; i<mapSize; i++){
 			for(int j=0; j<mapSize; j++){
-				if(map[i,j].Type!=(int)TileType.Wall)
+				if(map[i,j].Type!=(int)TileType.Wall && map[i,j].Type!=(int)TileType.Door_Closed)
 					map[i,j].Visible=false;
 			}
 		}
@@ -290,7 +309,7 @@ public class MapInfo{
 	public void ResetHighlights(){
 		for(int i=0; i<mapSize; i++){
 			for(int j=0; j<mapSize; j++){
-				map[i,j].Highlight=false;
+				map[i,j].Highlighted=false;
 			}
 		}
 		//Debug.Log ("All Tile Highlights Reset");
@@ -524,7 +543,7 @@ public class MapInfo{
 	
 	public bool HighlightedTileAt(int x, int z){
 		if(x==-1000 || z==-1000) return false;
-		if(map[x,z].Highlight) return true;
+		if(map[x,z].Highlighted) return true;
 		return false;
 	}
 	
@@ -692,7 +711,7 @@ public class MapInfo{
 		return V
 	 */ 
 	
-	//only returns OPEN adjacent tiles
+	//returns unblocked adjacent tiles
 	public List<Vector2> GetAdjacentUnblockedTiles(int x, int z){
 		List<Vector2> adjTiles = new List<Vector2>();
 		if(x>=mapSize || z>=mapSize || x<0 || z<0){
@@ -705,7 +724,8 @@ public class MapInfo{
 		return adjTiles;
 	}
 
-	public Vector2 GetAdjacentDoorLocation(int x, int z){
+	//returns location of an adjacent CLOSED door
+	public Vector2 GetAdjacentClosedDoorLocation(int x, int z){
 		if(x>=mapSize || z>=mapSize || x<0 || z<0){
 			Debug.Log ("Error: MapInfo.GetAdjacentDoorLocation");	
 		}
@@ -716,14 +736,26 @@ public class MapInfo{
 		Debug.Log ("Spy at "+x+","+z+" not next to a door");
 		return new Vector2(-1000,-1000);
 	}
+
+	public int GetAppropriateDoorFacing(int x, int z){
+		if(x>=mapSize || z>=mapSize || x<0 || z<0){
+			Debug.Log ("Error: MapInfo.GetAppropriateDoorFacing");	
+		}
+		if(x-1>=0 && (map[x-1,z].hasWall())) return (int)DoorFacings.NS;
+		if(x+1<mapSize && (map[x+1,z].hasWall())) return (int)DoorFacings.NS;
+		if(z-1>=0 && (map[x,z-1].hasWall())) return (int)DoorFacings.EW;
+		if(z+1>=0 && (map[x,z+1].hasWall())) return (int)DoorFacings.EW;
+
+		return -1000;
+	}
 	
 	public void FoVForCurrentPlayer(int maxViewDist, int currentPlayer){
 		RemoveVisibility();
 		if(currentPlayer==1){
 			foreach(Spy spy in spies){
 				if(spy.Alive){
-					if(GetAdjacentDoorLocation((int)spy.TileLocation.x,(int)spy.TileLocation.y).x!=-1000)
-						FoVForSpy_IgnoreDoor(spy.TileLocation,(int)maxViewDist/2,GetAdjacentDoorLocation((int)spy.TileLocation.x,(int)spy.TileLocation.y));
+					if(GetAdjacentClosedDoorLocation((int)spy.TileLocation.x,(int)spy.TileLocation.y).x!=-1000)
+						FoVForSpy_IgnoreDoor(spy.TileLocation,(int)maxViewDist/2,GetAdjacentClosedDoorLocation((int)spy.TileLocation.x,(int)spy.TileLocation.y));
 					else
 						FoV(spy.TileLocation,maxViewDist);
 				}
@@ -731,6 +763,7 @@ public class MapInfo{
 		}else if(currentPlayer==2){
 			foreach(Guy guy in guys){
 				if(guy.Alive)
+					//TODO an if for lights on/off
 					FoV (guy.TileLocation,maxViewDist);	
 			}
 		}else{

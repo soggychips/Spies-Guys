@@ -4,6 +4,7 @@ using System.Collections;
 public enum TileType : int {Wall,Item,Open,Taken,Door_Closed,Door_Open,Data};
 public enum WallTypes : int {SE_Corner, SW_Corner, NW_Corner, NE_Corner,
 							Horizontal_Mid, Vertical_Mid, W_Horizontal_End, E_Horizontal_End, S_Vertical_End, N_Vertical_End,W_T,E_T,S_T,N_T};
+public enum DoorFacings : int {NS,EW};
 
 public class Tile {
 	
@@ -12,6 +13,7 @@ public class Tile {
 	
 	private int type;
 	private int wallType;
+	private int doorFacing_Direction;
 	private bool visible;
 	private bool highlighted;
 	private Vector3 realWorldLocation;
@@ -35,6 +37,10 @@ public class Tile {
 	public int WallType{
 		get{return wallType;}
 	}
+
+	public int DoorFacing{
+		get{return doorFacing_Direction;}
+	}
 	
 	public bool Visible{
 		get{ return visible;}
@@ -50,7 +56,7 @@ public class Tile {
 		set{depth=value;}
 	}
 	
-	public bool Highlight{
+	public bool Highlighted{
 		get{return highlighted;}
 		set{highlighted=value;}
 	}
@@ -72,6 +78,11 @@ public class Tile {
 	public void GiveItem(){
 		type = (int)TileType.Item;	
 	}
+    
+	public void GiveDoor(int doorFacing){
+		type = (int)TileType.Door_Closed;
+		doorFacing_Direction = doorFacing;
+	}
 	
 	public void Take(){
 		type = (int)TileType.Taken;	
@@ -87,6 +98,10 @@ public class Tile {
 
 	public void OpenDoor(){
 		type = (int)TileType.Door_Open;
+	}
+
+	public void Highlight(){
+		highlighted=true;
 	}
 	
 
