@@ -1,11 +1,11 @@
 ﻿<Properties>
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="MonoDevelop.Default" />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
   <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/MapInfo.cs">
     <Files>
-      <File FileName="Assets/Scripts/GameEngine.cs" Line="210" Column="16" />
-      <File FileName="Assets/Scripts/MapInfo.cs" Line="695" Column="21" />
-      <File FileName="Assets/Scripts/Tile.cs" Line="6" Column="120" />
-      <File FileName="Assets/Scripts/TouchHandler.cs" Line="52" Column="7" />
+      <File FileName="Assets/Scripts/GameEngine.cs" Line="210" Column="26" />
+      <File FileName="Assets/Scripts/MapInfo.cs" Line="715" Column="2" />
+      <File FileName="Assets/Scripts/Tile.cs" Line="25" Column="28" />
+      <File FileName="Assets/Scripts/TouchHandler.cs" Line="48" Column="8" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
