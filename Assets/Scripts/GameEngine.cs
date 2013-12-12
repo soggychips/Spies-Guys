@@ -91,7 +91,7 @@ public class GameEngine : MonoBehaviour {
 	
 	public void SelectCharacter(int x, int z){
 		map.SelectCharacterAtTile(x,z,currentPlayer);
-		HighlightTiles(x,z);
+		HighlightMovementTiles(x,z);
 		HighlightInteractionObjects(x,z);
 		tstate.SelectCharacter();	
 	}
@@ -182,7 +182,7 @@ public class GameEngine : MonoBehaviour {
 	}
 
 	public void HighlightPickableDoors (int x, int z)
-	{
+	{ //if player is not next to a door, does nothing
 		Vector2 doorLocation = map.GetAdjacentClosedDoorLocation(x,z);
 		if(doorLocation.x!=-1000){
 			map.TileAt(doorLocation).Highlight();
@@ -199,7 +199,7 @@ public class GameEngine : MonoBehaviour {
 		}
 	}
 	
-	public void HighlightTiles(int x, int z){
+	public void HighlightMovementTiles(int x, int z){
 		int movesForPlayer = map.MovesLeftForPlayer(x,z,currentPlayer); 
 		int totalSneakDistance = Player.sneakDistance;
 		int totalDistance = totalSneakDistance+Player.sprintDistnace;
