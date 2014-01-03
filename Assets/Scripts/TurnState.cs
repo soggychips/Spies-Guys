@@ -4,12 +4,19 @@ using System.Collections;
 public class TurnState {
 	
 	public enum States: int{Begin, Neutral, CharSelected, MoveBegin, MoveAnimate, MoveConfirm, ActionBegin, ActionAnimate, ActionConfirm, End};
+	public enum ActionTypes: int{Door,Data,Lightswitch,Attack};
 	
 	private int currentState;
+	private int actionType;
 	
 	public int CurrentState{
 		get{return currentState; }
 		set{currentState = value; }
+	}
+
+	public int ActionType{
+		get{return actionType;}
+		set{actionType = value;}
 	}
 	
 	public TurnState(){
@@ -32,12 +39,13 @@ public class TurnState {
 		CurrentState = (int) States.MoveAnimate;	
 	}
 	
-	public void BeginAction(){
-		CurrentState = (int) States.ActionBegin;	
+	public void BeginAction(int type){
+		CurrentState = (int) States.ActionBegin;
+		actionType = type;
 	}
 	
 	public void AnimateAction(){
-		CurrentState = (int) States.ActionAnimate;	
+		CurrentState = (int) States.ActionAnimate;
 	}
 	
 	public void EndMovement(){

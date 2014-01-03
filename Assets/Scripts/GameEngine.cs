@@ -11,7 +11,7 @@ public class GameEngine : MonoBehaviour {
 	public Material door_NS, door_EW;
 	public Transform sneakHighlight;
 	public Transform sprintHighlight;
-	public Transform lockedDoorHighlight;
+	public Transform DoorHighlight;
 	
 	
 	private int winner;
@@ -25,6 +25,8 @@ public class GameEngine : MonoBehaviour {
 	public int currentPlayer;
 	//movement variables
 	private Vector2 originalPosition; private int selectedPlayerIdx;
+	//door variable(s)
+	private Vector2 positionOfDoor;
 	//attack variables
 
 
@@ -171,9 +173,19 @@ public class GameEngine : MonoBehaviour {
 		}
 	}
 
+	public bool LockedDoorAt (Vector2 mouseClick)
+	{
+		return(map.TileAt(mouseClick).hasLockedDoor());
+	}
+
+	public bool UnlockedDoorAt (Vector2 mouseClick)
+	{
+		return(!map.TileAt(mouseClick).hasLockedDoor() && map.TileAt(mouseClick).hasClosedDoor());
+	}
+
 	public bool ClosedDoorAt (Vector2 mouseClick)
 	{
-		return(map.TileAt(mouseClick).hasClosedDoor());
+		return(map.TileAt(mouseClick).hasClosedDoor() || map.TileAt(mouseClick).hasLockedDoor());
 	}
 
 	public bool UnblockedTileAt (Vector2 mouseClick)
@@ -181,21 +193,24 @@ public class GameEngine : MonoBehaviour {
 		return(!map.TileAt(mouseClick).isBlocked());
 	}
 
-	public void HighlightPickableDoors (int x, int z)
+	public void HighlightClosedDoors (int x, int z)
 	{ //if player is not next to a door, does nothing
 		Vector2 doorLocation = map.GetAdjacentClosedDoorLocation(x,z);
 		if(doorLocation.x!=-1000){
 			map.TileAt(doorLocation).Highlight();
-			Instantiate (lockedDoorHighlight, new Vector3(doorLocation.x*Tile.spacing,.2f,doorLocation.y*Tile.spacing),Quaternion.identity);
+			if(map.TileAt (doorLocation).hasClosedDoor()){
+				Instantiate (DoorHighlight, new Vector3(doorLocation.x*Tile.spacing,.2f,doorLocation.y*Tile.spacing),Quaternion.identity);
+			}
 		}
 	}
+
 
 	public void HighlightInteractionObjects (int x, int z)
 	{
 		if(currentPlayer==1){//spies
-			HighlightPickableDoors(x,z);
+			HighlightClosedDoors(x,z);
 		}else{//guys
-
+			HighlightClosedDoors(x,z);
 		}
 	}
 	
@@ -291,6 +306,9 @@ public class GameEngine : MonoBehaviour {
 			}
 		}
 		if(type==(int)TileType.Door_Open){
+			Debug.Log ("Door is open with facing as: ");
+			if(map.GetDoorFacing(x,z)==(int)DoorFacings.EW) Debug.Log ("EW. Door set to NS");
+			else Debug.Log ("NS. Door set to EW");
 			switch(map.GetDoorFacing(x,z)){
 			case (int)DoorFacings.EW: return door_NS;
 			case (int)DoorFacings.NS: return door_EW;
@@ -346,7 +364,11 @@ public class GameEngine : MonoBehaviour {
 	{
 		bool done = false;
 		tstate.AnimateMovement();
-		MoveSelectedCharTo(goalX,goalZ);
+		//until animation implementation:
+		done=true;
+		if(done){
+			MoveSelectedCharTo(goalX,goalZ);
+		}
 		
 	}
 
@@ -371,19 +393,37 @@ public class GameEngine : MonoBehaviour {
 		map.DeselectCharacter(currentPlayer);
 	}
 
+	public void OpenDoor(Vector2 doorLocation){
+		tstate.BeginAction((int)TurnState.ActionTypes.Door);
+		positionOfDoor = doorLocation;
+		map.OpenDoor((int)doorLocation.x,(int)doorLocation.y);
+		DestroyHighlights();
+		tstate.EndAction();
+		UpdateTileMaterials();
+		
+	}
+
+	public void ConfirmAction(){
+		tstate.Neutralize();
+		SetPlayerVisibilityUsingFoV();
+		map.DeselectCharacter(currentPlayer);
+	}
+
+	public void CancelAction(){
+		tstate.Neutralize();
+		switch((int)tstate.ActionType){
+		case (int)TurnState.ActionTypes.Door:
+			map.RevertDoorOpening((int)positionOfDoor.x,(int)positionOfDoor.y);
+			break;
+		}
+		UpdateTileMaterials();
+		map.DeselectCharacter(currentPlayer);
+	}
+
 	public void Attack(int enemyX, int enemyZ)
 	{
 		Debug.Log ("This will kill the enemy, are you sure?");
 		tstate.EndAction();
-	}
-	
-
-	public void BeginAction(){
-		tstate.BeginAction();
-	}
-
-	public void AnimateAction(){
-		tstate.AnimateAction();
 	}
 
 	public void ConfirmAttack(){

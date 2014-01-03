@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public enum TileType : int {Wall,Item,Open,Taken,Door_Closed,Door_Open,Data};
+public enum TileType : int {Wall,Item,Open,Taken,Door_Closed,Door_Open,Door_Locked,Data};
 public enum WallTypes : int {SE_Corner, SW_Corner, NW_Corner, NE_Corner,
 							Horizontal_Mid, Vertical_Mid, W_Horizontal_End, E_Horizontal_End, S_Vertical_End, N_Vertical_End,W_T,E_T,S_T,N_T};
 public enum DoorFacings : int {NS,EW};
@@ -110,11 +110,15 @@ public class Tile {
 	}
 
 	public bool isBlocked(){
-		return (type==(int)TileType.Taken || type==(int)TileType.Wall || type==(int)TileType.Door_Closed || type==(int)TileType.Data);
+		return (type==(int)TileType.Taken || type==(int)TileType.Wall || type==(int)TileType.Door_Closed || type==(int)TileType.Door_Locked || type==(int)TileType.Data);
 	}
 
 	public bool hasClosedDoor(){
 		return (type==(int)TileType.Door_Closed);
+	}
+
+	public bool hasLockedDoor(){
+		return (type==(int)TileType.Door_Locked);
 	}
 
 	public bool hasWall(){

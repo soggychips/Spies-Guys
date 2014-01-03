@@ -492,6 +492,15 @@ public class MapInfo{
 		}	
 		Debug.Log ("Players Deselected");
 	}
+
+	public void OpenDoor(int x, int z){
+		map[x,z].StoreType();
+		map[x,z].OpenDoor();
+	}
+
+	public void RevertDoorOpening(int x, int z){
+		map[x,z].LoadStoredType();
+	}
 	
 	public void MoveSelectedCharTo(int x, int z, int currentPlayer){
 		int depth  = map[x,z].Depth;

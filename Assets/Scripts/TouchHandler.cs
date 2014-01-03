@@ -44,8 +44,11 @@ public class TouchHandler : MonoBehaviour {
 						if(scene.UnblockedTileAt(mouseClick)){
 							scene.Movement((int)mouseClick.x,(int)mouseClick.y);
 						}else if(scene.ClosedDoorAt(mouseClick)){
-							//unlock door
-							Debug.Log ("Unlock Door");
+							if(scene.UnlockedDoorAt(mouseClick)){ //open the door
+								scene.OpenDoor(mouseClick);
+							}
+							//Scene.
+							Debug.Log ("Open Door");
 						}
 					}else if(scene.CurrentPlayerAt((int)mouseClick.x,(int)mouseClick.y)){
 						scene.DeselectCharacter();
@@ -112,7 +115,7 @@ public class TouchHandler : MonoBehaviour {
 				MovementConfirmation();
 				break;
 			case (int)TurnState.States.ActionConfirm:
-				//ActionConfirmation();
+				ActionConfirmation();
 				break;
 			case (int)TurnState.States.End:
 				CompleteTurnConfirmation();
@@ -132,6 +135,9 @@ public class TouchHandler : MonoBehaviour {
 				break;
 			case (int)TurnState.States.MoveConfirm:
 				MovementConfirmation();
+				break;
+			case (int)TurnState.States.ActionConfirm:
+				ActionConfirmation();
 				break;
 			case (int)TurnState.States.End:
 				CompleteTurnConfirmation();
@@ -264,8 +270,8 @@ public class TouchHandler : MonoBehaviour {
 	public void ActionConfirmation()
 	{
 		int buttonPressed = ConfirmationButtons();
-		if(buttonPressed==1)		buttonPressed++;//CHANGE THE TRASH
-		else if(buttonPressed==2) 	buttonPressed++;//CHANGE THE TRASH
+		if(buttonPressed==1)		scene.ConfirmAction();//CHANGE THE TRASH
+		else if(buttonPressed==2) 	scene.CancelAction();//CHANGE THE TRASH
 	}
 	
 	public int ConfirmationButtons(){
