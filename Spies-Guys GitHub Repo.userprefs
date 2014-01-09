@@ -1,12 +1,15 @@
 ﻿<Properties>
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="MonoDevelop.Default" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/GameEngine.cs">
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="../Spies-Guys github repo/Assets/Scripts/MapInfo.cs">
     <Files>
-      <File FileName="Assets/Scripts/GameEngine.cs" Line="167" Column="11" />
-      <File FileName="Assets/Scripts/TouchHandler.cs" Line="141" Column="11" />
-      <File FileName="Assets/Scripts/Tile.cs" Line="41" Column="2" />
-      <File FileName="Assets/Scripts/MapInfo.cs" Line="38" Column="3" />
-      <File FileName="Assets/Scripts/TurnState.cs" Line="55" Column="2" />
+      <File FileName="../Spies-Guys github repo/Assets/Scripts/GameEngine.cs" Line="336" Column="26" />
+      <File FileName="Assets/Scripts/TouchHandler.cs" Line="53" Column="28" />
+      <File FileName="Assets/Scripts/TurnState.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/GameEngine.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/GameState.cs" Line="1" Column="1" />
+      <File FileName="../Spies-Guys github repo/Assets/Scripts/MapInfo.cs" Line="794" Column="30" />
+      <File FileName="Assets/Scripts/Spy.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/Guy.cs" Line="1" Column="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

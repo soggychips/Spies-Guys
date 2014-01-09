@@ -293,7 +293,7 @@ public class MapInfo{
 	public void RemoveVisibility(){
 		for(int i=0; i<mapSize; i++){
 			for(int j=0; j<mapSize; j++){
-				if(map[i,j].Type!=(int)TileType.Wall && map[i,j].Type!=(int)TileType.Door_Closed)
+				if(map[i,j].Type!=(int)TileType.Wall) //&& map[i,j].Type!=(int)TileType.Door_Closed
 					map[i,j].Visible=false;
 			}
 		}
@@ -355,7 +355,7 @@ public class MapInfo{
 	//above method, rewritten using lists and checking for dead players
 	public void FindVisibleTilesForPlayer(int currentPlayer){
 		//for the spies:
-		if(currentPlayer==1){
+		if(currentPlayer==(int)GameEngine.Players.One){
 			List<Vector2> spyLocations = new List<Vector2>();
 			//populate list of alive spy locations
 			foreach(Spy spy in spies){
@@ -371,7 +371,7 @@ public class MapInfo{
 				}
 			}
 		//for the guys:
-		}else if(currentPlayer==2){
+		}else if(currentPlayer==(int)GameEngine.Players.Two){
 			List<Vector2> guyLocations = new List<Vector2>();
 			foreach(Guy guy in guys){
 				if(guy.Alive) guyLocations.Add (guy.TileLocation);	
@@ -410,11 +410,11 @@ public class MapInfo{
 	public int ReturnSelectedPlayerIdx (int currentPlayer)
 	{	//must use indexes to iterate through spies/guys instead of foreach
 		switch(currentPlayer){
-		case 1:
+		case (int)GameEngine.Players.One:
 			for(int i=0;i<spies.Length;i++)
 				if(spies[i].Selected) return i;
 			break;
-		case 2:
+		case (int)GameEngine.Players.Two:
 			for(int i=0;i<guys.Length;i++)
 				if(guys[i].Selected) return i;
 			break;
@@ -428,9 +428,9 @@ public class MapInfo{
 	public Vector2 ReturnSelectedPlayerPosition (int selectedPlayerIdx, int currentPlayer)
 	{
 		switch(currentPlayer){
-		case 1:
+		case (int)GameEngine.Players.One:
 			return spies[selectedPlayerIdx].TileLocation;
-		case 2:
+		case (int)GameEngine.Players.Two:
 			return guys[selectedPlayerIdx].TileLocation;
 		default:
 			Debug.Log ("Error: MapInfo.ReturnSelectedPlayerPosition");
@@ -441,12 +441,12 @@ public class MapInfo{
 	
 	public bool CurrentPlayerAtTile(int x, int z, int currentPlayer){
 		Vector2 tile = new Vector2(x,z);
-		if(currentPlayer==1){
+		if(currentPlayer==(int)GameEngine.Players.One){
 			foreach(Spy spy in spies){
 				if(spy.Alive && spy.TileLocation==tile)
 					return true;
 			}
-		}else if(currentPlayer==2){
+		}else if(currentPlayer==(int)GameEngine.Players.Two){
 			foreach(Guy guy in guys){
 				if(guy.Alive && guy.TileLocation==tile)
 					return true;
@@ -456,10 +456,10 @@ public class MapInfo{
 	}
 	
 	public void SelectCharacterAtTile(int x, int z, int currentPlayer){
-		if(currentPlayer==1){ //spies
+		if(currentPlayer==(int)GameEngine.Players.One){ //spies
 			if(spies[0].TileLocation.x==x && spies[0].TileLocation.y==z) spies[0].Selected=true;
 			else if(spies[1].TileLocation.x==x && spies[1].TileLocation.y==z) spies[1].Selected=true;
-		}else if(currentPlayer==2){ //guys
+		}else if(currentPlayer==(int)GameEngine.Players.Two){ //guys
 			if(guys[0].TileLocation.x==x && guys[0].TileLocation.y==z) guys[0].Selected=true;
 			else if(guys[1].TileLocation.x==x && guys[1].TileLocation.y==z) guys[1].Selected=true;
 			else if(guys[2].TileLocation.x==x && guys[2].TileLocation.y==z) guys[2].Selected=true;
@@ -470,11 +470,11 @@ public class MapInfo{
 	public bool SelectedCharacterAtTile(int x, int z, int currentPlayer){
 		Vector2 location = new Vector2(x,z);
 		switch(currentPlayer){
-			case 1:
+		case (int)GameEngine.Players.One:
 				foreach(Spy spy in spies)
 					if(spy.Selected && spy.TileLocation==location) return true;
 				break;
-			case 2:
+		case (int)GameEngine.Players.Two:
 				foreach(Guy guy in guys)
 					if(guy.Selected && guy.TileLocation==location) return true;
 				break;
@@ -483,10 +483,10 @@ public class MapInfo{
 	}
 	
 	public void DeselectCharacter(int currentPlayer){
-		if(currentPlayer==1){ //spies
+		if(currentPlayer==(int)GameEngine.Players.One){ //spies
 			foreach(Spy spy in spies)
 				spy.Selected=false;
-		}else if(currentPlayer==2){ //guys
+		}else if(currentPlayer==(int)GameEngine.Players.Two){ //guys
 			foreach(Guy guy in guys)
 				guy.Selected=false;
 		}	
@@ -504,7 +504,7 @@ public class MapInfo{
 	
 	public void MoveSelectedCharTo(int x, int z, int currentPlayer){
 		int depth  = map[x,z].Depth;
-		if(currentPlayer==1){ //spies
+		if(currentPlayer==(int)GameEngine.Players.One){ //spies
 			foreach(Spy spy in spies){
 				if(spy.Selected){ 
 					map[(int)spy.TileLocation.x,(int)spy.TileLocation.y].LoadStoredType();
@@ -513,7 +513,7 @@ public class MapInfo{
 					map[(int)spy.TileLocation.x,(int)spy.TileLocation.y].Take();
 				}
 			}
-		}else if(currentPlayer==2){ //guys
+		}else if(currentPlayer==(int)GameEngine.Players.Two){ //guys
 			foreach(Guy guy in guys){
 				if(guy.Selected){ 
 					map[(int)guy.TileLocation.x,(int)guy.TileLocation.y].LoadStoredType();
@@ -529,13 +529,13 @@ public class MapInfo{
 	{
 		int depth;
 		switch(currentPlayer){
-		case 1:
+		case (int)GameEngine.Players.One:
 			map[(int)spies[selectedPlayerIdx].TileLocation.x,(int)spies[selectedPlayerIdx].TileLocation.y].LoadStoredType();
 			spies[selectedPlayerIdx].MoveBack((int)originalPosition.x,(int)originalPosition.y);
 			map[(int)spies[selectedPlayerIdx].TileLocation.x,(int)spies[selectedPlayerIdx].TileLocation.y].StoreType();
 			map[(int)spies[selectedPlayerIdx].TileLocation.x,(int)spies[selectedPlayerIdx].TileLocation.y].Take();
 			break;
-		case 2:
+		case (int)GameEngine.Players.Two:
 			map[(int)guys[selectedPlayerIdx].TileLocation.x,(int)guys[selectedPlayerIdx].TileLocation.y].LoadStoredType();
 			guys[selectedPlayerIdx].MoveBack((int)originalPosition.x,(int)originalPosition.y);
 			map[(int)guys[selectedPlayerIdx].TileLocation.x,(int)guys[selectedPlayerIdx].TileLocation.y].StoreType();
@@ -561,13 +561,13 @@ public class MapInfo{
 	}
 	
 	public bool TileTakenByEnemy(int x, int z, int currentPlayer){
-		if(currentPlayer==1){
+		if(currentPlayer==(int)GameEngine.Players.One){
 			foreach(Guy guy in guys){
 				if(guy.TileLocation.x==x && guy.TileLocation.y==z){ 
 					return true;
 				}
 			}
-		}else if(currentPlayer==2){
+		}else if(currentPlayer==(int)GameEngine.Players.Two){
 			foreach(Spy spy in spies){
 				if(spy.TileLocation.x==x && spy.TileLocation.y==z){ 
 					return true;
@@ -580,12 +580,12 @@ public class MapInfo{
 	
 	public List<int> MovesLeftForCurrentPlayer(int currentPlayer){
 		List<int> moves = new List<int>();
-		if(currentPlayer==1){
+		if(currentPlayer==(int)GameEngine.Players.One){
 			foreach(Spy spy in spies){
 				if(spy.Alive) moves.Add(spy.MovesLeft);
 				else moves.Add (-1);
 			}
-		}else if(currentPlayer==2){
+		}else if(currentPlayer==(int)GameEngine.Players.Two){
 			foreach(Guy guy in guys){
 				if(guy.Alive) moves.Add(guy.MovesLeft);
 				else moves.Add (-1);
@@ -597,12 +597,12 @@ public class MapInfo{
 	}
 	
 	public int MovesLeftForPlayer(int x, int z, int currentPlayer){
-		if(currentPlayer==1){
+		if(currentPlayer==(int)GameEngine.Players.One){
 			foreach(Spy spy in spies){
 				if(spy.TileLocation.x==x && spy.TileLocation.y ==z)
 					return spy.MovesLeft;
 			}
-		}else if(currentPlayer==2){
+		}else if(currentPlayer==(int)GameEngine.Players.Two){
 			foreach(Guy guy in guys){
 				if(guy.TileLocation.x==x && guy.TileLocation.y ==z)
 					return guy.MovesLeft;
@@ -614,7 +614,7 @@ public class MapInfo{
 	
 	public void EliminatePlayerAt(int x, int z, int currentPlayer){
 		bool kill=false;
-		if(currentPlayer==1){
+		if(currentPlayer==(int)GameEngine.Players.One){
 			foreach(Spy spy in spies){
 				if(spy.Selected){
 					if(spy.HasPoint()){ 
@@ -629,7 +629,7 @@ public class MapInfo{
 					guy.Die();
 				}
 			}
-		}else if(currentPlayer==2){
+		}else if(currentPlayer==(int)GameEngine.Players.Two){
 			foreach(Guy guy in guys){
 				if(guy.Selected){
 					if(guy.HasPoint()){ 
@@ -649,11 +649,11 @@ public class MapInfo{
 	}
 	
 	public bool AllTeammatesDead(int currentPlayer){
-		if(currentPlayer==1){
+		if(currentPlayer==(int)GameEngine.Players.One){
 			foreach(Spy spy in spies)
 				if(spy.Alive) return false;
 			winner = 2;
-		}else if(currentPlayer==2){
+		}else if(currentPlayer==(int)GameEngine.Players.Two){
 			foreach(Guy guy in guys)
 				if(guy.Alive) return false;
 			winner = 1;
@@ -760,7 +760,7 @@ public class MapInfo{
 	
 	public void FoVForCurrentPlayer(int maxViewDist, int currentPlayer){
 		RemoveVisibility();
-		if(currentPlayer==1){
+		if(currentPlayer==(int)GameEngine.Players.One){
 			foreach(Spy spy in spies){
 				if(spy.Alive){
 					if(GetAdjacentClosedDoorLocation((int)spy.TileLocation.x,(int)spy.TileLocation.y).x!=-1000)
@@ -769,7 +769,7 @@ public class MapInfo{
 						FoV(spy.TileLocation,maxViewDist);
 				}
 			}
-		}else if(currentPlayer==2){
+		}else if(currentPlayer==(int)GameEngine.Players.Two){
 			foreach(Guy guy in guys){
 				if(guy.Alive)
 					//TODO an if for lights on/off

@@ -4,8 +4,10 @@ using System.Collections.Generic;
 
 public class GameEngine : MonoBehaviour {
 
+	public enum Players: int{One,Two};
 	public Transform tile;
 	public Material ft_hidden, ft_open, ft_taken, ft_wall, ft_item;
+	public Material pt_spy, pt_guy;
 	public Material wall_n_end, wall_s_end, wall_e_end, wall_w_end, wall_ne_corn,wall_nw_corn,
 					wall_se_corn,wall_sw_corn,wall_h_mid,wall_v_mid,wall_s_t,wall_n_t,wall_e_t,wall_w_t;
 	public Material door_NS, door_EW;
@@ -22,7 +24,7 @@ public class GameEngine : MonoBehaviour {
 	private int turn;
 	//private int[,] visibility;
 	private bool updateFlag;
-	public int currentPlayer;
+	public int currentPlayer; //set using Players enum
 	//movement variables
 	private Vector2 originalPosition; private int selectedPlayerIdx;
 	//door variable(s)
@@ -81,7 +83,7 @@ public class GameEngine : MonoBehaviour {
 	
 	public void StartGame(){
 		gstate.GiveControlToPlayer1();
-		currentPlayer=1;
+		currentPlayer=(int)Players.One;
 		tstate.BeginTurn();
 	}
 	
@@ -129,8 +131,8 @@ public class GameEngine : MonoBehaviour {
 	
 	public void SwitchPlayers(){
 		gstate.SwitchPlayers();
-		if(currentPlayer==1) currentPlayer=2;
-		else if(currentPlayer==2) currentPlayer=1;
+		if(currentPlayer==(int)Players.One) currentPlayer=(int)Players.Two;
+		else if(currentPlayer==(int)Players.Two) currentPlayer=(int)Players.One;
 	}
 	
 	public void FlagForUpdate(){
@@ -162,11 +164,13 @@ public class GameEngine : MonoBehaviour {
 		for(int i=0; i<map.MapSize;i++){
 			for(int j=0; j<map.MapSize;j++){
 				if(tileVisibility[i,j]==0 && !map.SelectedCharacterAtTile(i,j,currentPlayer)){
-					tileGraphics[i,j].renderer.material.SetColor("_Color",ft_hidden.color);
+					//tileGraphics[i,j].renderer.material.SetColor("_Color",ft_hidden.color); 
+					tileGraphics[i,j].renderer.material=ft_hidden;
 					//Debug.Log("INVIS TILE "+i+","+j);
 				}else{
 					Material temp = AssignMaterial(i,j);
-					tileGraphics[i,j].renderer.material.SetColor("_Color",temp.color);
+					//tileGraphics[i,j].renderer.material.SetColor("_Color",temp.color);
+					tileGraphics[i,j].renderer.material=temp;
 					//Debug.Log("tile "+i+","+j+" mat set to "+ temp);
 				}
 			}
@@ -207,7 +211,7 @@ public class GameEngine : MonoBehaviour {
 
 	public void HighlightInteractionObjects (int x, int z)
 	{
-		if(currentPlayer==1){//spies
+		if(currentPlayer==(int)Players.One){//spies
 			HighlightClosedDoors(x,z);
 		}else{//guys
 			HighlightClosedDoors(x,z);
@@ -297,7 +301,18 @@ public class GameEngine : MonoBehaviour {
 			return ft_open;
 		}
 		if(type==(int)TileType.Taken){
-			return ft_taken;
+			switch(currentPlayer){
+			case (int)Players.One:
+				if(CurrentPlayerAt(x,z)) return pt_spy;
+				else return pt_guy;
+				break;
+			case (int)Players.Two:
+				if(CurrentPlayerAt(x,z)) return pt_guy;
+				else return pt_spy;
+				break;
+			default:
+				return ft_taken;
+			}
 		}
 		if(type==(int)TileType.Door_Closed){
 			switch(map.GetDoorFacing(x,z)){
