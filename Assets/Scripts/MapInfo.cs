@@ -184,7 +184,14 @@ public class MapInfo{
 	public void CreateSpies(){
 
 	}
-	
+
+	public void AssignGearToSpy(int spyIndex, int gearToGive){
+		spies[spyIndex].Equip(gearToGive);
+	}
+
+	public void AssignGearToGuy(int guyIndex, int gearToGive){
+		guys[guyIndex].Equip(gearToGive);
+	}
 	
 	//creates a vertical or horizontal wall in the tiles [(x1,z1),(x2,z2)]
 	//Note: (x1==x2 || z1==z2) must be true
@@ -437,8 +444,43 @@ public class MapInfo{
 			return Vector2.zero;
 		}
 	}
-	
-	
+
+	public Guy ReturnSelectedGuy(){
+		foreach(Guy guy in guys){
+			if(guy.Selected) return guy;
+		}
+		Debug.Log ("error! MapInfo: ReturnSelectedGuy();");
+		return null;
+	}
+
+	public Spy ReturnSelectedSpy(){
+		foreach(Spy spy in spies){
+			if(spy.Selected) return spy;
+		}
+		Debug.Log ("error! MapInfo: ReturnSelectedSpy();");
+		return null;
+	}
+
+	public Guy ReturnClickedOnGuy(int x, int z){
+		Vector2 tile = new Vector2(x,z);
+		foreach(Guy guy in guys){
+			if(guy.Alive && guy.TileLocation==tile)
+				return guy;
+		}
+		Debug.Log ("error! MapInfo: ReturnClickedOnGuy();");
+		return null;
+	}
+
+	public Spy ReturnClickedOnSpy(int x, int z){
+		Vector2 tile = new Vector2(x,z);
+		foreach(Spy spy in spies){
+			if(spy.Alive && spy.TileLocation==tile)
+				return spy;
+		}
+		Debug.Log ("error! MapInfo: ReturnClickedOnSpy();");
+		return null;
+	}
+
 	public bool CurrentPlayerAtTile(int x, int z, int currentPlayer){
 		Vector2 tile = new Vector2(x,z);
 		if(currentPlayer==(int)GameEngine.Players.One){
@@ -577,6 +619,38 @@ public class MapInfo{
 			Debug.Log ("error: currentPlayer in MapInfo set incorrectly (TileTakenByEnemy(int x,int z))");
 		return false;
 	}
+
+	public List<string> GearForCurrentPlayer(int currentPlayer){
+		List<string> gear = new List<string>();
+		if(currentPlayer==(int)GameEngine.Players.One){
+			foreach(Spy spy in spies){
+				gear.Add (spy.GearEquipped());
+			}
+		}else if(currentPlayer==(int)GameEngine.Players.Two){
+			foreach(Guy guy in guys){
+				gear.Add (guy.GearEquipped());
+			}
+		}else{
+			Debug.Log ("Error: MapInfo.GearForCurrentPlayer");
+		}
+		return gear;
+	}
+
+	public List<int> HealthLeftForCurrentPlayer(int currentPlayer){
+		List<int> health = new List<int>();
+		if(currentPlayer==(int)GameEngine.Players.One){
+			foreach(Spy spy in spies){
+				health.Add (spy.Health);
+			}
+		}else if(currentPlayer==(int)GameEngine.Players.Two){
+			foreach(Guy guy in guys){
+				health.Add (guy.Health);
+			}
+		}else{
+			Debug.Log ("Error: MapInfo.HealthLeftForCurrentPlayer");
+		}
+		return health;
+	}
 	
 	public List<int> MovesLeftForCurrentPlayer(int currentPlayer){
 		List<int> moves = new List<int>();
@@ -613,35 +687,16 @@ public class MapInfo{
 	}
 	
 	public void EliminatePlayerAt(int x, int z, int currentPlayer){
-		bool kill=false;
 		if(currentPlayer==(int)GameEngine.Players.One){
-			foreach(Spy spy in spies){
-				if(spy.Selected){
-					if(spy.HasPoint()){ 
-						kill=true;
-						spy.SpendPoint();
-					}
-				}
-			}
 			foreach(Guy guy in guys){
-				if(guy.TileLocation.x==x && guy.TileLocation.y==z && kill){ 
+				if(guy.TileLocation.x==x && guy.TileLocation.y==z){ 
 					map[x,z].Open();
-					guy.Die();
 				}
 			}
 		}else if(currentPlayer==(int)GameEngine.Players.Two){
-			foreach(Guy guy in guys){
-				if(guy.Selected){
-					if(guy.HasPoint()){ 
-						kill=true;
-						guy.SpendPoint();
-					}
-				}
-			}
 			foreach(Spy spy in spies){
-				if(spy.TileLocation.x==x && spy.TileLocation.y==z && kill){ 
+				if(spy.TileLocation.x==x && spy.TileLocation.y==z){ 
 					map[x,z].Open ();
-					spy.Die();
 				}
 			}
 		}else

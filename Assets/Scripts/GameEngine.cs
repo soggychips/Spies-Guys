@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 public class GameEngine : MonoBehaviour {
 
-	public enum Players: int{One,Two};
+	public enum Players: int{One,Two}; //Spies, Guys
 	public Transform tile;
 	public Material ft_hidden, ft_open, ft_taken, ft_wall, ft_item;
 	public Material pt_spy, pt_guy;
@@ -22,6 +22,8 @@ public class GameEngine : MonoBehaviour {
 	private GameState gstate;
 	private TurnState tstate;
 	private int turn;
+	private Guy specificGuy; 
+	private Spy specificSpy;
 	//private int[,] visibility;
 	private bool updateFlag;
 	public int currentPlayer; //set using Players enum
@@ -38,6 +40,7 @@ public class GameEngine : MonoBehaviour {
 		get{return winner;}	
 	}
 	
+
 	// Use this for initialization
 	void Start () {
 		turn=0;
@@ -258,6 +261,14 @@ public class GameEngine : MonoBehaviour {
 		map.FoVForCurrentPlayer((int)map.MapSize/2,currentPlayer);
 		UpdateTileMaterials();
 	}
+
+	public void AssignGearToSpy(int spyIndex,int gearToGive){
+		map.AssignGearToSpy(spyIndex,gearToGive);
+	}
+
+	public void AssignGearToGuy(int guyIdx, int gearToGive){
+		map.AssignGearToGuy(guyIdx,gearToGive);
+	}
 	
 	public Material AssignMaterial(int x, int z){
 		int type = map.GetTileType(x,z);
@@ -335,7 +346,27 @@ public class GameEngine : MonoBehaviour {
 	public bool CurrentPlayerAt(int x, int z){
 		return map.CurrentPlayerAtTile(x,z,currentPlayer);	
 	}
+
+	public Guy ReturnClickedOnGuy(int x, int z){
+		return map.ReturnClickedOnGuy(x,z);
+	}
+
+	public Spy ReturnClickedOnSpy(int x, int z){
+		return map.ReturnClickedOnSpy(x,z);
+	}
 	
+	public Guy ReturnSelectedGuy(){
+		return map.ReturnSelectedGuy();
+	}
+
+	public Spy ReturnSelectedSpy(){
+		return map.ReturnSelectedSpy();
+	}
+
+	public int ReturnSelectedPlayerIndex(){
+		return map.ReturnSelectedPlayerIdx(currentPlayer);
+	}
+
 	public bool OpenTileAt(int x, int z){
 		return map.OpenTileAt(x,z);
 	}
@@ -445,7 +476,30 @@ public class GameEngine : MonoBehaviour {
 
 	}
 
-
+	public void SelectedPlayerDamageEnemy(Vector2 enemyTile){
+		switch(currentPlayer){
+		case (int)Players.One:
+			specificSpy = ReturnSelectedSpy();
+			specificGuy = ReturnClickedOnGuy((int)enemyTile.x,(int)enemyTile.y);
+			if(specificSpy.HasPoint()){
+				specificSpy.DealDamage(specificGuy);
+				if(!specificGuy.Alive){
+					EliminatePlayerAt((int)specificGuy.TileLocation.x,(int)specificGuy.TileLocation.y);
+				}
+			}
+			break;
+		case (int)Players.Two:
+			specificGuy = ReturnSelectedGuy();
+			specificSpy = ReturnClickedOnSpy((int)enemyTile.x,(int)enemyTile.y);
+			if(specificGuy.HasPoint()){
+				specificGuy.DealDamage(specificSpy);
+				if(!specificSpy.Alive){
+					EliminatePlayerAt((int)specificSpy.TileLocation.x,(int)specificSpy.TileLocation.y);
+				}
+			}
+			break;
+		}
+	}
 	
 	public void EliminatePlayerAt(int x, int z){
 		map.EliminatePlayerAt(x,z,currentPlayer);	
@@ -453,5 +507,13 @@ public class GameEngine : MonoBehaviour {
 	
 	public List<int> MovesLeftForCurrentPlayer(){
 		return map.MovesLeftForCurrentPlayer(currentPlayer);	
+	}
+
+	public List<int> HealthLeftForCurrentPlayer(){
+		return map.HealthLeftForCurrentPlayer(currentPlayer);
+	}
+
+	public List<string> GearForCurrentPlayer(){
+		return map.GearForCurrentPlayer(currentPlayer);
 	}
 }

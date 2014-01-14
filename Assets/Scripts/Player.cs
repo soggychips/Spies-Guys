@@ -14,11 +14,16 @@ public class Player {
 	protected Vector3 realWorldLocation;
 	protected int movesLeft;
 	protected int gearEquipped;
-	protected int health;
+	protected int health; //0-5?
+	protected bool shocked;
 	
 	public int MovesLeft{
 		get{return movesLeft;}
 		set{movesLeft=value;}
+	}
+
+	public int Health{
+		get{return health;}
 	}
 	
 	public bool Alive{
@@ -43,32 +48,23 @@ public class Player {
 		alive=true;
 		selected=false;
 		gearEquipped=0;
-		health = 10;
-	}
-	
-	/*public bool SpendPoints(int points){
-		if(points>movesLeft){
-			Debug.Log("points>movesLeft :: public void SpendPoints in Player.cs");
-			return false;
-		}else{
-			movesLeft = movesLeft-points;
-			return true;
-		}
+		health = 5;
+		shocked=false;
 	}
 
-	 public void GivePoints(int points){
-		movesLeft += points;	
-	}
-	
-	public bool SpendAllPoints(){
-		if(movesLeft>0){ 
-			movesLeft=0;
-			return true;
-		}
-		return false;
-	}*/
 	public bool HasPoint(){
 		return(MovesLeft>=1);
+	}
+	
+	public void Shock(){
+		shocked=true;
+	}
+
+	public void TakeDamage(int dmg){
+		health-=dmg;
+		if(health<=0){ 
+			Die();
+		}
 	}
 
 	public void SpendPoint(){
@@ -81,7 +77,8 @@ public class Player {
 	}
 	
 	public void ResetPoints(){
-		movesLeft=totalMovementPoints;	
+		movesLeft=totalMovementPoints;
+		if(shocked) movesLeft--;
 	}
 	
 	public void FreeMove(int x, int z){
@@ -101,6 +98,7 @@ public class Player {
 	
 	public void Die(){
 		alive=false;
+		health=0;
 	}
 	
 }

@@ -13,9 +13,10 @@ public class TouchHandler : MonoBehaviour {
 	private Vector2 mouseClick;
 
 	int page = 1;
+	int gearPage = 1;
 	int gadget1=0, gadget2=0;
-	int spyToAssignGear=1;
-	int guyToAssignGear=1;
+	int spyToAssignGear=0;
+	int guyToAssignGear=0;
 
 	
 	
@@ -53,8 +54,8 @@ public class TouchHandler : MonoBehaviour {
 					}else if(scene.CurrentPlayerAt((int)mouseClick.x,(int)mouseClick.y)){
 						scene.DeselectCharacter();
 					}else if(scene.TileTakenByEnemy((int)mouseClick.x,(int)mouseClick.y)){
-						Debug.Log("Enemy at "+mouseClick.x+","+mouseClick.y+" eliminated!");
-						scene.EliminatePlayerAt((int)mouseClick.x,(int)mouseClick.y);
+						Debug.Log("Enemy at "+mouseClick.x+","+mouseClick.y+" damaged!");
+						scene.SelectedPlayerDamageEnemy(mouseClick);
 						scene.DeselectCharacter();
 						scene.SetPlayerVisibilityUsingFoV();
 					}
@@ -111,6 +112,9 @@ public class TouchHandler : MonoBehaviour {
 				DisplaySubmitButton();
 				DisplayPlayerData();
 				break;
+			case (int)TurnState.States.CharSelected:
+				DisplaySelectedPlayerData();
+				break;
 			case (int)TurnState.States.MoveConfirm:
 				MovementConfirmation();
 				break;
@@ -132,6 +136,9 @@ public class TouchHandler : MonoBehaviour {
 			case (int)TurnState.States.Neutral:
 				DisplaySubmitButton();
 				DisplayPlayerData();
+				break;
+			case (int)TurnState.States.CharSelected:
+				DisplaySelectedPlayerData();
 				break;
 			case (int)TurnState.States.MoveConfirm:
 				MovementConfirmation();
@@ -217,17 +224,73 @@ public class TouchHandler : MonoBehaviour {
 		GUI.Label(new Rect(Screen.width-200,30,150,30),"Turn State: "+turnStateString);
 		GUI.Label(new Rect(Screen.width-200,60,150,30),"Turn: "+ scene.Turn);
 	}
-	
+
+	public void DisplaySelectedPlayerData(){
+		Debug.Log ("Displaying Selected Player Data");
+		List<int> movesLeftForPlayers = scene.MovesLeftForCurrentPlayer();
+		List<int> healthLeftForPlayers = scene.HealthLeftForCurrentPlayer();
+		List<string> gearForPlayers = scene.GearForCurrentPlayer();
+		int selectedPlayerIndex = scene.ReturnSelectedPlayerIndex();
+		switch(scene.CurrentGameState){
+		case (int)GameState.States.P1:
+			if(selectedPlayerIndex==0){
+				GUI.Label(new Rect(Screen.width-500,0,150,30),"Spy[0]: "+movesLeftForPlayers[0]);
+				GUI.Label(new Rect(Screen.width-200,80,150,30),"Health:");
+				GUI.Label(new Rect(Screen.width-200,95,150,30),"Spy[0]: "+ healthLeftForPlayers[0]);
+				GUI.Label(new Rect(Screen.width-200,175,150,30),"Gear:");
+				GUI.Label(new Rect(Screen.width-200,200,150,30),"Spy[0]: "+ gearForPlayers[0]);
+			}else if(selectedPlayerIndex==1){
+				GUI.Label(new Rect(Screen.width-500,30,150,30),"Spy[1]: "+movesLeftForPlayers[1]);
+				GUI.Label(new Rect(Screen.width-200,80,150,30),"Health:");
+				GUI.Label(new Rect(Screen.width-200,125,150,30),"Spy[1]: "+ healthLeftForPlayers[1]);
+				GUI.Label(new Rect(Screen.width-200,175,150,30),"Gear:");
+				GUI.Label(new Rect(Screen.width-200,230,150,30),"Spy[1]: "+ gearForPlayers[1]);
+			}else{
+				Debug.Log ("Error: TouchHandler.DisplaySelectedPlayerData()");
+			}
+			break;
+		case (int)GameState.States.P2:
+			if(selectedPlayerIndex==0){
+				GUI.Label(new Rect(Screen.width-500,0,150,30),"Guy[0]: "+movesLeftForPlayers[0]);
+				GUI.Label(new Rect(Screen.width-200,80,150,30),"Health:");
+				GUI.Label(new Rect(Screen.width-200,95,150,30),"Guy[0]: "+ healthLeftForPlayers[0]);
+				GUI.Label(new Rect(Screen.width-200,175,150,30),"Gear:");
+				GUI.Label(new Rect(Screen.width-200,200,150,30),"Guy[0]: "+ gearForPlayers[0]);
+			}else{
+				GUI.Label(new Rect(Screen.width-500,30,150,30),"Guy[1]: "+movesLeftForPlayers[1]);
+				GUI.Label(new Rect(Screen.width-200,80,150,30),"Health:");
+				GUI.Label(new Rect(Screen.width-200,125,150,30),"Guy[1]: "+ healthLeftForPlayers[1]);
+				GUI.Label(new Rect(Screen.width-200,175,150,30),"Gear:");
+				GUI.Label(new Rect(Screen.width-200,230,150,30),"Guy[1]: "+ gearForPlayers[1]);
+			}
+			break;
+		}
+	}
+
 	public void DisplayPlayerData(){
 		List<int> movesLeftForPlayers = scene.MovesLeftForCurrentPlayer();
+		List<int> healthLeftForPlayers = scene.HealthLeftForCurrentPlayer();
+		List<string> gearForPlayers = scene.GearForCurrentPlayer();
 		switch(scene.CurrentGameState){
 		case (int)GameState.States.P1:
 			GUI.Label(new Rect(Screen.width-500,0,150,30),"Spy[0]: "+movesLeftForPlayers[0]);
 			GUI.Label(new Rect(Screen.width-500,30,150,30),"Spy[1]: "+movesLeftForPlayers[1]);
+			GUI.Label(new Rect(Screen.width-200,80,150,30),"Health:");
+			GUI.Label(new Rect(Screen.width-200,95,150,30),"Spy[0]: "+ healthLeftForPlayers[0]);
+			GUI.Label(new Rect(Screen.width-200,125,150,30),"Spy[1]: "+ healthLeftForPlayers[1]);
+			GUI.Label(new Rect(Screen.width-200,175,150,30),"Gear:");
+			GUI.Label(new Rect(Screen.width-200,200,150,30),"Spy[0]: "+ gearForPlayers[0]);
+			GUI.Label(new Rect(Screen.width-200,230,150,30),"Spy[1]: "+ gearForPlayers[1]);
 			break;
 		case (int)GameState.States.P2:
 			GUI.Label(new Rect(Screen.width-500,0,150,30),"Guy[0]: "+movesLeftForPlayers[0]);
 			GUI.Label(new Rect(Screen.width-500,30,150,30),"Guy[1]: "+movesLeftForPlayers[1]);
+			GUI.Label(new Rect(Screen.width-200,80,150,30),"Health:");
+			GUI.Label(new Rect(Screen.width-200,95,150,30),"Guy[0]: "+ healthLeftForPlayers[0]);
+			GUI.Label(new Rect(Screen.width-200,125,150,30),"Guy[1]: "+ healthLeftForPlayers[1]);
+			GUI.Label(new Rect(Screen.width-200,175,150,30),"Gear:");
+			GUI.Label(new Rect(Screen.width-200,200,150,30),"Guy[0]: "+ gearForPlayers[0]);
+			GUI.Label(new Rect(Screen.width-200,230,150,30),"Guy[1]: "+ gearForPlayers[1]);
 			break;
 		}
 		
@@ -298,34 +361,6 @@ public class TouchHandler : MonoBehaviour {
 			}
 			break;
 		case 2:
-			switch(spyToAssignGear){
-			case 1:
-				GUI.Label(new Rect(Screen.width/2,Screen.height/2-250,600,50), "Spy #1");
-				GUI.Box(new Rect(Screen.width/2-300,Screen.height/2-300,600,600), "Choose A Gadget");
-				if(GUI.Button(new Rect(Screen.width/2-150,Screen.height/2-25,100,50), "Emp Pistol")) { 
-					gadget1=1;
-					spyToAssignGear=2;
-				}
-				if(GUI.Button(new Rect(Screen.width/2+50,Screen.height/2-25,100,50), "Shock Rifle")) { 
-					gadget1=2;
-					spyToAssignGear=2;
-				}
-				break;
-			case 2:
-				GUI.Label(new Rect(Screen.width/2,Screen.height/2-250,600,50), "Spy #2");
-				GUI.Box(new Rect(Screen.width/2-300,Screen.height/2-300,600,600), "Choose A Gadget");
-				if(GUI.Button(new Rect(Screen.width/2-150,Screen.height/2-25,100,50), "Emp Pistol")) { 
-					gadget2=1;
-					page++;
-				}
-				if(GUI.Button(new Rect(Screen.width/2+50,Screen.height/2-25,100,50), "Shock Rifle")) { 
-					gadget2=2;
-					page++;
-				}
-				break;
-			}
-			break;
-		case 3:
 			scene.CreateMatch();
 			scene.SGDataInit();
 			page=1;
@@ -334,10 +369,77 @@ public class TouchHandler : MonoBehaviour {
 	}
 	
 	public void ReadyMenu(){
-		GUI.Box(new Rect(Screen.width/2-300,Screen.height/2-300,500,500), "Match Ready...");
-		if(GUI.Button(new Rect(Screen.width/2-100,Screen.height/2-50,100,50), "Start Game")) { 
-			scene.StartGame(); 
+		switch(page){
+		case 1:
+			AssignGearMenu();
+			break;
+		case 2:
+			GUI.Box(new Rect(Screen.width/2-300,Screen.height/2-300,500,500), "Match Ready...");
+			if(GUI.Button(new Rect(Screen.width/2-100,Screen.height/2-50,100,50), "Start Game")) 
+				scene.StartGame();
+			break;
 		}	
+	}
+
+	public void AssignGearMenu(){
+		switch(gearPage){
+		case 1:
+			switch(spyToAssignGear){
+			case 0:
+				GUI.Label(new Rect(Screen.width/2,Screen.height/2-250,600,50), "Spy #1");
+				GUI.Box(new Rect(Screen.width/2-300,Screen.height/2-300,600,600), "Choose A Gadget");
+				if(GUI.Button(new Rect(Screen.width/2-150,Screen.height/2-25,100,50), "Emp Pistol")) { 
+					scene.AssignGearToSpy(0,(int)Spy.SpyGear.empGun);
+					spyToAssignGear=1;
+				}
+				if(GUI.Button(new Rect(Screen.width/2+50,Screen.height/2-25,100,50), "Shock Rifle")) { 
+					scene.AssignGearToSpy(0,(int)Spy.SpyGear.shockRifle);
+					spyToAssignGear=1;
+				}
+				break;
+			case 1:
+				GUI.Label(new Rect(Screen.width/2,Screen.height/2-250,600,50), "Spy #2");
+				GUI.Box(new Rect(Screen.width/2-300,Screen.height/2-300,600,600), "Choose A Gadget");
+				if(GUI.Button(new Rect(Screen.width/2-150,Screen.height/2-25,100,50), "Emp Pistol")) { 
+					scene.AssignGearToSpy(1,(int)Spy.SpyGear.empGun);
+					gearPage=2;
+				}
+				if(GUI.Button(new Rect(Screen.width/2+50,Screen.height/2-25,100,50), "Shock Rifle")) { 
+					scene.AssignGearToSpy(1,(int)Spy.SpyGear.shockRifle);
+					gearPage=2;
+				}
+				break;
+			}
+			break;
+		case 2:
+			switch(guyToAssignGear){
+			case 0:
+				GUI.Label(new Rect(Screen.width/2,Screen.height/2-250,600,50), "Guy #1");
+				GUI.Box(new Rect(Screen.width/2-300,Screen.height/2-300,600,600), "Choose A Gadget");
+				if(GUI.Button(new Rect(Screen.width/2-150,Screen.height/2-25,100,50), "Shotgun")) { 
+					scene.AssignGearToGuy(0,(int)Guy.GuyGear.shotgun);
+					guyToAssignGear=1;
+				}
+				if(GUI.Button(new Rect(Screen.width/2+50,Screen.height/2-25,100,50), "Rifle")) { 
+					scene.AssignGearToGuy(0,(int)Guy.GuyGear.rifle);
+					guyToAssignGear=1;
+				}
+				break;
+			case 1:
+				GUI.Label(new Rect(Screen.width/2,Screen.height/2-250,600,50), "Guy #2");
+				GUI.Box(new Rect(Screen.width/2-300,Screen.height/2-300,600,600), "Choose A Gadget");
+				if(GUI.Button(new Rect(Screen.width/2-150,Screen.height/2-25,100,50), "Shotgun")) { 
+					scene.AssignGearToGuy(1,(int)Guy.GuyGear.shotgun);
+					page=2;
+				}
+				if(GUI.Button(new Rect(Screen.width/2+50,Screen.height/2-25,100,50), "Rifle")) { 
+					scene.AssignGearToGuy(1,(int)Guy.GuyGear.rifle);
+					page=2;
+				}
+				break;
+			}
+			break;
+		}
 	}
 	
 	public void BeginTurnMenu(){
