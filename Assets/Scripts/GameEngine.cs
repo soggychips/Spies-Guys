@@ -6,7 +6,7 @@ public class GameEngine : MonoBehaviour {
 
 	public enum Players: int{One,Two}; //Spies, Guys
 	public Transform tile;
-	public Material ft_hidden, ft_open, ft_taken, ft_wall, ft_item;
+	public Material ft_hidden, ft_open, ft_taken, ft_wall, ft_item, ft_noise;
 	public Material pt_spy, pt_guy;
 	public Material wall_n_end, wall_s_end, wall_e_end, wall_w_end, wall_ne_corn,wall_nw_corn,
 					wall_se_corn,wall_sw_corn,wall_h_mid,wall_v_mid,wall_s_t,wall_n_t,wall_e_t,wall_w_t;
@@ -29,6 +29,7 @@ public class GameEngine : MonoBehaviour {
 	public int currentPlayer; //set using Players enum
 	//movement variables
 	private Vector2 originalPosition; private int selectedPlayerIdx;
+	private List<Vector2> spyNoiseAlertLocations, guyNoiseAlertLocations;
 	//door variable(s)
 	private Vector2 positionOfDoor;
 	//attack variables
@@ -49,6 +50,8 @@ public class GameEngine : MonoBehaviour {
 		tstate = new TurnState(); //Default: Neutral
 		updateFlag = false;
 		tileGraphics = new Transform[map.MapSize,map.MapSize];
+		spyNoiseAlertLocations = new List<Vector2>();
+		guyNoiseAlertLocations = new List<Vector2>();
 	}
 	
 
@@ -109,15 +112,19 @@ public class GameEngine : MonoBehaviour {
 		tstate.Neutralize();
 	}
 	
-	public void GiveControlToPlayer1(){
+	public void GiveControlToPlayer1(){ //Give control to Spies
 		turn++;
+		spyNoiseAlertLocations.Clear ();
 		map.ResetPoints();
 		SetPlayerVisibilityUsingFoV();	
 		tstate.Neutralize();
 	}
 	
-	public void GiveControlToPlayer2(){
+	public void GiveControlToPlayer2(){ //Give control to Guys
 		turn++;
+		Debug.Log ("contents of spyNoiseAlertLocations at beginning of guys' turn");
+		foreach(Vector2 v in spyNoiseAlertLocations) Debug.Log (v);
+		guyNoiseAlertLocations.Clear();
 		map.ResetPoints();
 		SetPlayerVisibilityUsingFoV();
 		tstate.Neutralize();
@@ -167,9 +174,12 @@ public class GameEngine : MonoBehaviour {
 		for(int i=0; i<map.MapSize;i++){
 			for(int j=0; j<map.MapSize;j++){
 				if(tileVisibility[i,j]==0 && !map.SelectedCharacterAtTile(i,j,currentPlayer)){
-					//tileGraphics[i,j].renderer.material.SetColor("_Color",ft_hidden.color); 
-					tileGraphics[i,j].renderer.material=ft_hidden;
-					//Debug.Log("INVIS TILE "+i+","+j);
+					if((currentPlayer==(int)Players.One && guyNoiseAlertLocations.Contains(new Vector2(i,j))) 
+					|| (currentPlayer==(int)Players.Two && spyNoiseAlertLocations.Contains(new Vector2(i,j)))){
+						tileGraphics[i,j].renderer.material=ft_noise;
+					}else{
+						tileGraphics[i,j].renderer.material=ft_hidden;
+					}
 				}else{
 					Material temp = AssignMaterial(i,j);
 					//tileGraphics[i,j].renderer.material.SetColor("_Color",temp.color);
@@ -238,6 +248,21 @@ public class GameEngine : MonoBehaviour {
 			else
 				Instantiate(sprintHighlight,new Vector3(tile.x*Tile.spacing,.2f,tile.y*Tile.spacing),Quaternion.identity);
 		}
+	}
+
+	public void MarkTileAsSprintTile (Vector2 mouseClick)
+	{
+		map.TileAt(mouseClick).SprintedTo=true;
+		if(currentPlayer==(int)Players.One){ //spies
+			Debug.Log ("tile marked as sprinted (spies)");
+			spyNoiseAlertLocations.Add(mouseClick);
+		}else{ //guys
+			guyNoiseAlertLocations.Add (mouseClick);
+		}
+	}
+
+	public bool TileIsSprintDistance(Vector2 tileLocation){
+		return (map.TileAt(tileLocation).Depth>Player.sneakDistance);
 	}
 	
 	public void DestroyHighlights(){
@@ -340,6 +365,15 @@ public class GameEngine : MonoBehaviour {
 			case (int)DoorFacings.NS: return door_EW;
 			}
 		}
+		//Check for Noise Alerts
+		if(currentPlayer==(int)Players.One){ //spies
+			if(guyNoiseAlertLocations.Contains(new Vector2(x,z))) return ft_noise;
+		}else{								//guys
+			if(spyNoiseAlertLocations.Contains(new Vector2(x,z))){ 
+				Debug.Log ("spyNouseAlertLocations contains the vector "+x+","+z);
+				return ft_noise;
+			}
+		}
 		return ft_hidden;
 	}
 	
@@ -415,7 +449,6 @@ public class GameEngine : MonoBehaviour {
 		if(done){
 			MoveSelectedCharTo(goalX,goalZ);
 		}
-		
 	}
 
 	public void MoveSelectedCharTo(int x, int z){

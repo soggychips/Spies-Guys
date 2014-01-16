@@ -163,13 +163,16 @@ public class MapInfo{
 		//Doors
 		CreateDoor(10,25);
 		CreateDoor(10,17);
-		CreateDoor(15,9);
-		CreateDoor(14,19);
 		CreateDoor(12,13);
-		CreateDoor(17,7);
+		CreateDoor(14,19);
+		CreateDoor(15,9);
+		CreateDoor(18,7);
 		CreateDoor(19,13);
 		CreateDoor(20,24);
+		CreateDoor(25,18);
 		CreateDoor(32,13);
+		CreateDoor(32,25);
+		CreateDoor(41,4);
 		
 		SetAllTilesVisible();
 		Debug.Log("Level Loaded.");
@@ -180,10 +183,7 @@ public class MapInfo{
 		int facing = GetAppropriateDoorFacing(x,z);
 		map[x,z].GiveDoor(facing);
 	}
-
-	public void CreateSpies(){
-
-	}
+	
 
 	public void AssignGearToSpy(int spyIndex, int gearToGive){
 		spies[spyIndex].Equip(gearToGive);

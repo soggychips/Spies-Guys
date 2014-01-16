@@ -28,7 +28,7 @@ public class Guy : Player {
 		SpendPoint();
 		switch(gearEquipped){
 		case (int)GuyGear.shotgun:
-			if(Vector2.Distance(this.tileLocation,enemy.TileLocation)==1){
+			if(Vector2.Distance(this.tileLocation,enemy.TileLocation)<=2){
 				enemy.Die ();
 			}else if(Vector2.Distance(this.tileLocation,enemy.TileLocation)<=sneakDistance){ //critical damage
 				enemy.TakeDamage(4);

@@ -78,7 +78,10 @@ public class Player {
 	
 	public void ResetPoints(){
 		movesLeft=totalMovementPoints;
-		if(shocked) movesLeft--;
+		if(shocked){ 
+			movesLeft--;
+			shocked=false;
+		}
 	}
 	
 	public void FreeMove(int x, int z){

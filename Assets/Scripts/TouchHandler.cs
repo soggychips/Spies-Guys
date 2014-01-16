@@ -43,6 +43,10 @@ public class TouchHandler : MonoBehaviour {
 					mouseClick = MouseClickToTileCoords();
 				if(scene.HighlightedTileAt((int)mouseClick.x,(int)mouseClick.y) && !scene.CurrentPlayerAt((int)mouseClick.x,(int)mouseClick.y)){
 						if(scene.UnblockedTileAt(mouseClick)){
+							if(scene.TileIsSprintDistance(mouseClick)){
+								Debug.Log ("Sprinting to tile "+mouseClick);
+								scene.MarkTileAsSprintTile(mouseClick);
+							}	
 							scene.Movement((int)mouseClick.x,(int)mouseClick.y);
 						}else if(scene.ClosedDoorAt(mouseClick)){
 							if(scene.UnlockedDoorAt(mouseClick)){ //open the door
