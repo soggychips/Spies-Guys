@@ -506,7 +506,7 @@ public class MapInfo{
 			else if(guys[1].TileLocation.x==x && guys[1].TileLocation.y==z) guys[1].Selected=true;
 			else if(guys[2].TileLocation.x==x && guys[2].TileLocation.y==z) guys[2].Selected=true;
 		}
-		Debug.Log ("Player selected");
+		//Debug.Log ("Player selected");
 	}
 	
 	public bool SelectedCharacterAtTile(int x, int z, int currentPlayer){
@@ -532,7 +532,7 @@ public class MapInfo{
 			foreach(Guy guy in guys)
 				guy.Selected=false;
 		}	
-		Debug.Log ("Players Deselected");
+		//Debug.Log ("Players Deselected");
 	}
 
 	public void OpenDoor(int x, int z){
@@ -690,7 +690,7 @@ public class MapInfo{
 		if(currentPlayer==(int)GameEngine.Players.One){
 			foreach(Guy guy in guys){
 				if(guy.TileLocation.x==x && guy.TileLocation.y==z){ 
-					map[x,z].Open();
+					map[x,z].Open(); //change it to the previous stored tile type
 				}
 			}
 		}else if(currentPlayer==(int)GameEngine.Players.Two){
@@ -797,7 +797,7 @@ public class MapInfo{
 		if(z-1>=0 && map[x,z-1].hasClosedDoor()) return new Vector2(x,z-1);
 		if(x+1<mapSize && map[x+1,z].hasClosedDoor()) return new Vector2(x+1,z);
 		if(z+1<mapSize && map[x,z+1].hasClosedDoor()) return new Vector2(x,z+1);
-		Debug.Log ("Spy at "+x+","+z+" not next to a door");
+		//Debug.Log ("Spy at "+x+","+z+" not next to a door");
 		return new Vector2(-1000,-1000);
 	}
 
@@ -863,12 +863,12 @@ public class MapInfo{
 	}
 	
 	public void FoVForSpy_IgnoreDoor(Vector2 playerLocation, int maxViewDistance, Vector2 doorLocationToIgnore){
-		Debug.Log("Ignoring door at "+doorLocationToIgnore);
+		//Debug.Log("Ignoring door at "+doorLocationToIgnore);
 		List<Vector2> edgeOfVisionTiles = ReturnAllMaxDistanceTiles((int)playerLocation.x,(int)playerLocation.y,maxViewDistance);
 		foreach(Vector2 endpoint in edgeOfVisionTiles){
 			Vector2 start = playerLocation;
 			Vector2 end = endpoint;
-			Debug.Log("Calculating vision from "+start+" to "+end);
+			//Debug.Log("Calculating vision from "+start+" to "+end);
 			Vector2 vect = end-start;
 			float norm = Mathf.Sqrt((vect.x*vect.x) + (vect.y*vect.y));
 			Vector2 unitVect = new Vector2(vect.x/norm,vect.y/norm);
@@ -879,9 +879,9 @@ public class MapInfo{
 			while(roundedLocation!=end){
 				start+=unitVect;
 				roundedLocation = new Vector2(Mathf.Round(start.x),Mathf.Round(start.y));
-				if(roundedLocation==doorLocationToIgnore){
-					Debug.Log ("roundedLoc=doorLoc");
-				}
+				//if(roundedLocation==doorLocationToIgnore){
+				//	Debug.Log ("roundedLoc=doorLoc");
+				//}
 				//Debug.Log ("location = ["+start.x+","+start.y+"]");
 				//Debug.Log ("rounded location = ["+roundedLocation.x+","+roundedLocation.y+"]");
 				if(!TileAt(roundedLocation).Visible){

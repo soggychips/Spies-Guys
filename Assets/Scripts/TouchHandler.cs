@@ -58,10 +58,7 @@ public class TouchHandler : MonoBehaviour {
 					}else if(scene.CurrentPlayerAt((int)mouseClick.x,(int)mouseClick.y)){
 						scene.DeselectCharacter();
 					}else if(scene.TileTakenByEnemy((int)mouseClick.x,(int)mouseClick.y)){
-						Debug.Log("Enemy at "+mouseClick.x+","+mouseClick.y+" damaged!");
-						scene.SelectedPlayerDamageEnemy(mouseClick);
-						scene.DeselectCharacter();
-						scene.SetPlayerVisibilityUsingFoV();
+						scene.Attack(mouseClick);
 					}
 					break;
 			} //end switch
@@ -230,7 +227,7 @@ public class TouchHandler : MonoBehaviour {
 	}
 
 	public void DisplaySelectedPlayerData(){
-		Debug.Log ("Displaying Selected Player Data");
+		//Debug.Log ("Displaying Selected Player Data");
 		List<int> movesLeftForPlayers = scene.MovesLeftForCurrentPlayer();
 		List<int> healthLeftForPlayers = scene.HealthLeftForCurrentPlayer();
 		List<string> gearForPlayers = scene.GearForCurrentPlayer();
@@ -337,8 +334,16 @@ public class TouchHandler : MonoBehaviour {
 	public void ActionConfirmation()
 	{
 		int buttonPressed = ConfirmationButtons();
-		if(buttonPressed==1)		scene.ConfirmAction();//CHANGE THE TRASH
-		else if(buttonPressed==2) 	scene.CancelAction();//CHANGE THE TRASH
+		switch(scene.CurrentTurnStateActionType){
+		case (int)TurnState.ActionTypes.Attack:
+			if(buttonPressed==1)		scene.ConfirmAttack();
+			else if(buttonPressed==2) 	scene.CancelAction();
+			break;
+		case (int)TurnState.ActionTypes.Door:
+			if(buttonPressed==1)		scene.ConfirmAction();
+			else if(buttonPressed==2) 	scene.CancelAction();
+			break;
+		}
 	}
 	
 	public int ConfirmationButtons(){

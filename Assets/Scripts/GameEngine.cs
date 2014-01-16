@@ -33,6 +33,8 @@ public class GameEngine : MonoBehaviour {
 	//door variable(s)
 	private Vector2 positionOfDoor;
 	//attack variables
+	private int damageDealt;
+	private Vector2 enemyLocation;
 
 
 	
@@ -78,6 +80,10 @@ public class GameEngine : MonoBehaviour {
 	public int CurrentTurnState{
 		get{return tstate.CurrentState;}	
 	}
+
+	public int CurrentTurnStateActionType{
+		get{return tstate.ActionType;}
+	}
 	
 	public int Turn{
 		get{return turn;}	
@@ -122,7 +128,7 @@ public class GameEngine : MonoBehaviour {
 	
 	public void GiveControlToPlayer2(){ //Give control to Guys
 		turn++;
-		Debug.Log ("contents of spyNoiseAlertLocations at beginning of guys' turn");
+		//Debug.Log ("contents of spyNoiseAlertLocations at beginning of guys' turn");
 		foreach(Vector2 v in spyNoiseAlertLocations) Debug.Log (v);
 		guyNoiseAlertLocations.Clear();
 		map.ResetPoints();
@@ -357,9 +363,9 @@ public class GameEngine : MonoBehaviour {
 			}
 		}
 		if(type==(int)TileType.Door_Open){
-			Debug.Log ("Door is open with facing as: ");
-			if(map.GetDoorFacing(x,z)==(int)DoorFacings.EW) Debug.Log ("EW. Door set to NS");
-			else Debug.Log ("NS. Door set to EW");
+			//Debug.Log ("Door is open with facing as: ");
+			//if(map.GetDoorFacing(x,z)==(int)DoorFacings.EW) Debug.Log ("EW. Door set to NS");
+			//else Debug.Log ("NS. Door set to EW");
 			switch(map.GetDoorFacing(x,z)){
 			case (int)DoorFacings.EW: return door_NS;
 			case (int)DoorFacings.NS: return door_EW;
@@ -370,7 +376,7 @@ public class GameEngine : MonoBehaviour {
 			if(guyNoiseAlertLocations.Contains(new Vector2(x,z))) return ft_noise;
 		}else{								//guys
 			if(spyNoiseAlertLocations.Contains(new Vector2(x,z))){ 
-				Debug.Log ("spyNouseAlertLocations contains the vector "+x+","+z);
+				//Debug.Log ("spyNouseAlertLocations contains the vector "+x+","+z);
 				return ft_noise;
 			}
 		}
@@ -429,13 +435,13 @@ public class GameEngine : MonoBehaviour {
 		selectedPlayerIdx = map.ReturnSelectedPlayerIdx(currentPlayer);
 		originalPosition = map.ReturnSelectedPlayerPosition(selectedPlayerIdx, currentPlayer);
 		
-		Debug.Log ("CurrentPlayer: "+currentPlayer+". Idx: "+selectedPlayerIdx+". OG Position: "+originalPosition);
-		Debug.Log ("Prepared for movement");
+		//Debug.Log ("CurrentPlayer: "+currentPlayer+". Idx: "+selectedPlayerIdx+". OG Position: "+originalPosition);
+		//Debug.Log ("Prepared for movement");
 	}
 
 	public void BeginMovement (int goalX, int goalZ)
 	{
-		Debug.Log ("Beginning movement to: "+goalX+","+goalZ);
+		//Debug.Log ("Beginning movement to: "+goalX+","+goalZ);
 		tstate.BeginMovement();
 		AnimateMovement(goalX,goalZ);
 	}
@@ -494,19 +500,47 @@ public class GameEngine : MonoBehaviour {
 		case (int)TurnState.ActionTypes.Door:
 			map.RevertDoorOpening((int)positionOfDoor.x,(int)positionOfDoor.y);
 			break;
+		//Attack case currently would do nothing
 		}
 		UpdateTileMaterials();
 		map.DeselectCharacter(currentPlayer);
 	}
 
-	public void Attack(int enemyX, int enemyZ)
+	public void ConfirmAttack(){
+		SelectedPlayerDamageEnemy(enemyLocation);
+		tstate.Neutralize();
+		SetPlayerVisibilityUsingFoV();
+		map.DeselectCharacter(currentPlayer);
+		enemyLocation = new Vector2();
+	}
+
+	public void Attack(Vector2 enemyLocationCoords)
 	{
-		Debug.Log ("This will kill the enemy, are you sure?");
+		enemyLocation = enemyLocationCoords;
+		tstate.BeginAction((int)TurnState.ActionTypes.Attack);
+		SelectedPlayerPredictDamageToEnemy(enemyLocationCoords);
+		DestroyHighlights();
 		tstate.EndAction();
 	}
 
-	public void ConfirmAttack(){
 
+	public void SelectedPlayerPredictDamageToEnemy(Vector2 enemyTile){
+		switch(currentPlayer){
+		case (int)Players.One:
+			specificSpy = ReturnSelectedSpy();
+			specificGuy = ReturnClickedOnGuy((int)enemyTile.x,(int)enemyTile.y);
+			if(specificSpy.HasPoint()){
+				specificSpy.PredictDamage(specificGuy);
+			}
+			break;
+		case (int)Players.Two:
+			specificGuy = ReturnSelectedGuy();
+			specificSpy = ReturnClickedOnSpy((int)enemyTile.x,(int)enemyTile.y);
+			if(specificGuy.HasPoint()){
+				specificGuy.PredictDamage(specificSpy);
+			}
+			break;
+		}
 	}
 
 	public void SelectedPlayerDamageEnemy(Vector2 enemyTile){

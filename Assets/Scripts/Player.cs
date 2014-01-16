@@ -7,6 +7,7 @@ public class Player {
 	public static int yPlayerHeight = 0;
 	public static int sneakDistance = 4;
 	public static int sprintDistnace = 2; //in addition to sneakDistance
+	public static int startingHealth = 5;
 	
 	protected bool alive;
 	protected bool selected;
@@ -48,7 +49,7 @@ public class Player {
 		alive=true;
 		selected=false;
 		gearEquipped=0;
-		health = 5;
+		health = startingHealth;
 		shocked=false;
 	}
 
@@ -65,6 +66,11 @@ public class Player {
 		if(health<=0){ 
 			Die();
 		}
+	}
+
+	public void GiveHealth(int hp){
+		if (hp+health>startingHealth) Debug.Log ("Error: Player.GiveHealth()");
+		health+=hp;
 	}
 
 	public void SpendPoint(){
@@ -100,6 +106,7 @@ public class Player {
 	
 	
 	public void Die(){
+		Debug.Log ("A player has died!");
 		alive=false;
 		health=0;
 	}
