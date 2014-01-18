@@ -6,7 +6,7 @@ public class Player {
 	public static int totalMovementPoints = 3;
 	public static int yPlayerHeight = 0;
 	public static int sneakDistance = 4;
-	public static int sprintDistnace = 2; //in addition to sneakDistance
+	public static int sprintDistance = 2; //in addition to sneakDistance
 	public static int startingHealth = 5;
 	
 	protected bool alive;
@@ -17,6 +17,7 @@ public class Player {
 	protected int gearEquipped;
 	protected int health; //0-5?
 	protected bool shocked;
+	protected bool lostSprintNotification;
 	
 	public int MovesLeft{
 		get{return movesLeft;}
@@ -51,10 +52,15 @@ public class Player {
 		gearEquipped=0;
 		health = startingHealth;
 		shocked=false;
+		lostSprintNotification = false;
 	}
 
 	public bool HasPoint(){
 		return(MovesLeft>=1);
+	}
+
+	public bool CanSprint(){
+		return (sprintDistance>0);
 	}
 	
 	public void Shock(){
@@ -63,9 +69,16 @@ public class Player {
 
 	public void TakeDamage(int dmg){
 		health-=dmg;
-		if(health<=0){ 
+		if(health<(startingHealth/2)&&(CanSprint())){
+			LoseRunningCapabilities();
+		}else if(health<=0){ 
 			Die();
 		}
+	}
+
+	public void LoseRunningCapabilities(){
+		sprintDistance=0;
+		lostSprintNotification=true;
 	}
 
 	public void GiveHealth(int hp){
@@ -82,12 +95,13 @@ public class Player {
 		MovesLeft++;
 	}
 	
-	public void ResetPoints(){
+	public void ResetPoints(){ //called when player is given control
 		movesLeft=totalMovementPoints;
 		if(shocked){ 
 			movesLeft--;
 			shocked=false;
 		}
+		if(lostSprintNotification) Debug.Log ("You've been severely damaged, and can no longer sprint!");
 	}
 	
 	public void FreeMove(int x, int z){

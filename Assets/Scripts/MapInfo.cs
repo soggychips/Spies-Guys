@@ -108,7 +108,7 @@ public class MapInfo{
 		map[3,8].Take(); map[3,16].Take(); //spies
 		map[29,5].Take(); map[30,3].Take(); //guys
 
-		map[4,9].GiveItem();
+		map[4,9].GiveLightswitch();
 
 		SetAllTilesVisible();
 		Debug.Log("Level Loaded.");
@@ -334,32 +334,7 @@ public class MapInfo{
 	}
 	
 	
-	/*//rewrite similar to CurrentPlayerAtTile to fix vision problem
-	public void FindVisibleTilesForPlayer(){
-		if(currentPlayer==1){ //spies
-			Vector2[] spyLocations = {spies[0].TileLocation,spies[1].TileLocation};
-			foreach(Vector2 loc in spyLocations){
-				int[] bounds = BoundCheck(loc);
-				for(int i = bounds[0];i<=bounds[3];i++){
-					for(int j = bounds[1];j<=bounds[2];j++){
-						map[i,j].Visible=true;	
-					}
-				}
-			}
-		}else if(currentPlayer==2){ //guys
-			Vector2[] guyLocations = {guys[0].TileLocation,guys[1].TileLocation,guys[2].TileLocation};
-			foreach(Vector2 loc in guyLocations){
-				int[] bounds = BoundCheck(loc);
-				for(int i = bounds[0];i<=bounds[3];i++){
-					for(int j = bounds[1];j<=bounds[2];j++){
-						map[i,j].Visible=true;	
-					}
-				}
-			}	
-		}
-	}*/
-	
-	//above method, rewritten using lists and checking for dead players
+
 	public void FindVisibleTilesForPlayer(int currentPlayer){
 		//for the spies:
 		if(currentPlayer==(int)GameEngine.Players.One){
@@ -569,7 +544,6 @@ public class MapInfo{
 
 	public void RevertMovement (int selectedPlayerIdx, Vector2 originalPosition, int currentPlayer)
 	{
-		int depth;
 		switch(currentPlayer){
 		case (int)GameEngine.Players.One:
 			map[(int)spies[selectedPlayerIdx].TileLocation.x,(int)spies[selectedPlayerIdx].TileLocation.y].LoadStoredType();
@@ -589,6 +563,12 @@ public class MapInfo{
 	public bool OpenTileAt(int x, int z){
 		if(x==-1000 || z==-1000) return false;
 		if(map[x,z].Type == (int)TileType.Open)	return true;
+		return false;
+	}
+
+	public bool BlockedTileAt(int x, int z){
+		if(x==-1000 || z==-1000) return false;
+		if(map[x,z].isBlocked())	return true;
 		return false;
 	}
 	
@@ -842,8 +822,9 @@ public class MapInfo{
 			ScanLine(playerLocation,endpoint);
 	}
 
-	public void ScanLine(Vector2 start, Vector2 end){
+	public void ScanLine(Vector2 start, Vector2 end){ //used for Field of View Algorithms
 		Vector2 vect = end-start;
+		Vector2 check = start;
 		float norm = Mathf.Sqrt((vect.x*vect.x) + (vect.y*vect.y));
 		Vector2 unitVect = new Vector2(vect.x/norm,vect.y/norm);
 		TileAt(start).Visible=true;
@@ -851,17 +832,17 @@ public class MapInfo{
 		//Debug.Log ("end = "+end.ToString());
 		Vector2 roundedLocation = new Vector2((int)start.x,(int)start.y);
 		while(roundedLocation!=end){
-			start+=unitVect;
-			roundedLocation = new Vector2(Mathf.Round(start.x),Mathf.Round(start.y));
-			//Debug.Log ("location = ["+start.x+","+start.y+"]");
-			//Debug.Log ("rounded location = ["+roundedLocation.x+","+roundedLocation.y+"]");
+			check+=unitVect;
+			//start+=unitVect;
+			//roundedLocation = new Vector2(Mathf.Round(start.x),Mathf.Round(start.y));
+			roundedLocation = new Vector2(Mathf.Round(check.x),Mathf.Round(check.y));
 			if(!TileAt(roundedLocation).Visible){
 				TileAt(roundedLocation).Visible=true;
 			}
 			if(TileAt(roundedLocation).isBlocked()) return;
 		}
-	}
-	
+	} 
+
 	public void FoVForSpy_IgnoreDoor(Vector2 playerLocation, int maxViewDistance, Vector2 doorLocationToIgnore){
 		//Debug.Log("Ignoring door at "+doorLocationToIgnore);
 		List<Vector2> edgeOfVisionTiles = ReturnAllMaxDistanceTiles((int)playerLocation.x,(int)playerLocation.y,maxViewDistance);
@@ -894,6 +875,7 @@ public class MapInfo{
 
 
 	/*
+	 * Used in FOV algorithms
 	 *ReturnAllMaxDistnaceTiles returns all edge tiles of the square [(maxDistnace*2)*(maxDistnace*2)] surrounding (x,z)  
 	 */
 	public List<Vector2> ReturnAllMaxDistanceTiles(int x, int z, int maxDistance){

@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 
 public class Guy : Player {
@@ -35,7 +35,7 @@ public class Guy : Player {
 			}else if(Vector2.Distance(this.tileLocation,enemy.TileLocation)<=sneakDistance){ //critical damage
 				Debug.Log ("The enemy takes a shotgun blast to the gut!");
 				predictedDamage = 4;
-			}else if(Vector2.Distance(this.tileLocation,enemy.TileLocation)<=sneakDistance+sprintDistnace){ //small dmg
+			}else if(Vector2.Distance(this.tileLocation,enemy.TileLocation)<=sneakDistance+sprintDistance){ //small dmg
 				Debug.Log ("The enemy is hit in the shoulder by the shotgun shrapnel!");
 				predictedDamage = 3;
 			}else{
@@ -50,7 +50,7 @@ public class Guy : Player {
 			}else if(Vector2.Distance(this.tileLocation,enemy.TileLocation)<=sneakDistance){ //little dmg
 				Debug.Log ("The enemy is too close to aim at! Your hipfire hit their fingers at best.");
 				predictedDamage = 1;
-			}else if(Vector2.Distance(this.tileLocation,enemy.TileLocation)<=sneakDistance+sprintDistnace){ //small dmg
+			}else if(Vector2.Distance(this.tileLocation,enemy.TileLocation)<=sneakDistance+sprintDistance){ //small dmg
 				Debug.Log ("The enemy is hit in the leg!");
 				predictedDamage = 3;
 			}else{
@@ -75,7 +75,7 @@ public class Guy : Player {
 			}else if(Vector2.Distance(this.tileLocation,enemy.TileLocation)<=sneakDistance){ //critical damage
 				Debug.Log ("The enemy takes a shotgun blast to the gut!");
 				enemy.TakeDamage(4);
-			}else if(Vector2.Distance(this.tileLocation,enemy.TileLocation)<=sneakDistance+sprintDistnace){ //small dmg
+			}else if(Vector2.Distance(this.tileLocation,enemy.TileLocation)<=sneakDistance+sprintDistance){ //small dmg
 				Debug.Log ("The enemy is hit in the shoulder by the shotgun shrapnel!");
 				enemy.TakeDamage(3);
 			}else{
@@ -90,7 +90,7 @@ public class Guy : Player {
 			}else if(Vector2.Distance(this.tileLocation,enemy.TileLocation)<=sneakDistance){ //little dmg
 				Debug.Log ("The enemy is too close to aim at! Your hipfire hit their fingers at best.");
 				enemy.TakeDamage(1);
-			}else if(Vector2.Distance(this.tileLocation,enemy.TileLocation)<=sneakDistance+sprintDistnace){ //small dmg
+			}else if(Vector2.Distance(this.tileLocation,enemy.TileLocation)<=sneakDistance+sprintDistance){ //small dmg
 				Debug.Log ("The enemy is hit in the leg!");
 				enemy.TakeDamage(3);
 			}else{

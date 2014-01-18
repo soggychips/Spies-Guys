@@ -35,7 +35,7 @@ public class Spy : Player{
 			}else if(Vector2.Distance(this.tileLocation,enemy.TileLocation)<=sneakDistance){ //critical damage
 				Debug.Log ("A shoulder shot, and the enemy will be shocked!");
 				predictedDamage = 2;
-			}else if(Vector2.Distance(this.tileLocation,enemy.TileLocation)<=sneakDistance+sprintDistnace){ //small dmg
+			}else if(Vector2.Distance(this.tileLocation,enemy.TileLocation)<=sneakDistance+sprintDistance){ //small dmg
 				Debug.Log ("A shot to the forearm, and the enemy will be shocked!");
 				predictedDamage = 1;
 			}else{
@@ -69,7 +69,7 @@ public class Spy : Player{
 				Debug.Log ("A shoulder shot, and the enemy is shocked!");
 				enemy.TakeDamage(2);
 				enemy.Shock();
-			}else if(Vector2.Distance(this.tileLocation,enemy.TileLocation)<=sneakDistance+sprintDistnace){ //small dmg
+			}else if(Vector2.Distance(this.tileLocation,enemy.TileLocation)<=sneakDistance+sprintDistance){ //small dmg
 				Debug.Log ("A shot to the forearm, and the enemy is shocked!");
 				enemy.TakeDamage(1);
 				enemy.Shock();

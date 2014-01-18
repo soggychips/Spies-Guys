@@ -14,7 +14,6 @@ public class TouchHandler : MonoBehaviour {
 
 	int page = 1;
 	int gearPage = 1;
-	int gadget1=0, gadget2=0;
 	int spyToAssignGear=0;
 	int guyToAssignGear=0;
 
@@ -57,7 +56,7 @@ public class TouchHandler : MonoBehaviour {
 						}
 					}else if(scene.CurrentPlayerAt((int)mouseClick.x,(int)mouseClick.y)){
 						scene.DeselectCharacter();
-					}else if(scene.TileTakenByEnemy((int)mouseClick.x,(int)mouseClick.y)){
+					}else if(scene.TileTakenByEnemy((int)mouseClick.x,(int)mouseClick.y) && scene.SelectedPlayerCanAttackEnemyAt(mouseClick)){
 						scene.Attack(mouseClick);
 					}
 					break;

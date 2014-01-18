@@ -4,9 +4,13 @@ using System.Collections.Generic;
 
 public class GameEngine : MonoBehaviour {
 
-	public enum Players: int{One,Two}; //Spies, Guys
-	public Transform tile;
-	public Material ft_hidden, ft_open, ft_taken, ft_wall, ft_item, ft_noise;
+	public enum Players: int{One,Two};	//Spies, Guys
+	public Transform tile;				//The tile transform
+
+	//Materials
+	public Material ft_hidden, ft_open, 
+					ft_taken, ft_wall, 
+					ft_lightswitch, ft_noise;
 	public Material pt_spy, pt_guy;
 	public Material wall_n_end, wall_s_end, wall_e_end, wall_w_end, wall_ne_corn,wall_nw_corn,
 					wall_se_corn,wall_sw_corn,wall_h_mid,wall_v_mid,wall_s_t,wall_n_t,wall_e_t,wall_w_t;
@@ -16,22 +20,23 @@ public class GameEngine : MonoBehaviour {
 	public Transform DoorHighlight;
 	
 	
-	private int winner;
-	private Transform[,] tileGraphics;
-	private MapInfo map;
-	private GameState gstate;
-	private TurnState tstate;
-	private int turn;
-	private Guy specificGuy; 
+	private int winner;					//whoever is the winner is awarded this int, as a humble prize from me
+	private Transform[,] tileGraphics;	//2D array of the transforms for the game tiles (physical + cosmetic information)
+	private MapInfo map; 	  			//single instantiation of the map, containing all tile information
+	private GameState gstate; 		//used for changing/controlling/viewing the current state
+	private TurnState tstate; 		//used for changing/controlling/viewing the current state 
+	private int turn;		  		//a game-long counter
+	private Guy specificGuy; 		//a guy used for method calls and returns across 
 	private Spy specificSpy;
-	//private int[,] visibility;
-	private bool updateFlag;
 	public int currentPlayer; //set using Players enum
+
 	//movement variables
 	private Vector2 originalPosition; private int selectedPlayerIdx;
 	private List<Vector2> spyNoiseAlertLocations, guyNoiseAlertLocations;
+
 	//door variable(s)
 	private Vector2 positionOfDoor;
+
 	//attack variables
 	private int damageDealt;
 	private Vector2 enemyLocation;
@@ -50,7 +55,6 @@ public class GameEngine : MonoBehaviour {
 		map = new MapInfo(); 
 		gstate = new GameState(); //Default: Menu
 		tstate = new TurnState(); //Default: Neutral
-		updateFlag = false;
 		tileGraphics = new Transform[map.MapSize,map.MapSize];
 		spyNoiseAlertLocations = new List<Vector2>();
 		guyNoiseAlertLocations = new List<Vector2>();
@@ -150,10 +154,7 @@ public class GameEngine : MonoBehaviour {
 		if(currentPlayer==(int)Players.One) currentPlayer=(int)Players.Two;
 		else if(currentPlayer==(int)Players.Two) currentPlayer=(int)Players.One;
 	}
-	
-	public void FlagForUpdate(){
-		updateFlag = true;	
-	}
+
 	
 	public void LoadTiles(){
 		for(int i=0; i<map.MapSize;i++){
@@ -240,7 +241,7 @@ public class GameEngine : MonoBehaviour {
 	public void HighlightMovementTiles(int x, int z){
 		int movesForPlayer = map.MovesLeftForPlayer(x,z,currentPlayer); 
 		int totalSneakDistance = Player.sneakDistance;
-		int totalDistance = totalSneakDistance+Player.sprintDistnace;
+		int totalDistance = totalSneakDistance+Player.sprintDistance;
 		List<Vector2> BFSFromOrigin = new List<Vector2>();
 		if(movesForPlayer==0){ 
 			//do nothing
@@ -336,22 +337,18 @@ public class GameEngine : MonoBehaviour {
 			}
 			return ft_wall;
 		}
-		if(type==(int)TileType.Item){
-			return ft_item;
+		if(type==(int)TileType.Lightswitch){
+			return ft_lightswitch;
 		}
 		if(type==(int)TileType.Open){
 			return ft_open;
 		}
 		if(type==(int)TileType.Taken){
 			switch(currentPlayer){
-			case (int)Players.One:
-				if(CurrentPlayerAt(x,z)) return pt_spy;
-				else return pt_guy;
-				break;
+			case (int)Players.One: 
+				if(CurrentPlayerAt(x,z)) return pt_spy; else return pt_guy;
 			case (int)Players.Two:
-				if(CurrentPlayerAt(x,z)) return pt_guy;
-				else return pt_spy;
-				break;
+				if(CurrentPlayerAt(x,z)) return pt_guy; else return pt_spy;
 			default:
 				return ft_taken;
 			}
@@ -417,6 +414,10 @@ public class GameEngine : MonoBehaviour {
 	
 	public bool VisibleTileAt(int x, int z){
 		return map.VisibleTileAt(x,z);	
+	}
+
+	public bool BlockedTileAt(Vector2 tileLocation){
+		return map.BlockedTileAt((int)tileLocation.x,(int)tileLocation.y);
 	}
 	
 	public bool TileTakenByEnemy(int x, int z){
@@ -523,6 +524,43 @@ public class GameEngine : MonoBehaviour {
 		tstate.EndAction();
 	}
 
+	public bool LOSCheckBetweenPlayers (Vector2 start, Vector2 end){
+		Vector2 vect = end-start;
+		Vector2 check = start;
+		float norm = Mathf.Sqrt((vect.x*vect.x) + (vect.y*vect.y));
+		Vector2 unitVect = new Vector2(vect.x/norm,vect.y/norm);
+		Vector2 roundedLocation = new Vector2((int)start.x,(int)start.y);
+		while(roundedLocation!=end){
+			check+=unitVect;
+			roundedLocation = new Vector2(Mathf.Round(check.x),Mathf.Round(check.y));
+			if(TileTakenByEnemy((int)roundedLocation.x,(int)roundedLocation.y) && VisibleTileAt((int)roundedLocation.x,(int)roundedLocation.y)){
+				return (LOSCheckBetweenPlayers(end,start)); //check the other direction
+			}else if(BlockedTileAt(roundedLocation) && !(map.SelectedCharacterAtTile((int)roundedLocation.x,(int)roundedLocation.y,currentPlayer))){
+				Debug.Log ("Blocked tile at "+roundedLocation);
+				return false;
+			}
+		}
+		Debug.Log ("Error: GameEngine.LOSCheckBetweenPlayers()");
+		return false;
+	}
+
+	public bool SelectedPlayerCanAttackEnemyAt(Vector2 enemyLocation){
+		switch(currentPlayer){
+		case (int)Players.One:
+			specificSpy = ReturnSelectedSpy();
+			specificGuy = ReturnClickedOnGuy((int)enemyLocation.x,(int)enemyLocation.y);
+			if(!LOSCheckBetweenPlayers(specificSpy.TileLocation,specificGuy.TileLocation)) Debug.Log ("You can't get a good shot from here!");
+			return (LOSCheckBetweenPlayers(specificSpy.TileLocation,specificGuy.TileLocation));
+		case (int)Players.Two:
+			specificGuy = ReturnSelectedGuy();
+			specificSpy = ReturnClickedOnSpy((int)enemyLocation.x,(int)enemyLocation.y);
+			if(!LOSCheckBetweenPlayers(specificGuy.TileLocation,specificSpy.TileLocation)) Debug.Log ("You can't get a good shot from here!");
+			return (LOSCheckBetweenPlayers(specificGuy.TileLocation,specificSpy.TileLocation));
+		default:
+			Debug.Log ("Error: GameEngine.SelectedPlayerCanAttackEnemyAt()");
+			return false;
+		}
+	}
 
 	public void SelectedPlayerPredictDamageToEnemy(Vector2 enemyTile){
 		switch(currentPlayer){
