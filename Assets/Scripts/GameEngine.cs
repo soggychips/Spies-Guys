@@ -533,10 +533,15 @@ public class GameEngine : MonoBehaviour {
 		while(roundedLocation!=end){
 			check+=unitVect;
 			roundedLocation = new Vector2(Mathf.Round(check.x),Mathf.Round(check.y));
+			//Debug.Log ("roundedLocation: "+roundedLocation);
 			if(TileTakenByEnemy((int)roundedLocation.x,(int)roundedLocation.y) && VisibleTileAt((int)roundedLocation.x,(int)roundedLocation.y)){
+				//Debug.Log ("one way, now check other way");
 				return (LOSCheckBetweenPlayers(end,start)); //check the other direction
-			}else if(BlockedTileAt(roundedLocation) && !(map.SelectedCharacterAtTile((int)roundedLocation.x,(int)roundedLocation.y,currentPlayer))){
-				Debug.Log ("Blocked tile at "+roundedLocation);
+			}else if((roundedLocation==end)&& VisibleTileAt((int)roundedLocation.x,(int)roundedLocation.y)){
+				//Debug.Log ("Full LOS check complete");
+				return true;
+			}else if((roundedLocation!=start) && BlockedTileAt(roundedLocation)){
+				//Debug.Log ("Blocked tile at "+roundedLocation);
 				return false;
 			}
 		}

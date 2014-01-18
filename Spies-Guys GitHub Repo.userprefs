@@ -3,11 +3,11 @@
   <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/GameEngine.cs">
     <Files>
       <File FileName="Assets/Scripts/Tile.cs" Line="111" Column="2" />
-      <File FileName="Assets/Scripts/MapInfo.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/MapInfo.cs" Line="838" Column="42" />
       <File FileName="Assets/Scripts/Spy.cs" Line="1" Column="1" />
-      <File FileName="Assets/Scripts/GameEngine.cs" Line="538" Column="105" />
-      <File FileName="Assets/Scripts/TouchHandler.cs" Line="1" Column="1" />
-      <File FileName="Assets/Scripts/Player.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/GameEngine.cs" Line="541" Column="40" />
+      <File FileName="Assets/Scripts/TouchHandler.cs" Line="59" Column="92" />
+      <File FileName="Assets/Scripts/Player.cs" Line="72" Column="28" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
