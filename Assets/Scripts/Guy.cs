@@ -10,6 +10,7 @@ public class Guy : Player {
 		this.realWorldLocation = new Vector3(Tile.spacing*x,yPlayerHeight,Tile.spacing*z);
 		this.alive=true;
 		this.health=5;
+		this.currentSprintDistance=Player.sprintDistance;
 	}
 
 	public string GearEquipped(){

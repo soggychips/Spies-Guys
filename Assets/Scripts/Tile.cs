@@ -125,6 +125,10 @@ public class Tile {
 		return (type==(int)TileType.Taken || type==(int)TileType.Wall || type==(int)TileType.Door_Closed || type==(int)TileType.Door_Locked || type==(int)TileType.Data);
 	}
 
+	public bool isTaken(){
+		return (type==(int)TileType.Taken);
+	}
+
 
 	public bool hasClosedDoor(){
 		return (type==(int)TileType.Door_Closed);

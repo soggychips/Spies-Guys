@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -9,15 +9,15 @@ public class GameEngine : MonoBehaviour {
 
 	//Materials
 	public Material ft_hidden, ft_open, 
-					ft_taken, ft_wall, 
-					ft_lightswitch, ft_noise;
+					ft_taken, ft_wall, //ft_wall is a fallback return element, showing there is a problem if it appears in game 
+					ft_lightswitch, ft_noise, ft_data;
 	public Material pt_spy, pt_guy;
 	public Material wall_n_end, wall_s_end, wall_e_end, wall_w_end, wall_ne_corn,wall_nw_corn,
 					wall_se_corn,wall_sw_corn,wall_h_mid,wall_v_mid,wall_s_t,wall_n_t,wall_e_t,wall_w_t;
 	public Material door_NS, door_EW;
 	public Transform sneakHighlight;
 	public Transform sprintHighlight;
-	public Transform DoorHighlight;
+	public Transform InteractionHighlight;
 	
 	
 	private int winner;					//whoever is the winner is awarded this int, as a humble prize from me
@@ -29,6 +29,7 @@ public class GameEngine : MonoBehaviour {
 	private Guy specificGuy; 		//a guy used for method calls and returns across 
 	private Spy specificSpy;
 	public int currentPlayer; //set using Players enum
+	private bool alertMissingData = false;
 
 	//movement variables
 	private Vector2 originalPosition; private int selectedPlayerIdx;
@@ -36,6 +37,9 @@ public class GameEngine : MonoBehaviour {
 
 	//door variable(s)
 	private Vector2 positionOfDoor;
+
+	//data variables
+	private Vector2 positionofData;
 
 	//attack variables
 	private int damageDealt;
@@ -88,6 +92,10 @@ public class GameEngine : MonoBehaviour {
 	public int CurrentTurnStateActionType{
 		get{return tstate.ActionType;}
 	}
+
+	public bool MissingDataAlert{
+		get{return alertMissingData;}
+	}
 	
 	public int Turn{
 		get{return turn;}	
@@ -133,7 +141,7 @@ public class GameEngine : MonoBehaviour {
 	public void GiveControlToPlayer2(){ //Give control to Guys
 		turn++;
 		//Debug.Log ("contents of spyNoiseAlertLocations at beginning of guys' turn");
-		foreach(Vector2 v in spyNoiseAlertLocations) Debug.Log (v);
+		//foreach(Vector2 v in spyNoiseAlertLocations) Debug.Log (v);
 		guyNoiseAlertLocations.Clear();
 		map.ResetPoints();
 		SetPlayerVisibilityUsingFoV();
@@ -212,6 +220,14 @@ public class GameEngine : MonoBehaviour {
 		return(map.TileAt(mouseClick).hasClosedDoor() || map.TileAt(mouseClick).hasLockedDoor());
 	}
 
+	public bool DataAt(Vector2 mouseClick){
+		return(map.TileAt(mouseClick).hasData());
+	}
+
+	public bool DroppedDataAt(Vector2 mouseClick){
+		return(map.TileAt(mouseClick).hasData() && map.TileContainsDroppedData(mouseClick));
+	}
+
 	public bool UnblockedTileAt (Vector2 mouseClick)
 	{
 		return(!map.TileAt(mouseClick).isBlocked());
@@ -222,9 +238,26 @@ public class GameEngine : MonoBehaviour {
 		Vector2 doorLocation = map.GetAdjacentClosedDoorLocation(x,z);
 		if(doorLocation.x!=-1000){
 			map.TileAt(doorLocation).Highlight();
-			if(map.TileAt (doorLocation).hasClosedDoor()){
-				Instantiate (DoorHighlight, new Vector3(doorLocation.x*Tile.spacing,.2f,doorLocation.y*Tile.spacing),Quaternion.identity);
-			}
+			//if(map.TileAt (doorLocation).hasClosedDoor()){
+				Instantiate (InteractionHighlight, new Vector3(doorLocation.x*Tile.spacing,.2f,doorLocation.y*Tile.spacing),Quaternion.identity);
+			//}
+		}
+	}
+
+	public void HighlightData(int x, int z){
+		Vector2 dataLocation = map.GetAdjacentDataLocation(x,z);
+		if(dataLocation.x!=-1000){
+			map.TileAt(dataLocation).Highlight();
+			Instantiate(InteractionHighlight, new Vector3(dataLocation.x*Tile.spacing,.2f,dataLocation.y*Tile.spacing),Quaternion.identity);
+		}
+
+	}
+
+	public void HighlightDroppedData(int x, int z){
+		Vector2 dataLocation = map.GetAdjacentDataLocation(x,z);
+		if(dataLocation.x!=-1000 && map.TileContainsDroppedData(dataLocation)){
+			map.TileAt (dataLocation).Highlight();
+			Instantiate(InteractionHighlight, new Vector3(dataLocation.x*Tile.spacing,.2f,dataLocation.y*Tile.spacing),Quaternion.identity);
 		}
 	}
 
@@ -233,15 +266,18 @@ public class GameEngine : MonoBehaviour {
 	{
 		if(currentPlayer==(int)Players.One){//spies
 			HighlightClosedDoors(x,z);
+			HighlightData(x,z);
 		}else{//guys
 			HighlightClosedDoors(x,z);
+			HighlightDroppedData(x,z);
 		}
 	}
 	
 	public void HighlightMovementTiles(int x, int z){
 		int movesForPlayer = map.MovesLeftForPlayer(x,z,currentPlayer); 
 		int totalSneakDistance = Player.sneakDistance;
-		int totalDistance = totalSneakDistance+Player.sprintDistance;
+		int totalDistance = totalSneakDistance+ ReturnSelectedPlayer().CurrentSprintDistance;
+		Debug.Log ("Current player's sprint distance: "+ReturnSelectedPlayer().CurrentSprintDistance);
 		List<Vector2> BFSFromOrigin = new List<Vector2>();
 		if(movesForPlayer==0){ 
 			//do nothing
@@ -336,8 +372,9 @@ public class GameEngine : MonoBehaviour {
 				return wall_w_t;
 			}
 			return ft_wall;
-		}
-		if(type==(int)TileType.Lightswitch){
+		}else if(type==(int)TileType.Data){
+			return ft_data;
+		}else if(type==(int)TileType.Lightswitch){
 			return ft_lightswitch;
 		}
 		if(type==(int)TileType.Open){
@@ -398,6 +435,10 @@ public class GameEngine : MonoBehaviour {
 
 	public Spy ReturnSelectedSpy(){
 		return map.ReturnSelectedSpy();
+	}
+
+	public Player ReturnSelectedPlayer(){
+		return map.ReturnSelectedPlayer(currentPlayer);
 	}
 
 	public int ReturnSelectedPlayerIndex(){
@@ -489,6 +530,42 @@ public class GameEngine : MonoBehaviour {
 		
 	}
 
+	public void TakeData(Vector2 dataLocation){
+		tstate.BeginAction((int)TurnState.ActionTypes.Data);
+		positionofData = dataLocation;
+		tstate.EndAction();
+	}
+	
+
+	public void ConfirmDataSteal(){
+		DestroyHighlights();
+		tstate.Neutralize();
+		//steal data, assign to proper spy, open data tile
+		map.TakeData(positionofData);
+		SetPlayerVisibilityUsingFoV();
+		map.DeselectCharacter(currentPlayer);
+		alertMissingData = true;
+		positionofData = new Vector2();
+	}
+
+	public void ResetDroppedData(Vector2 droppedDataLocation){
+		tstate.BeginAction((int)TurnState.ActionTypes.Data);
+		positionofData = droppedDataLocation;
+		tstate.EndAction();
+	}
+
+	public void ConfirmDataReset(){
+		DestroyHighlights();
+		Debug.Log ("Confirm Data Reset");
+		tstate.Neutralize();
+		map.ResetDroppedDataAt(positionofData);
+		//highlight the reset location for visual knowledge
+		SetPlayerVisibilityUsingFoV();
+		if(!map.MissingData()) alertMissingData = false;
+		positionofData = new Vector2();
+	}
+	
+
 	public void ConfirmAction(){
 		tstate.Neutralize();
 		SetPlayerVisibilityUsingFoV();
@@ -496,6 +573,7 @@ public class GameEngine : MonoBehaviour {
 	}
 
 	public void CancelAction(){
+		DestroyHighlights();
 		tstate.Neutralize();
 		switch((int)tstate.ActionType){
 		case (int)TurnState.ActionTypes.Door:

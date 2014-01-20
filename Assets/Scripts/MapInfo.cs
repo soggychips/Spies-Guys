@@ -13,8 +13,11 @@ public class MapInfo{
 	private Tile[,] map;
 	private int[,] visibility; //used for visibility reference, set to 1 or 2 only!
 	
-	public Guy[] guys;
-	public Spy[] spies;
+	public List<Guy> guys;
+	public List<Spy> spies;
+
+	private DataCollection data;
+	private List<Vector2> lightswitchLocations;
 
 	public int Winner{
 		get{return winner;}	
@@ -53,6 +56,8 @@ public class MapInfo{
 	public MapInfo () {
 		map = new Tile[mapSize,mapSize];
 		visibility = new int[mapSize,mapSize];
+		lightswitchLocations = new List<Vector2>();
+		data = new DataCollection();
 		MapInit();
 	}
 	
@@ -99,14 +104,14 @@ public class MapInfo{
 		GiveWallInRange(27,1,27,7);
 		GiveWallInRange(27,10,32,10);
 		
-		guys = new Guy[2];
+		/*guys = new Guy[2];
 		guys[0] = new Guy(30,3);
 		guys[1] = new Guy(29,5);
 		spies = new Spy[2];
 		spies[0] = new Spy(3,8);
 		spies[1] = new Spy(3,16);
 		map[3,8].Take(); map[3,16].Take(); //spies
-		map[29,5].Take(); map[30,3].Take(); //guys
+		map[29,5].Take(); map[30,3].Take(); //guys*/
 
 		map[4,9].GiveLightswitch();
 
@@ -148,17 +153,42 @@ public class MapInfo{
 		GiveWallInRange(32,26,32,28);
 
 
+
 		//TODO: REPLACE WITH CREATE___ METHODS
-		guys = new Guy[2];
-		guys[0] = new Guy(35,25);
-		guys[1] = new Guy(35,11);
+		/*guys = new Guy[2];
+		//guys[0] = new Guy(35,25);
+		//guys[1] = new Guy(35,11);
+		guys[0] = new Guy(24,19);
+		guys[1] = new Guy(24,17);
 		spies = new Spy[2];
-		spies[0] = new Spy(6,18);
-		spies[1] = new Spy(6,20);
-		map[6,18].Take(); map[6,20].Take(); //spies
-		map[35,25].Take(); map[35,11].Take(); //guys
-		
-		//map[4,9].GiveItem();
+		spies[0] = new Spy(15,18);
+		spies[1] = new Spy(15,20);
+		//spies[0] = new Spy(6,18);
+		//spies[1] = new Spy(6,20);
+		//map[6,18].Take(); map[6,20].Take(); //spies
+		//map[35,25].Take(); map[35,11].Take(); //guys
+		map[15,18].Take(); map[15,20].Take(); //spies
+		map[24,19].Take(); map[24,17].Take(); //guys */
+		spies = new List<Spy>();
+		CreateSpy(15,18);
+		CreateSpy(15,20);
+
+		guys = new List<Guy>();
+		CreateGuy(35,25);
+		CreateGuy(35,11);
+
+
+		CreateData(20,19);
+
+		CreateLightswitch(9,24);
+		CreateLightswitch(9,18);
+		CreateLightswitch(18,23);
+		CreateLightswitch(24,20);
+		CreateLightswitch(21,14);
+		CreateLightswitch(15,17);
+		CreateLightswitch(33,23);
+		CreateLightswitch(33,11);
+		CreateLightswitch(17,8);
 
 		//Doors
 		CreateDoor(10,25);
@@ -178,10 +208,82 @@ public class MapInfo{
 		Debug.Log("Level Loaded.");
 	}
 
+	public void CreateData(int x, int z){
+		map[x,z].GiveData();
+		//Data d = new Data(x,z);
+		data.Add(new Data(x,z));
+	}
+
+	public void CreateSpy(int x, int z){
+		spies.Add(new Spy(x,z));
+		map[x,z].Take();
+	}
+
+	public void CreateGuy(int x, int z){
+		guys.Add(new Guy(x,z));
+		map[x,z].Take ();
+	}
+
+	public void TakeData(Vector2 v){
+		data.TakeData(data.DataAtTile(v));					//marks data object as taken 
+		ReturnSelectedSpy().TakeData(data.DataAtTile(v)); 	//assigns data to appripriate spy
+		//TileAt(v).StoreType(); 								//stores tile type as DATA
+		TileAt(v).Open();									//sets tile type as open
+	}
+
+	public void DropDataHeldBySpyAt(Vector2 deadSpyLocation){
+		foreach(Spy spy in spies){
+			if(!spy.Alive && spy.TileLocation==deadSpyLocation && spy.HasData){
+				foreach(Data d in data.Data){
+					data.DropData(d,deadSpyLocation); 	//set data's new tileLocation and update data object to !taken
+					spy.RemoveData(d); 					//remove data from spy's data cache
+					TileAt(deadSpyLocation).GiveData(); //set the tile at the location of death to type Data
+				}
+				spy.FreeMove(Player.deadPlayerTile);
+			}
+		}
+	}
+
+	public void ResetDroppedDataAt(Vector2 droppedDataLocation){
+		Debug.Log ("Map.ResetDroppedDataAt");
+		foreach(Data d in data.Data){
+			if(d.TileLocation == droppedDataLocation){
+				TileAt (droppedDataLocation).LoadStoredType ();			//use this line for being adjacent to the data for reset
+				//TileAt(d.TileLocation).StoreTypeAs((int)TileType.Open);	//sets the tile's saved type at the data location to Open (guy should be standing on it currently)
+				if(TileAt(d.OriginalTileLocation).isTaken()) 						//{all												}
+					TileAt(d.OriginalTileLocation).StoreTypeAs((int)TileType.Data);	//{of												}
+				else 																//{this												}
+					TileAt(d.OriginalTileLocation).GiveData();						//{sets the tile at the OG data location to Data	}
+				d.ResetPosition();										//sets the data's current position to its original position
+			}
+		}
+	}
+
+	public bool TileContainsDroppedData(Vector2 tile){
+		foreach(Data d in data.Data){
+			if(d.TileLocation == tile && d.TileLocation!=d.OriginalTileLocation) return true;
+		}
+		Debug.Log ("Tile does not contain data");
+		return false;
+	}
+
+	public bool MissingData(){
+		foreach(Data d in data.Data){
+			if(d.TileLocation!=d.OriginalTileLocation) return true;
+		}
+		return false;
+	}
+
 	public void CreateDoor (int x, int z)
 	{
 		int facing = GetAppropriateDoorFacing(x,z);
 		map[x,z].GiveDoor(facing);
+	}
+
+	public void CreateLightswitch (int x, int z)
+	{
+		map[x,z].GiveLightswitch();
+		lightswitchLocations.Add(new Vector2(x,z));
 	}
 	
 
@@ -393,11 +495,11 @@ public class MapInfo{
 	{	//must use indexes to iterate through spies/guys instead of foreach
 		switch(currentPlayer){
 		case (int)GameEngine.Players.One:
-			for(int i=0;i<spies.Length;i++)
+			for(int i=0;i<spies.Count;i++)
 				if(spies[i].Selected) return i;
 			break;
 		case (int)GameEngine.Players.Two:
-			for(int i=0;i<guys.Length;i++)
+			for(int i=0;i<guys.Count;i++)
 				if(guys[i].Selected) return i;
 			break;
 		default:
@@ -418,6 +520,20 @@ public class MapInfo{
 			Debug.Log ("Error: MapInfo.ReturnSelectedPlayerPosition");
 			return Vector2.zero;
 		}
+	}
+
+	public Player ReturnSelectedPlayer(int currentPlayer){
+		if(currentPlayer==(int)GameEngine.Players.One){
+			foreach(Spy spy in spies){
+				if(spy.Selected) return spy;
+			}
+		}else{
+			foreach(Guy guy in guys){
+				if(guy.Selected) return guy;
+			}
+		}
+		Debug.Log ("Error: MapInfo.ReturnSelectedPlayer");
+		return new Player();
 	}
 
 	public Guy ReturnSelectedGuy(){
@@ -670,13 +786,17 @@ public class MapInfo{
 		if(currentPlayer==(int)GameEngine.Players.One){
 			foreach(Guy guy in guys){
 				if(guy.TileLocation.x==x && guy.TileLocation.y==z){ 
-					map[x,z].Open(); //change it to the previous stored tile type
+					map[x,z].LoadStoredType();
+					//map[x,z].Open(); //change it to the previous stored tile type
 				}
 			}
 		}else if(currentPlayer==(int)GameEngine.Players.Two){
 			foreach(Spy spy in spies){
 				if(spy.TileLocation.x==x && spy.TileLocation.y==z){ 
-					map[x,z].Open ();
+					map[x,z].LoadStoredType();
+					//map[x,z].Open ();
+					if(spy.HasData) DropDataHeldBySpyAt(spy.TileLocation);
+
 				}
 			}
 		}else
@@ -777,9 +897,22 @@ public class MapInfo{
 		if(z-1>=0 && map[x,z-1].hasClosedDoor()) return new Vector2(x,z-1);
 		if(x+1<mapSize && map[x+1,z].hasClosedDoor()) return new Vector2(x+1,z);
 		if(z+1<mapSize && map[x,z+1].hasClosedDoor()) return new Vector2(x,z+1);
-		//Debug.Log ("Spy at "+x+","+z+" not next to a door");
+		Debug.Log ("Spy at "+x+","+z+" not next to a door");
 		return new Vector2(-1000,-1000);
 	}
+
+	public Vector2 GetAdjacentDataLocation(int x, int z){
+		if(x>=mapSize || z>=mapSize || x<0 || z<0){
+			Debug.Log ("Error: MapInfo.GetAdjacentDataLocation");	
+		}
+		if(x-1>=0 && map[x-1,z].hasData()) return new Vector2(x-1,z);
+		if(z-1>=0 && map[x,z-1].hasData()) return new Vector2(x,z-1);
+		if(x+1<mapSize && map[x+1,z].hasData()) return new Vector2(x+1,z);
+		if(z+1<mapSize && map[x,z+1].hasData()) return new Vector2(x,z+1);
+		Debug.Log ("Spy at "+x+","+z+" not next to data");
+		return new Vector2(-1000,-1000);
+	}
+	
 
 	public int GetAppropriateDoorFacing(int x, int z){
 		if(x>=mapSize || z>=mapSize || x<0 || z<0){

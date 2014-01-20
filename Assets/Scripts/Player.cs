@@ -8,6 +8,7 @@ public class Player {
 	public static int sneakDistance = 4;
 	public static int sprintDistance = 2; //in addition to sneakDistance
 	public static int startingHealth = 5;
+	public static Vector2 deadPlayerTile = new Vector2(-500,-500);
 	
 	protected bool alive;
 	protected bool selected;
@@ -18,6 +19,7 @@ public class Player {
 	protected int health; //0-5?
 	protected bool shocked;
 	protected bool lostSprintNotification;
+	protected int currentSprintDistance;
 	
 	public int MovesLeft{
 		get{return movesLeft;}
@@ -40,6 +42,10 @@ public class Player {
 	public Vector2 TileLocation{
 		get{return tileLocation;}	
 	}
+
+	public int CurrentSprintDistance{
+		get{return currentSprintDistance;}
+	}
 	
 	public Player(){}
 	
@@ -53,6 +59,7 @@ public class Player {
 		health = startingHealth;
 		shocked=false;
 		lostSprintNotification = false;
+		currentSprintDistance = sprintDistance;
 	}
 
 	public bool HasPoint(){
@@ -60,7 +67,7 @@ public class Player {
 	}
 
 	public bool CanSprint(){
-		return (sprintDistance>0);
+		return (currentSprintDistance>0);
 	}
 	
 	public void Shock(){
@@ -69,7 +76,7 @@ public class Player {
 
 	public void TakeDamage(int dmg){
 		health-=dmg;
-		if(health<(startingHealth/2)&&(CanSprint())){
+		if(health<(startingHealth/2)&&(this.CanSprint())){
 			LoseRunningCapabilities();
 		}else if(health<=0){ 
 			Die();
@@ -77,7 +84,8 @@ public class Player {
 	}
 
 	public void LoseRunningCapabilities(){
-		sprintDistance=0;
+		Debug.Log ("LoseRunningCapabilities() called");
+		currentSprintDistance=0;
 		lostSprintNotification=true;
 	}
 
@@ -106,6 +114,10 @@ public class Player {
 	
 	public void FreeMove(int x, int z){
 		tileLocation = new Vector2(x,z);	
+	}
+
+	public void FreeMove(Vector2 location){
+		tileLocation = location;
 	}
 	
 	public void Move(int x, int z, int dist){

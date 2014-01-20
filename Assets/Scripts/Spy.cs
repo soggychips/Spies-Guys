@@ -1,8 +1,12 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class Spy : Player{
 	
+	private bool hasData;
+	private List<Data> takenData;
+
 	public enum SpyGear: int{empGun,shockRifle};
 	
 	public Spy(int x, int z){
@@ -10,6 +14,13 @@ public class Spy : Player{
 		this.realWorldLocation = new Vector3(Tile.spacing*x,yPlayerHeight,Tile.spacing*z);
 		this.alive=true;
 		this.health=5;
+		this.currentSprintDistance=Player.sprintDistance;
+		takenData = new List<Data>();
+		hasData =false;
+	}
+
+	public bool HasData{
+		get{return hasData;}
 	}
 
 	public string GearEquipped(){
@@ -89,6 +100,17 @@ public class Spy : Player{
 			Debug.Log ("Error: Guy.cs public void DealDamage");
 			break;
 		}
+	}
+
+	public void TakeData(Data d){
+		takenData.Add (d);
+		hasData=true;
+	}
+
+	public void RemoveData(Data e){
+		if(takenData.Contains(e)) takenData.Remove(e);
+		else Debug.Log ("Spy data does not contain specified data (Spy.RemoveData)");
+		if(takenData.Count==0) hasData=false;
 	}
 	
 }
