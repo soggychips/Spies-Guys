@@ -547,7 +547,8 @@ public class GameEngine : MonoBehaviour {
 		tstate.BeginAction((int)TurnState.ActionTypes.Door);
 		positionOfDoor = doorLocation;
 		map.OpenDoor((int)doorLocation.x,(int)doorLocation.y);
-		DestroyHighlights();
+		map.DeselectCharacter(currentPlayer);
+		//DestroyHighlights();
 		tstate.EndAction();
 		UpdateTileMaterials();
 		
@@ -586,6 +587,7 @@ public class GameEngine : MonoBehaviour {
 		SetPlayerVisibilityUsingFoV();
 		if(!map.MissingData()) alertMissingData = false;
 		positionofData = new Vector2();
+		map.DeselectCharacter(currentPlayer);
 	}
 	
 

@@ -163,12 +163,16 @@ public class MapInfo{
 
 		//PLAYERS
 		spies = new List<Spy>();
-		CreateSpy(6,18);
-		CreateSpy(6,20);
+		//CreateSpy(6,18);
+		//CreateSpy(6,20);
+		CreateSpy(15,21);
+		CreateSpy(15,18);
 
 		guys = new List<Guy>();
-		CreateGuy(35,25);
-		CreateGuy(35,11);
+		//CreateGuy(35,25);
+		//CreateGuy(35,11);
+		CreateGuy(24,17);
+		CreateGuy(24,19);
 
 		//OBJECTIVES
 		CreateData(20,19);
