@@ -6,7 +6,9 @@ public class Player {
 	public static int totalMovementPoints = 3;
 	public static int yPlayerHeight = 0;
 	public static int sneakDistance = 4;
-	public static int sprintDistnace = 2; //in addition to sneakDistance
+	public static int sprintDistance = 2; //in addition to sneakDistance
+	public static int startingHealth = 5;
+	public static Vector2 deadPlayerTile = new Vector2(-500,-500);
 	
 	protected bool alive;
 	protected bool selected;
@@ -16,6 +18,8 @@ public class Player {
 	protected int gearEquipped;
 	protected int health; //0-5?
 	protected bool shocked;
+	protected bool lostSprintNotification;
+	protected int currentSprintDistance;
 	
 	public int MovesLeft{
 		get{return movesLeft;}
@@ -38,6 +42,10 @@ public class Player {
 	public Vector2 TileLocation{
 		get{return tileLocation;}	
 	}
+
+	public int CurrentSprintDistance{
+		get{return currentSprintDistance;}
+	}
 	
 	public Player(){}
 	
@@ -48,12 +56,18 @@ public class Player {
 		alive=true;
 		selected=false;
 		gearEquipped=0;
-		health = 5;
+		health = startingHealth;
 		shocked=false;
+		lostSprintNotification = false;
+		currentSprintDistance = sprintDistance;
 	}
 
 	public bool HasPoint(){
 		return(MovesLeft>=1);
+	}
+
+	public bool CanSprint(){
+		return (currentSprintDistance>0);
 	}
 	
 	public void Shock(){
@@ -62,9 +76,22 @@ public class Player {
 
 	public void TakeDamage(int dmg){
 		health-=dmg;
-		if(health<=0){ 
+		if(health<(startingHealth/2)&&(this.CanSprint())){
+			LoseRunningCapabilities();
+		}else if(health<=0){ 
 			Die();
 		}
+	}
+
+	public void LoseRunningCapabilities(){
+		Debug.Log ("LoseRunningCapabilities() called");
+		currentSprintDistance=0;
+		lostSprintNotification=true;
+	}
+
+	public void GiveHealth(int hp){
+		if (hp+health>startingHealth) Debug.Log ("Error: Player.GiveHealth()");
+		health+=hp;
 	}
 
 	public void SpendPoint(){
@@ -76,13 +103,21 @@ public class Player {
 		MovesLeft++;
 	}
 	
-	public void ResetPoints(){
+	public void ResetPoints(){ //called when player is given control
 		movesLeft=totalMovementPoints;
-		if(shocked) movesLeft--;
+		if(shocked){ 
+			movesLeft--;
+			shocked=false;
+		}
+		if(lostSprintNotification) Debug.Log ("You've been severely damaged, and can no longer sprint!");
 	}
 	
 	public void FreeMove(int x, int z){
 		tileLocation = new Vector2(x,z);	
+	}
+
+	public void FreeMove(Vector2 location){
+		tileLocation = location;
 	}
 	
 	public void Move(int x, int z, int dist){
@@ -97,6 +132,7 @@ public class Player {
 	
 	
 	public void Die(){
+		Debug.Log ("A player has died!");
 		alive=false;
 		health=0;
 	}

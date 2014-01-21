@@ -14,7 +14,6 @@ public class TouchHandler : MonoBehaviour {
 
 	int page = 1;
 	int gearPage = 1;
-	int gadget1=0, gadget2=0;
 	int spyToAssignGear=0;
 	int guyToAssignGear=0;
 
@@ -24,6 +23,14 @@ public class TouchHandler : MonoBehaviour {
 	void Start () {
 		scene = GameObject.Find("Engine").GetComponent("GameEngine") as GameEngine; //gives us access to the GameEngine script
 		
+	}
+
+	public bool Player1(){
+		return (scene.CurrentGameState==(int)GameState.States.P1);
+	}
+
+	public bool Player2(){
+		return (scene.CurrentGameState==(int)GameState.States.P2);
 	}
 	
 	void Update(){
@@ -41,23 +48,29 @@ public class TouchHandler : MonoBehaviour {
 				//if turnState: CharSelected
 				case (int)TurnState.States.CharSelected:
 					mouseClick = MouseClickToTileCoords();
-				if(scene.HighlightedTileAt((int)mouseClick.x,(int)mouseClick.y) && !scene.CurrentPlayerAt((int)mouseClick.x,(int)mouseClick.y)){
+					if(scene.HighlightedTileAt((int)mouseClick.x,(int)mouseClick.y) && !scene.CurrentPlayerAt((int)mouseClick.x,(int)mouseClick.y)){
 						if(scene.UnblockedTileAt(mouseClick)){
+							if(scene.TileIsSprintDistance(mouseClick)){
+								Debug.Log ("Sprinting to tile "+mouseClick);
+								scene.MarkTileAsSprintTile(mouseClick);
+							}	
 							scene.Movement((int)mouseClick.x,(int)mouseClick.y);
 						}else if(scene.ClosedDoorAt(mouseClick)){
 							if(scene.UnlockedDoorAt(mouseClick)){ //open the door
 								scene.OpenDoor(mouseClick);
 							}
-							//Scene.
 							Debug.Log ("Open Door");
+						}else if(scene.DataAt(mouseClick)){ 
+							if(Player1()){
+								scene.TakeData(mouseClick);
+							}else if(scene.DroppedDataAt(mouseClick)){ //only player 2 can reach this
+								scene.ResetDroppedData(mouseClick);
+							}
 						}
 					}else if(scene.CurrentPlayerAt((int)mouseClick.x,(int)mouseClick.y)){
 						scene.DeselectCharacter();
-					}else if(scene.TileTakenByEnemy((int)mouseClick.x,(int)mouseClick.y)){
-						Debug.Log("Enemy at "+mouseClick.x+","+mouseClick.y+" damaged!");
-						scene.SelectedPlayerDamageEnemy(mouseClick);
-						scene.DeselectCharacter();
-						scene.SetPlayerVisibilityUsingFoV();
+					}else if(scene.TileTakenByEnemy((int)mouseClick.x,(int)mouseClick.y) && scene.SelectedPlayerCanAttackEnemyAt(mouseClick)){
+						scene.Attack(mouseClick);
 					}
 					break;
 			} //end switch
@@ -136,6 +149,7 @@ public class TouchHandler : MonoBehaviour {
 			case (int)TurnState.States.Neutral:
 				DisplaySubmitButton();
 				DisplayPlayerData();
+				DisplayDataIsMissingOnGameScreen();
 				break;
 			case (int)TurnState.States.CharSelected:
 				DisplaySelectedPlayerData();
@@ -226,7 +240,7 @@ public class TouchHandler : MonoBehaviour {
 	}
 
 	public void DisplaySelectedPlayerData(){
-		Debug.Log ("Displaying Selected Player Data");
+		//Debug.Log ("Displaying Selected Player Data");
 		List<int> movesLeftForPlayers = scene.MovesLeftForCurrentPlayer();
 		List<int> healthLeftForPlayers = scene.HealthLeftForCurrentPlayer();
 		List<string> gearForPlayers = scene.GearForCurrentPlayer();
@@ -296,6 +310,12 @@ public class TouchHandler : MonoBehaviour {
 		
 	}
 
+	public void DisplayDataIsMissingOnGameScreen(){
+		if(scene.MissingDataAlert){
+			GUI.Label(new Rect(Screen.width-650,15,150,30),"DATA IS MISSING!");
+		}
+	}
+
 	public void DisplaySubmitButton ()
 	{
 		List<int> movesLeftForPlayers = scene.MovesLeftForCurrentPlayer();
@@ -333,8 +353,23 @@ public class TouchHandler : MonoBehaviour {
 	public void ActionConfirmation()
 	{
 		int buttonPressed = ConfirmationButtons();
-		if(buttonPressed==1)		scene.ConfirmAction();//CHANGE THE TRASH
-		else if(buttonPressed==2) 	scene.CancelAction();//CHANGE THE TRASH
+		switch(scene.CurrentTurnStateActionType){
+		case (int)TurnState.ActionTypes.Attack:
+			if(buttonPressed==1)		scene.ConfirmAttack();
+			else if(buttonPressed==2) 	scene.CancelAction();
+			break;
+		case (int)TurnState.ActionTypes.Door:
+			if(buttonPressed==1)		scene.ConfirmAction();
+			else if(buttonPressed==2) 	scene.CancelAction();
+			break;
+		case (int)TurnState.ActionTypes.Data:
+			if(buttonPressed==1){
+				if(Player1())	scene.ConfirmDataSteal();
+				else 			scene.ConfirmDataReset();
+			}else if(buttonPressed==2) 	
+				scene.CancelAction();
+			break;
+		}
 	}
 	
 	public int ConfirmationButtons(){
@@ -444,9 +479,15 @@ public class TouchHandler : MonoBehaviour {
 	
 	public void BeginTurnMenu(){
 		GUI.Box(new Rect(Screen.width/2-300,Screen.height/2-300,500,500), "Your Turn");
+		if(scene.CurrentGameState==(int)GameState.States.P2 && (scene.MissingDataAlert)) 
+			GUI.Label(new Rect(Screen.width/2-100,Screen.height/2-150,100,50), "DATA MISSING");
 		if(GUI.Button(new Rect(Screen.width/2-100,Screen.height/2-50,100,50), "Begin")) { 
 			if(scene.CurrentGameState==(int)GameState.States.P1) scene.GiveControlToPlayer1();
 			else if(scene.CurrentGameState==(int)GameState.States.P2) scene.GiveControlToPlayer2();
 		}	
 	}
+
+
+
+
 }

@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public enum TileType : int {Wall,Item,Open,Taken,Door_Closed,Door_Open,Door_Locked,Data};
+public enum TileType : int {Wall,Lightswitch,Open,Taken,Door_Closed,Door_Open,Door_Locked,Data,Extraction,LockdownSwitch};
 public enum WallTypes : int {SE_Corner, SW_Corner, NW_Corner, NE_Corner,
 							Horizontal_Mid, Vertical_Mid, W_Horizontal_End, E_Horizontal_End, S_Vertical_End, N_Vertical_End,W_T,E_T,S_T,N_T};
 public enum DoorFacings : int {NS,EW};
@@ -16,7 +16,8 @@ public class Tile {
 	private int doorFacing_Direction;
 	private bool visible;
 	private bool highlighted;
-	private Vector3 realWorldLocation;
+	private bool sprintedTo;
+	//private Vector3 realWorldLocation;
 	private bool stored; private int storedType;
 
 	private int depth;
@@ -26,12 +27,19 @@ public class Tile {
 		type = (int)TileType.Open;
 		visible = false; highlighted = false;
 		depth = 0;
-		realWorldLocation = new Vector3(x*spacing,yTileHeight,z*spacing);
+		//realWorldLocation = new Vector3(x*spacing,yTileHeight,z*spacing);
 		stored=false; storedType=(int)TileType.Open;
+		sprintedTo=false;
 	}
 	
+
 	public int Type{
 		get{ return type; }	
+	}
+
+	public bool SprintedTo{
+		get{return sprintedTo;}
+		set{sprintedTo=value;}
 	}
 
 	public int WallType{
@@ -74,9 +82,17 @@ public class Tile {
 		type = (int)TileType.Wall;
 		wallType = typeOfWall;
 	}
+
+	public void GiveData(){
+		type = (int)TileType.Data;
+	}
 	
-	public void GiveItem(){
-		type = (int)TileType.Item;	
+	public void GiveLightswitch(){
+		type = (int)TileType.Lightswitch;	
+	}
+
+	public void GiveLockdownSwitch(){
+		type = (int)TileType.LockdownSwitch;
 	}
     
 	public void GiveDoor(int doorFacing){
@@ -100,6 +116,10 @@ public class Tile {
 		type = (int)TileType.Door_Open;
 	}
 
+	public void MakeExtractionPoint(){
+		type = (int)TileType.Extraction;
+	}
+
 	public void Highlight(){
 		highlighted=true;
 	}
@@ -109,12 +129,29 @@ public class Tile {
 		return (type==(int)TileType.Open);	
 	}
 
-	public bool isBlocked(){
+	public bool isBlocked(){ 
 		return (type==(int)TileType.Taken || type==(int)TileType.Wall || type==(int)TileType.Door_Closed || type==(int)TileType.Door_Locked || type==(int)TileType.Data);
 	}
 
+	public bool isTaken(){
+		return (type==(int)TileType.Taken);
+	}
+
+
 	public bool hasClosedDoor(){
 		return (type==(int)TileType.Door_Closed);
+	}
+
+	public bool hasData(){
+		return (type==(int)TileType.Data);
+	}
+
+	public bool hasLightswitch(){
+		return (type==(int)TileType.Lightswitch);
+	}
+
+	public bool hasLockdownSwitch(){
+		return (type==(int)TileType.LockdownSwitch);
 	}
 
 	public bool hasLockedDoor(){
