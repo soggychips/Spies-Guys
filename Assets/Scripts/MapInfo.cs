@@ -532,13 +532,13 @@ public class MapInfo{
 	}
 	
 
-	public Vector2 ReturnSelectedPlayerPosition (int selectedPlayerIdx, int currentPlayer)
+	public Vector2 ReturnPlayerPosition (int playerIdx, int currentPlayer)
 	{
 		switch(currentPlayer){
 		case (int)GameEngine.Players.One:
-			return spies[selectedPlayerIdx].TileLocation;
+			return spies[playerIdx].TileLocation;
 		case (int)GameEngine.Players.Two:
-			return guys[selectedPlayerIdx].TileLocation;
+			return guys[playerIdx].TileLocation;
 		default:
 			Debug.Log ("Error: MapInfo.ReturnSelectedPlayerPosition");
 			return Vector2.zero;

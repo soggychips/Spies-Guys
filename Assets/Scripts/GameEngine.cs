@@ -463,7 +463,7 @@ public class GameEngine : MonoBehaviour {
 	}
 
 	public Vector2 ReturnSelectedPlayerPosition(int idx){
-		return map.ReturnSelectedPlayerPosition(idx,currentPlayer);
+		return map.ReturnPlayerPosition(idx,currentPlayer);
 	}
 	
 
@@ -497,7 +497,7 @@ public class GameEngine : MonoBehaviour {
 	{
 		//save revert information
 		selectedPlayerIdx = map.ReturnSelectedPlayerIdx(currentPlayer);
-		originalPosition = map.ReturnSelectedPlayerPosition(selectedPlayerIdx, currentPlayer);
+		originalPosition = map.ReturnPlayerPosition(selectedPlayerIdx, currentPlayer);
 		
 		//Debug.Log ("CurrentPlayer: "+currentPlayer+". Idx: "+selectedPlayerIdx+". OG Position: "+originalPosition);
 		//Debug.Log ("Prepared for movement");
