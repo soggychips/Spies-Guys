@@ -252,6 +252,8 @@ public class GameEngine : MonoBehaviour {
 		}
 	}
 
+
+
 	public void HighlightData(int x, int z){
 		Vector2 dataLocation = map.GetAdjacentDataLocation(x,z);
 		if(dataLocation.x!=-1000){
@@ -455,6 +457,15 @@ public class GameEngine : MonoBehaviour {
 	public int ReturnSelectedPlayerIndex(){
 		return map.ReturnSelectedPlayerIdx(currentPlayer);
 	}
+
+	public int ReturnNumberOfLiveCharactersOnCurrentTeam(){
+		return map.ReturnNumberOfLivePlayersOnTeam(currentPlayer);
+	}
+
+	public Vector2 ReturnSelectedPlayerPosition(int idx){
+		return map.ReturnSelectedPlayerPosition(idx,currentPlayer);
+	}
+	
 
 	public bool OpenTileAt(int x, int z){
 		return map.OpenTileAt(x,z);

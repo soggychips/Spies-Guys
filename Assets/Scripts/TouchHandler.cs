@@ -486,4 +486,8 @@ public class TouchHandler : MonoBehaviour {
 			else if(scene.CurrentGameState==(int)GameState.States.P2) scene.GiveControlToPlayer2();
 		}	
 	}
+
+
+
+
 }

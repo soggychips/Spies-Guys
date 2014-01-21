@@ -11,7 +11,8 @@ public class MapInfo{
 	
 	private int winner;
 	private Tile[,] map;
-	private int[,] visibility; //used for visibility reference, set to 1 or 2 only!
+	private int[,] visibility; //used for visibility reference, set each entry to 0 or 1 only!
+	private int[,] previouslySeenTiles;
 	
 	public List<Guy> guys;
 	public List<Spy> spies;
@@ -129,11 +130,14 @@ public class MapInfo{
 		//outside walls
 		GiveWallInRange(5,5,18,5);
 		GiveWallInRange(22,5,37,5);
-		GiveWallInRange(5,5,5,28);
-		GiveWallInRange(5,28,37,28);
+		GiveWallInRange(5,5,5,18);
+		GiveWallInRange(5,20,5,28);
+		GiveWallInRange(5,28,26,28);
+		GiveWallInRange(28,28,37,28);
 		GiveWallInRange(37,5,37,28);
 		//walls arranged from SW to NE corners
-		GiveWallInRange(10,5,10,16);
+		GiveWallInRange(10,5,10,10);
+		GiveWallInRange(10,12,10,16);
 		GiveWallInRange(10,18,10,24);
 		GiveWallInRange(10,26,10,28);
 		GiveWallInRange(10,13,11,13);
@@ -169,6 +173,7 @@ public class MapInfo{
 		//OBJECTIVES
 		CreateData(20,19);
 		CreateExtractionPoint(20,5);
+		CreateExtractionPoint(27,30);
 
 		//LIGHTSWITCHES
 		CreateLightswitch(9,24);
@@ -182,6 +187,8 @@ public class MapInfo{
 		CreateLightswitch(17,8);
 
 		//DOORS
+		CreateDoor(5,19);
+		CreateDoor(10,11);
 		CreateDoor(10,25);
 		CreateDoor(10,17);
 		CreateDoor(12,13);
@@ -505,6 +512,25 @@ public class MapInfo{
 		}
 		return -1;
 	}
+
+	public int ReturnNumberOfLivePlayersOnTeam(int currentPlayer){
+		int answer = 0;
+		switch(currentPlayer){
+		case (int)GameEngine.Players.One:
+			for(int i=0;i<spies.Count;i++)
+				if(spies[i].Alive) answer++;
+			break;
+		case (int)GameEngine.Players.Two:
+			for(int i=0;i<guys.Count;i++)
+				if(guys[i].Alive) answer++;
+			break;
+		default:
+			Debug.Log ("Error: MapInfo.ReturnSelectedPlayerIdx");
+			break;
+		}
+		return answer;
+	}
+	
 
 	public Vector2 ReturnSelectedPlayerPosition (int selectedPlayerIdx, int currentPlayer)
 	{
@@ -830,6 +856,7 @@ public class MapInfo{
 			ExtractDataFromSelectedSpy();
 		}
 	}
+	
 
 	public void ExtractDataFromSelectedSpy(){
 		List<Data> stolenData = spies[spies.IndexOf(ReturnSelectedSpy())].StolenData;
@@ -840,6 +867,14 @@ public class MapInfo{
 		}
 		foreach(Data s in s2){
 			ReturnSelectedSpy().RemoveData(s);
+		}
+	}
+
+	public void AttemptLockdown(int currentPlayer){
+		if(	currentPlayer==(int)GameEngine.Players.One 
+		   && ReturnSelectedSpy().HasData 
+		   && extractionPoints.Contains(ReturnSelectedSpy().TileLocation)	){
+			ExtractDataFromSelectedSpy();
 		}
 	}
 
@@ -922,7 +957,7 @@ public class MapInfo{
 		if(z-1>=0 && map[x,z-1].hasClosedDoor()) return new Vector2(x,z-1);
 		if(x+1<mapSize && map[x+1,z].hasClosedDoor()) return new Vector2(x+1,z);
 		if(z+1<mapSize && map[x,z+1].hasClosedDoor()) return new Vector2(x,z+1);
-		Debug.Log ("Spy at "+x+","+z+" not next to a door");
+		//Debug.Log ("Spy at "+x+","+z+" not next to a door");
 		return new Vector2(-1000,-1000);
 	}
 
@@ -934,7 +969,7 @@ public class MapInfo{
 		if(z-1>=0 && map[x,z-1].hasData()) return new Vector2(x,z-1);
 		if(x+1<mapSize && map[x+1,z].hasData()) return new Vector2(x+1,z);
 		if(z+1<mapSize && map[x,z+1].hasData()) return new Vector2(x,z+1);
-		Debug.Log ("Spy at "+x+","+z+" not next to data");
+		//Debug.Log ("Spy at "+x+","+z+" not next to data");
 		return new Vector2(-1000,-1000);
 	}
 	
