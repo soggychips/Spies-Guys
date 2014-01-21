@@ -1,10 +1,15 @@
 ﻿<Properties>
-  <MonoDevelop.Ide.Workspace />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="MonoDevelop.Default" />
   <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/MapInfo.cs">
     <Files>
-      <File FileName="Assets/Scripts/DataCollection.cs" Line="37" Column="18" />
-      <File FileName="Assets/Scripts/MapInfo.cs" Line="215" Column="14" />
-      <File FileName="Assets/Scripts/Spy.cs" Line="108" Column="2" />
+      <File FileName="Assets/Scripts/MapInfo.cs" Line="254" Column="67" />
+      <File FileName="Assets/Scripts/Data.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/Tile.cs" Line="137" Column="2" />
+      <File FileName="Assets/Scripts/GameEngine.cs" Line="561" Column="22" />
+      <File FileName="Assets/Scripts/TouchHandler.cs" Line="483" Column="60" />
+      <File FileName="Assets/Scripts/Player.cs" Line="117" Column="3" />
+      <File FileName="Assets/Scripts/Guy.cs" Line="13" Column="9" />
+      <File FileName="Assets/Scripts/Spy.cs" Line="17" Column="9" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
