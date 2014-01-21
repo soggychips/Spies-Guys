@@ -27,7 +27,8 @@ public class CameraController : MonoBehaviour {
 
 
 	void OnGUI(){
-		DisplayCameraButtons();
+		//DisplayCameraButtons();
+		DisplayCameraMainButton();
 	}
 
 	// Update is called once per frame
@@ -63,23 +64,17 @@ public class CameraController : MonoBehaviour {
 
 
 		/* // The following will zoom in on selected characters
-		 * 
+		 */ 
 		if(scene.CurrentTurnState==(int)TurnState.States.CharSelected){
-			if(!isZoomed){ //initialize player-zoomed camera location
-				Vector2 playerTileLocation = scene.ReturnSelectedPlayer().TileLocation;
-				Vector3 playerLocation = new Vector3(playerTileLocation.x*Tile.spacing,0,playerTileLocation.y*Tile.spacing);
-				playerFocus = playerLocation + (Vector3.up*250);
-				isZoomed = true;
-			}else{ //zoom in on player
-				camera.transform.position = Vector3.Lerp(camera.transform.position,playerFocus,Time.deltaTime*smooth);
-				camera.fieldOfView = Mathf.Lerp (camera.fieldOfView,zoom,Time.deltaTime*smooth);
+			Vector2 playerTileLocation = scene.ReturnSelectedPlayer().TileLocation;
+			Vector3 playerCameraLocation = new Vector3(playerTileLocation.x*Tile.spacing,main.y,playerTileLocation.y*Tile.spacing);
+			if(focus!=playerCameraLocation){
+				currentCamera = scene.ReturnSelectedPlayerIndex();
+				focus = playerCameraLocation;
+				zoomGoal = zoom;
 			}
-		}else{ //normal view
-			isZoomed=false;
-			camera.transform.position = Vector3.Lerp(camera.transform.position,main,Time.deltaTime*smooth);
-			camera.fieldOfView = Mathf.Lerp (camera.fieldOfView,normal,Time.deltaTime*smooth);
 		}
-		*
+		/*
 		*/
 	}
 
@@ -98,7 +93,23 @@ public class CameraController : MonoBehaviour {
 		noCameraAccessGameState.Add ((int)GameState.States.Menu);
 		noCameraAccessGameState.Add ((int)GameState.States.MatchCreated);
 
-		noCameraAccessTurnState.Add ((int)TurnState.States.End);
+		noCameraAccessTurnState.Add((int)TurnState.States.CharSelected); //1-button camera mode
+		noCameraAccessTurnState.Add ((int)TurnState.States.End); 
+	}
+
+	public void DisplayCameraMainButton(){
+		string cameraString = GetCurrentCameraPositionString();
+		GUI.Label(new Rect(0,20,100,20),"Camera:");
+		GUI.Label(new Rect(0,40,100,20),cameraString);
+		if(!noCameraAccessGameState.Contains((int)scene.CurrentGameState) && !noCameraAccessTurnState.Contains((int)scene.CurrentTurnState)){
+			if(GUI.Button(new Rect(5,0,60,20),"Main")){
+				currentCamera = (int)CameraPositions.main;
+				focus = main;
+				zoomGoal = normal;
+			}
+		}else{
+			GUI.Label(new Rect(5,0,50,20),"----");
+		}
 	}
 
 	public void DisplayCameraButtons(){
