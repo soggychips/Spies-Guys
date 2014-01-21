@@ -10,7 +10,8 @@ public class GameEngine : MonoBehaviour {
 	//Materials
 	public Material ft_hidden, ft_open, 
 					ft_taken, ft_wall, //ft_wall is a fallback return element, showing there is a problem if it appears in game 
-					ft_lightswitch, ft_noise, ft_data;
+					ft_lightswitch, ft_noise, 
+					ft_data, ft_extraction;
 	public Material pt_spy, pt_guy;
 	public Material wall_n_end, wall_s_end, wall_e_end, wall_w_end, wall_ne_corn,wall_nw_corn,
 					wall_se_corn,wall_sw_corn,wall_h_mid,wall_v_mid,wall_s_t,wall_n_t,wall_e_t,wall_w_t;
@@ -73,6 +74,13 @@ public class GameEngine : MonoBehaviour {
 			gstate.EndGame();
 			tstate.Neutralize();
 		}
+		if(map.AllDataExtracted()){
+			Debug.Log ("All data has been extracted!");
+			winner = map.Winner;
+			gstate.EndGame();
+			tstate.Neutralize();
+		}
+
 	}
 
 	public void SGDataInit ()
@@ -405,6 +413,9 @@ public class GameEngine : MonoBehaviour {
 			case (int)DoorFacings.NS: return door_EW;
 			}
 		}
+		if(type==(int)TileType.Extraction){
+			return ft_extraction;
+		}
 		//Check for Noise Alerts
 		if(currentPlayer==(int)Players.One){ //spies
 			if(guyNoiseAlertLocations.Contains(new Vector2(x,z))) return ft_noise;
@@ -508,6 +519,7 @@ public class GameEngine : MonoBehaviour {
 
 	public void ConfirmMove(){
 		tstate.Neutralize();
+		map.AttemptExtraction(currentPlayer);
 		selectedPlayerIdx=new int(); originalPosition = new Vector2();
 		SetPlayerVisibilityUsingFoV();
 		map.DeselectCharacter(currentPlayer);

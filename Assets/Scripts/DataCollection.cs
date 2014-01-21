@@ -27,6 +27,9 @@ public class DataCollection  {
 		data.Add(d);
 	}
 
+	public void Extract(Data d){
+		data.Remove(d);
+	}
 
 	public void DropData(Data d, Vector2 dropLocation){
 		data[data.IndexOf(d)].Drop(dropLocation);
@@ -50,7 +53,9 @@ public class DataCollection  {
 		data[data.IndexOf(d)].Take();
 	}
 
-	public void UploadData(Vector2 v){
+
+
+	public void UploadAllData(){
 		foreach(Data d in data){
 			if((d.Taken)){
 				d.Upload();

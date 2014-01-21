@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public enum TileType : int {Wall,Lightswitch,Open,Taken,Door_Closed,Door_Open,Door_Locked,Data};
+public enum TileType : int {Wall,Lightswitch,Open,Taken,Door_Closed,Door_Open,Door_Locked,Data,Extraction};
 public enum WallTypes : int {SE_Corner, SW_Corner, NW_Corner, NE_Corner,
 							Horizontal_Mid, Vertical_Mid, W_Horizontal_End, E_Horizontal_End, S_Vertical_End, N_Vertical_End,W_T,E_T,S_T,N_T};
 public enum DoorFacings : int {NS,EW};
@@ -110,6 +110,10 @@ public class Tile {
 
 	public void OpenDoor(){
 		type = (int)TileType.Door_Open;
+	}
+
+	public void MakeExtractionPoint(){
+		type = (int)TileType.Extraction;
 	}
 
 	public void Highlight(){

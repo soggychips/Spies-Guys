@@ -19,6 +19,10 @@ public class Spy : Player{
 		hasData =false;
 	}
 
+	public List<Data> StolenData{
+		get{return takenData;}
+	}
+
 	public bool HasData{
 		get{return hasData;}
 	}

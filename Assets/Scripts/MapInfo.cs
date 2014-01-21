@@ -18,6 +18,7 @@ public class MapInfo{
 
 	private DataCollection data;
 	private List<Vector2> lightswitchLocations;
+	private List<Vector2> extractionPoints;
 
 	public int Winner{
 		get{return winner;}	
@@ -57,6 +58,7 @@ public class MapInfo{
 		map = new Tile[mapSize,mapSize];
 		visibility = new int[mapSize,mapSize];
 		lightswitchLocations = new List<Vector2>();
+		extractionPoints = new List<Vector2>();
 		data = new DataCollection();
 		MapInit();
 	}
@@ -121,7 +123,9 @@ public class MapInfo{
 
 	public void SetUpSGData(){
 		Debug.Log ("Loading level: SG_DATA...");
+
 		//walls,doors,player tiles
+
 		//outside walls
 		GiveWallInRange(5,5,18,5);
 		GiveWallInRange(22,5,37,5);
@@ -153,33 +157,20 @@ public class MapInfo{
 		GiveWallInRange(32,26,32,28);
 
 
-
-		//TODO: REPLACE WITH CREATE___ METHODS
-		/*guys = new Guy[2];
-		//guys[0] = new Guy(35,25);
-		//guys[1] = new Guy(35,11);
-		guys[0] = new Guy(24,19);
-		guys[1] = new Guy(24,17);
-		spies = new Spy[2];
-		spies[0] = new Spy(15,18);
-		spies[1] = new Spy(15,20);
-		//spies[0] = new Spy(6,18);
-		//spies[1] = new Spy(6,20);
-		//map[6,18].Take(); map[6,20].Take(); //spies
-		//map[35,25].Take(); map[35,11].Take(); //guys
-		map[15,18].Take(); map[15,20].Take(); //spies
-		map[24,19].Take(); map[24,17].Take(); //guys */
+		//PLAYERS
 		spies = new List<Spy>();
-		CreateSpy(15,18);
-		CreateSpy(15,20);
+		CreateSpy(6,18);
+		CreateSpy(6,20);
 
 		guys = new List<Guy>();
 		CreateGuy(35,25);
 		CreateGuy(35,11);
 
-
+		//OBJECTIVES
 		CreateData(20,19);
+		CreateExtractionPoint(20,5);
 
+		//LIGHTSWITCHES
 		CreateLightswitch(9,24);
 		CreateLightswitch(9,18);
 		CreateLightswitch(18,23);
@@ -190,7 +181,7 @@ public class MapInfo{
 		CreateLightswitch(33,11);
 		CreateLightswitch(17,8);
 
-		//Doors
+		//DOORS
 		CreateDoor(10,25);
 		CreateDoor(10,17);
 		CreateDoor(12,13);
@@ -203,7 +194,8 @@ public class MapInfo{
 		CreateDoor(32,13);
 		CreateDoor(32,25);
 		CreateDoor(41,4);
-		
+
+
 		SetAllTilesVisible();
 		Debug.Log("Level Loaded.");
 	}
@@ -212,6 +204,11 @@ public class MapInfo{
 		map[x,z].GiveData();
 		//Data d = new Data(x,z);
 		data.Add(new Data(x,z));
+	}
+
+	public void CreateExtractionPoint(int x, int z){
+		extractionPoints.Add (new Vector2(x,z));
+		map[x,z].MakeExtractionPoint();
 	}
 
 	public void CreateSpy(int x, int z){
@@ -817,7 +814,35 @@ public class MapInfo{
 		}
 		return true;
 	}
-	
+
+	public bool AllDataExtracted(){
+		if(data.AllDataIsUploaded()){
+			winner = 1;
+			return true;
+		}
+		return false;
+	}
+
+	public void AttemptExtraction(int currentPlayer){
+		if(	currentPlayer==(int)GameEngine.Players.One 
+		   && ReturnSelectedSpy().HasData 
+		   && extractionPoints.Contains(ReturnSelectedSpy().TileLocation)	){
+			ExtractDataFromSelectedSpy();
+		}
+	}
+
+	public void ExtractDataFromSelectedSpy(){
+		List<Data> stolenData = spies[spies.IndexOf(ReturnSelectedSpy())].StolenData;
+		List<Data> s2 = new List<Data>();
+		foreach(Data s in stolenData){
+			data.Extract(s);
+			s2.Add (s);
+		}
+		foreach(Data s in s2){
+			ReturnSelectedSpy().RemoveData(s);
+		}
+	}
+
 	public Tile TileAt(Vector2 v){
 		return map[(int)v.x,(int)v.y];	
 	}
