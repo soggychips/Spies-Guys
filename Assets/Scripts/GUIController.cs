@@ -3,7 +3,7 @@ using System.Collections;
 
 public class GUIController : MonoBehaviour {
 
-	public float animationSpeed = 1;
+	public float animationSpeed = 80;
 	public bool confirmationButtonFlag;
 
 	public bool confirmationButtonDisplay;
@@ -28,6 +28,7 @@ public class GUIController : MonoBehaviour {
 				ConfirmationButtons();
 			}else{	//first update since flag set to true
 				confirmationButtonLeft = Screen.width;
+				confirmationButtonDisplay = true;
 			}
 		}
 	} 

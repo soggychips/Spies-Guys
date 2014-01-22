@@ -8,6 +8,7 @@ public class TouchHandler : MonoBehaviour {
 	//public Camera camera;
 	
 	private GameEngine scene;
+	private GUIController guiController;
 	private bool mainMenu;
 	private bool gameMenu;
 	private Vector2 mouseClick;
@@ -22,7 +23,7 @@ public class TouchHandler : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		scene = GameObject.Find("Engine").GetComponent("GameEngine") as GameEngine; //gives us access to the GameEngine script
-		
+		guiController = GameObject.FindWithTag("GUIController").GetComponent("GUIController") as GUIController;
 	}
 
 	public bool Player1(){
@@ -374,14 +375,16 @@ public class TouchHandler : MonoBehaviour {
 	}
 	
 	public int ConfirmationButtons(){
-		GUI.Box (new Rect(Screen.width-100,Screen.height/2 -120,100,240),"");
+		/*GUI.Box (new Rect(Screen.width-100,Screen.height/2 -120,100,240),"");
 		if(GUI.Button(new Rect(Screen.width-95,Screen.height/2-115,90,110), "Confirm")) {
 			return 1;
 		}
 		if(GUI.Button (new Rect(Screen.width-95,Screen.height/2,90,110),"Cancel")) {
 			return 2;
 		}
-		return 0;
+		return 0; */
+		guiController.FlagConfirmationButtons();
+		return guiController.ConfirmationButtonPlayerInput();
 	}
 	
 	public void LoadMainMenu(){
