@@ -10,7 +10,6 @@ public class CameraController : MonoBehaviour {
 	public int zoom;
 	public float smooth;
 	public float zoomGoal;
-	private bool isZoomed=false;
 	private GameEngine scene;
 	private Vector3 main,playerFocus, focus;
 	private int currentCamera;
@@ -46,8 +45,8 @@ public class CameraController : MonoBehaviour {
 			Vector2 playersCurrentTileLocation = scene.ReturnSelectedPlayerPosition(currentCamera);
 			Vector3 checkPosition = new Vector3(playersCurrentTileLocation.x*Tile.spacing,main.y,playersCurrentTileLocation.y*Tile.spacing);
 			if(checkPosition!=focus){
-				Debug.Log ("checkPosition: "+checkPosition);
-				Debug.Log ("focus: "+focus);
+				//Debug.Log ("checkPosition: "+checkPosition);
+				//Debug.Log ("focus: "+focus);
 				focus = checkPosition;
 			}
 		}

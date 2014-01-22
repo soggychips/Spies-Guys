@@ -315,6 +315,7 @@ public class TouchHandler : MonoBehaviour {
 			GUI.Label(new Rect(Screen.width-650,15,150,30),"DATA IS MISSING!");
 		}
 	}
+	
 
 	public void DisplaySubmitButton ()
 	{

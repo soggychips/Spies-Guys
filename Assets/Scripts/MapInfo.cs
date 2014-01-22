@@ -955,7 +955,7 @@ public class MapInfo{
 	//returns location of an adjacent CLOSED door
 	public Vector2 GetAdjacentClosedDoorLocation(int x, int z){
 		if(x>=mapSize || z>=mapSize || x<0 || z<0){
-			Debug.Log ("Error: MapInfo.GetAdjacentDoorLocation");	
+			Debug.Log ("Error: MapInfo.GetAdjacentClosedDoorLocation");	
 		}
 		if(x-1>=0 && map[x-1,z].hasClosedDoor()) return new Vector2(x-1,z);
 		if(z-1>=0 && map[x,z-1].hasClosedDoor()) return new Vector2(x,z-1);
@@ -976,7 +976,19 @@ public class MapInfo{
 		//Debug.Log ("Spy at "+x+","+z+" not next to data");
 		return new Vector2(-1000,-1000);
 	}
-	
+
+	//returns location of an adjacent door
+	public Vector2 GetAdjacentDoorLocation(int x, int z){
+		if(x>=mapSize || z>=mapSize || x<0 || z<0){
+			Debug.Log ("Error: MapInfo.GetAdjacentDoorLocation");	
+		}
+		if(x-1>=0 && map[x-1,z].hasDoor()) return new Vector2(x-1,z);
+		if(z-1>=0 && map[x,z-1].hasDoor()) return new Vector2(x,z-1);
+		if(x+1<mapSize && map[x+1,z].hasDoor()) return new Vector2(x+1,z);
+		if(z+1<mapSize && map[x,z+1].hasDoor()) return new Vector2(x,z+1);
+		//Debug.Log ("Spy at "+x+","+z+" not next to a door");
+		return new Vector2(-1000,-1000);
+	}
 
 	public int GetAppropriateDoorFacing(int x, int z){
 		if(x>=mapSize || z>=mapSize || x<0 || z<0){

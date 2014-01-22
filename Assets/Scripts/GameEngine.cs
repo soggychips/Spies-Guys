@@ -246,12 +246,18 @@ public class GameEngine : MonoBehaviour {
 		Vector2 doorLocation = map.GetAdjacentClosedDoorLocation(x,z);
 		if(doorLocation.x!=-1000){
 			map.TileAt(doorLocation).Highlight();
-			//if(map.TileAt (doorLocation).hasClosedDoor()){
-				Instantiate (InteractionHighlight, new Vector3(doorLocation.x*Tile.spacing,.2f,doorLocation.y*Tile.spacing),Quaternion.identity);
-			//}
+			Instantiate (InteractionHighlight, new Vector3(doorLocation.x*Tile.spacing,.2f,doorLocation.y*Tile.spacing),Quaternion.identity);
 		}
 	}
 
+	public void HighlightDoors(int x, int z){
+		//if player is not next to a door, does nothing
+		Vector2 doorLocation = map.GetAdjacentDoorLocation(x,z);
+		if(doorLocation.x!=-1000){
+			map.TileAt(doorLocation).Highlight();
+			Instantiate (InteractionHighlight, new Vector3(doorLocation.x*Tile.spacing,.2f,doorLocation.y*Tile.spacing),Quaternion.identity);
+		}
+	}
 
 
 	public void HighlightData(int x, int z){
@@ -287,7 +293,7 @@ public class GameEngine : MonoBehaviour {
 		int movesForPlayer = map.MovesLeftForPlayer(x,z,currentPlayer); 
 		int totalSneakDistance = Player.sneakDistance;
 		int totalDistance = totalSneakDistance+ ReturnSelectedPlayer().CurrentSprintDistance;
-		Debug.Log ("Current player's sprint distance: "+ReturnSelectedPlayer().CurrentSprintDistance);
+		//Debug.Log ("Current player's sprint distance: "+ReturnSelectedPlayer().CurrentSprintDistance);
 		List<Vector2> BFSFromOrigin = new List<Vector2>();
 		if(movesForPlayer==0){ 
 			//do nothing
@@ -547,8 +553,8 @@ public class GameEngine : MonoBehaviour {
 		tstate.BeginAction((int)TurnState.ActionTypes.Door);
 		positionOfDoor = doorLocation;
 		map.OpenDoor((int)doorLocation.x,(int)doorLocation.y);
-		map.DeselectCharacter(currentPlayer);
-		//DestroyHighlights();
+		//map.DeselectCharacter(currentPlayer);
+		DestroyHighlights();
 		tstate.EndAction();
 		UpdateTileMaterials();
 		
@@ -584,10 +590,10 @@ public class GameEngine : MonoBehaviour {
 		tstate.Neutralize();
 		map.ResetDroppedDataAt(positionofData);
 		//highlight the reset location for visual knowledge
+		map.DeselectCharacter(currentPlayer);
 		SetPlayerVisibilityUsingFoV();
 		if(!map.MissingData()) alertMissingData = false;
 		positionofData = new Vector2();
-		map.DeselectCharacter(currentPlayer);
 	}
 	
 

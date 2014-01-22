@@ -162,6 +162,10 @@ public class Tile {
 		return (type==(int)TileType.Wall);
 	}
 
+	public bool hasDoor(){
+		return(type==(int)TileType.Door_Closed || type==(int)TileType.Door_Open || type==(int)TileType.Door_Locked);
+	}
+
 	public void StoreType(){
 		stored=true;
 		storedType=type;
