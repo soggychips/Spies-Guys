@@ -30,12 +30,23 @@
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="MonoDevelop.Default" />
 =======
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+<<<<<<< HEAD
 >>>>>>> engine-tweaking
   <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/MapInfo.cs">
     <Files>
       <File FileName="Assets/Scripts/GameEngine.cs" Line="210" Column="16" />
       <File FileName="Assets/Scripts/MapInfo.cs" Line="728" Column="41" />
       <File FileName="Assets/Scripts/Tile.cs" Line="6" Column="120" />
+>>>>>>> engine-tweaking
+=======
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/CameraController.cs">
+    <Files>
+      <File FileName="Assets/Scripts/MapInfo.cs" Line="535" Column="44" />
+      <File FileName="Assets/Scripts/CameraController.cs" Line="120" Column="151" />
+      <File FileName="Assets/Scripts/TouchHandler.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/GameEngine.cs" Line="466" Column="23" />
+      <File FileName="../Spies-Guys GitHub Repo/Assets/Scripts/MapInfo.cs" Line="829" Column="29" />
+      <File FileName="../Spies-Guys GitHub Repo/Assets/Scripts/Guy.cs" Line="69" Column="19" />
 >>>>>>> engine-tweaking
     </Files>
   </MonoDevelop.Ide.Workbench>

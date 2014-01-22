@@ -19,12 +19,19 @@ Global
 	EndGlobalSection
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 																																								GlobalSection(MonoDevelopProperties) = preSolution
 =======
 																																											GlobalSection(MonoDevelopProperties) = preSolution
 >>>>>>> engine-tweaking
 =======
 																																														GlobalSection(MonoDevelopProperties) = preSolution
+>>>>>>> engine-tweaking
+=======
+																																																																																									GlobalSection(MonoDevelopProperties) = preSolution
+=======
+																																																GlobalSection(MonoDevelopProperties) = preSolution
+>>>>>>> iso-2d-graphics-test
 >>>>>>> engine-tweaking
 		StartupItem = Assembly-CSharp.csproj
 		Policies = $0

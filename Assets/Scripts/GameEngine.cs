@@ -1,30 +1,50 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
 public class GameEngine : MonoBehaviour {
 
-	public Transform tile;
-	public Material ft_hidden, ft_open, ft_taken, ft_wall, ft_item;
+	public enum Players: int{One,Two};	//Spies, Guys
+	public Transform tile;				//The tile transform
+
+	//Materials
+	public Material ft_hidden, ft_open, 
+					ft_taken, ft_wall, //ft_wall is a fallback return element, showing there is a problem if it appears in game 
+					ft_lightswitch, ft_noise, 
+					ft_data, ft_extraction;
+	public Material pt_spy, pt_guy;
 	public Material wall_n_end, wall_s_end, wall_e_end, wall_w_end, wall_ne_corn,wall_nw_corn,
 					wall_se_corn,wall_sw_corn,wall_h_mid,wall_v_mid,wall_s_t,wall_n_t,wall_e_t,wall_w_t;
-	public Material doorClosed, doorOpen;
+	public Material door_NS, door_EW;
 	public Transform sneakHighlight;
 	public Transform sprintHighlight;
+	public Transform InteractionHighlight;
 	
 	
-	private int winner;
-	private Transform[,] tileGraphics;
-	private MapInfo map;
-	private GameState gstate;
-	private TurnState tstate;
-	private int turn;
-	//private int[,] visibility;
-	private bool updateFlag;
-	public int currentPlayer;
+	private int winner;					//whoever is the winner is awarded this int, as a humble prize from me
+	private Transform[,] tileGraphics;	//2D array of the transforms for the game tiles (physical + cosmetic information)
+	private MapInfo map; 	  			//single instantiation of the map, containing all tile information
+	private GameState gstate; 		//used for changing/controlling/viewing the current state
+	private TurnState tstate; 		//used for changing/controlling/viewing the current state 
+	private int turn;		  		//a game-long counter
+	private Guy specificGuy; 		//a guy used for method calls and returns across 
+	private Spy specificSpy;
+	public int currentPlayer; //set using Players enum
+	private bool alertMissingData = false;
+
 	//movement variables
 	private Vector2 originalPosition; private int selectedPlayerIdx;
+	private List<Vector2> spyNoiseAlertLocations, guyNoiseAlertLocations;
+
+	//door variable(s)
+	private Vector2 positionOfDoor;
+
+	//data variables
+	private Vector2 positionofData;
+
 	//attack variables
+	private int damageDealt;
+	private Vector2 enemyLocation;
 
 
 	
@@ -33,14 +53,16 @@ public class GameEngine : MonoBehaviour {
 		get{return winner;}	
 	}
 	
+
 	// Use this for initialization
 	void Start () {
 		turn=0;
 		map = new MapInfo(); 
 		gstate = new GameState(); //Default: Menu
 		tstate = new TurnState(); //Default: Neutral
-		updateFlag = false;
 		tileGraphics = new Transform[map.MapSize,map.MapSize];
+		spyNoiseAlertLocations = new List<Vector2>();
+		guyNoiseAlertLocations = new List<Vector2>();
 	}
 	
 
@@ -52,6 +74,13 @@ public class GameEngine : MonoBehaviour {
 			gstate.EndGame();
 			tstate.Neutralize();
 		}
+		if(map.AllDataExtracted()){
+			Debug.Log ("All data has been extracted!");
+			winner = map.Winner;
+			gstate.EndGame();
+			tstate.Neutralize();
+		}
+
 	}
 
 	public void SGDataInit ()
@@ -67,6 +96,14 @@ public class GameEngine : MonoBehaviour {
 	public int CurrentTurnState{
 		get{return tstate.CurrentState;}	
 	}
+
+	public int CurrentTurnStateActionType{
+		get{return tstate.ActionType;}
+	}
+
+	public bool MissingDataAlert{
+		get{return alertMissingData;}
+	}
 	
 	public int Turn{
 		get{return turn;}	
@@ -78,7 +115,7 @@ public class GameEngine : MonoBehaviour {
 	
 	public void StartGame(){
 		gstate.GiveControlToPlayer1();
-		currentPlayer=1;
+		currentPlayer=(int)Players.One;
 		tstate.BeginTurn();
 	}
 	
@@ -90,7 +127,8 @@ public class GameEngine : MonoBehaviour {
 	
 	public void SelectCharacter(int x, int z){
 		map.SelectCharacterAtTile(x,z,currentPlayer);
-		HighlightTiles(x,z);
+		HighlightMovementTiles(x,z);
+		HighlightInteractionObjects(x,z);
 		tstate.SelectCharacter();	
 	}
 	
@@ -100,15 +138,19 @@ public class GameEngine : MonoBehaviour {
 		tstate.Neutralize();
 	}
 	
-	public void GiveControlToPlayer1(){
+	public void GiveControlToPlayer1(){ //Give control to Spies
 		turn++;
+		spyNoiseAlertLocations.Clear ();
 		map.ResetPoints();
 		SetPlayerVisibilityUsingFoV();	
 		tstate.Neutralize();
 	}
 	
-	public void GiveControlToPlayer2(){
+	public void GiveControlToPlayer2(){ //Give control to Guys
 		turn++;
+		//Debug.Log ("contents of spyNoiseAlertLocations at beginning of guys' turn");
+		//foreach(Vector2 v in spyNoiseAlertLocations) Debug.Log (v);
+		guyNoiseAlertLocations.Clear();
 		map.ResetPoints();
 		SetPlayerVisibilityUsingFoV();
 		tstate.Neutralize();
@@ -125,13 +167,10 @@ public class GameEngine : MonoBehaviour {
 	
 	public void SwitchPlayers(){
 		gstate.SwitchPlayers();
-		if(currentPlayer==1) currentPlayer=2;
-		else if(currentPlayer==2) currentPlayer=1;
+		if(currentPlayer==(int)Players.One) currentPlayer=(int)Players.Two;
+		else if(currentPlayer==(int)Players.Two) currentPlayer=(int)Players.One;
 	}
-	
-	public void FlagForUpdate(){
-		updateFlag = true;	
-	}
+
 	
 	public void LoadTiles(){
 		for(int i=0; i<map.MapSize;i++){
@@ -158,35 +197,125 @@ public class GameEngine : MonoBehaviour {
 		for(int i=0; i<map.MapSize;i++){
 			for(int j=0; j<map.MapSize;j++){
 				if(tileVisibility[i,j]==0 && !map.SelectedCharacterAtTile(i,j,currentPlayer)){
-					tileGraphics[i,j].renderer.material.SetColor("_Color",ft_hidden.color);
-					//Debug.Log("INVIS TILE "+i+","+j);
+					if((currentPlayer==(int)Players.One && guyNoiseAlertLocations.Contains(new Vector2(i,j))) 
+					|| (currentPlayer==(int)Players.Two && spyNoiseAlertLocations.Contains(new Vector2(i,j)))){
+						tileGraphics[i,j].renderer.material=ft_noise;
+					}else{
+						tileGraphics[i,j].renderer.material=ft_hidden;
+					}
 				}else{
 					Material temp = AssignMaterial(i,j);
-					tileGraphics[i,j].renderer.material.SetColor("_Color",temp.color);
+					//tileGraphics[i,j].renderer.material.SetColor("_Color",temp.color);
+					tileGraphics[i,j].renderer.material=temp;
 					//Debug.Log("tile "+i+","+j+" mat set to "+ temp);
 				}
 			}
 		}
 	}
+
+	public bool LockedDoorAt (Vector2 mouseClick)
+	{
+		return(map.TileAt(mouseClick).hasLockedDoor());
+	}
+
+	public bool UnlockedDoorAt (Vector2 mouseClick)
+	{
+		return(!map.TileAt(mouseClick).hasLockedDoor() && map.TileAt(mouseClick).hasClosedDoor());
+	}
+
+	public bool ClosedDoorAt (Vector2 mouseClick)
+	{
+		return(map.TileAt(mouseClick).hasClosedDoor() || map.TileAt(mouseClick).hasLockedDoor());
+	}
+
+	public bool DataAt(Vector2 mouseClick){
+		return(map.TileAt(mouseClick).hasData());
+	}
+
+	public bool DroppedDataAt(Vector2 mouseClick){
+		return(map.TileAt(mouseClick).hasData() && map.TileContainsDroppedData(mouseClick));
+	}
+
+	public bool UnblockedTileAt (Vector2 mouseClick)
+	{
+		return(!map.TileAt(mouseClick).isBlocked());
+	}
+
+	public void HighlightClosedDoors (int x, int z)
+	{ //if player is not next to a door, does nothing
+		Vector2 doorLocation = map.GetAdjacentClosedDoorLocation(x,z);
+		if(doorLocation.x!=-1000){
+			map.TileAt(doorLocation).Highlight();
+			//if(map.TileAt (doorLocation).hasClosedDoor()){
+				Instantiate (InteractionHighlight, new Vector3(doorLocation.x*Tile.spacing,.2f,doorLocation.y*Tile.spacing),Quaternion.identity);
+			//}
+		}
+	}
+
+
+
+	public void HighlightData(int x, int z){
+		Vector2 dataLocation = map.GetAdjacentDataLocation(x,z);
+		if(dataLocation.x!=-1000){
+			map.TileAt(dataLocation).Highlight();
+			Instantiate(InteractionHighlight, new Vector3(dataLocation.x*Tile.spacing,.2f,dataLocation.y*Tile.spacing),Quaternion.identity);
+		}
+
+	}
+
+	public void HighlightDroppedData(int x, int z){
+		Vector2 dataLocation = map.GetAdjacentDataLocation(x,z);
+		if(dataLocation.x!=-1000 && map.TileContainsDroppedData(dataLocation)){
+			map.TileAt (dataLocation).Highlight();
+			Instantiate(InteractionHighlight, new Vector3(dataLocation.x*Tile.spacing,.2f,dataLocation.y*Tile.spacing),Quaternion.identity);
+		}
+	}
+
+
+	public void HighlightInteractionObjects (int x, int z)
+	{
+		if(currentPlayer==(int)Players.One){//spies
+			HighlightClosedDoors(x,z);
+			HighlightData(x,z);
+		}else{//guys
+			HighlightClosedDoors(x,z);
+			HighlightDroppedData(x,z);
+		}
+	}
 	
-	public void HighlightTiles(int x, int z){
+	public void HighlightMovementTiles(int x, int z){
 		int movesForPlayer = map.MovesLeftForPlayer(x,z,currentPlayer); 
 		int totalSneakDistance = Player.sneakDistance;
-		int totalDistance = totalSneakDistance+Player.sprintDistnace;
+		int totalDistance = totalSneakDistance+ ReturnSelectedPlayer().CurrentSprintDistance;
+		Debug.Log ("Current player's sprint distance: "+ReturnSelectedPlayer().CurrentSprintDistance);
 		List<Vector2> BFSFromOrigin = new List<Vector2>();
 		if(movesForPlayer==0){ 
 			//do nothing
-		}else
+		}else{
 			BFSFromOrigin = map.BFS (x,z,totalDistance);
-		//else if(totalSneakDistance==0) 
-		//	BFSFromOrigin = map.BFS (x,z,2);
+		}
 		foreach(Vector2 tile in BFSFromOrigin){
-			map.TileAt(tile).Highlight=true;
+			map.TileAt(tile).Highlight();
 			if(map.TileAt(tile).Depth<=totalSneakDistance)
 				Instantiate(sneakHighlight,new Vector3(tile.x*Tile.spacing,.2f,tile.y*Tile.spacing),Quaternion.identity);
 			else
 				Instantiate(sprintHighlight,new Vector3(tile.x*Tile.spacing,.2f,tile.y*Tile.spacing),Quaternion.identity);
 		}
+	}
+
+	public void MarkTileAsSprintTile (Vector2 mouseClick)
+	{
+		map.TileAt(mouseClick).SprintedTo=true;
+		if(currentPlayer==(int)Players.One){ //spies
+			Debug.Log ("tile marked as sprinted (spies)");
+			spyNoiseAlertLocations.Add(mouseClick);
+		}else{ //guys
+			guyNoiseAlertLocations.Add (mouseClick);
+		}
+	}
+
+	public bool TileIsSprintDistance(Vector2 tileLocation){
+		return (map.TileAt(tileLocation).Depth>Player.sneakDistance);
 	}
 	
 	public void DestroyHighlights(){
@@ -209,6 +338,14 @@ public class GameEngine : MonoBehaviour {
 	public void SetPlayerVisibilityUsingFoV(){
 		map.FoVForCurrentPlayer((int)map.MapSize/2,currentPlayer);
 		UpdateTileMaterials();
+	}
+
+	public void AssignGearToSpy(int spyIndex,int gearToGive){
+		map.AssignGearToSpy(spyIndex,gearToGive);
+	}
+
+	public void AssignGearToGuy(int guyIdx, int gearToGive){
+		map.AssignGearToGuy(guyIdx,gearToGive);
 	}
 	
 	public Material AssignMaterial(int x, int z){
@@ -245,18 +382,50 @@ public class GameEngine : MonoBehaviour {
 				return wall_w_t;
 			}
 			return ft_wall;
-		}
-		if(type==(int)TileType.Item){
-			return ft_item;
+		}else if(type==(int)TileType.Data){
+			return ft_data;
+		}else if(type==(int)TileType.Lightswitch){
+			return ft_lightswitch;
 		}
 		if(type==(int)TileType.Open){
 			return ft_open;
 		}
 		if(type==(int)TileType.Taken){
-			return ft_taken;
+			switch(currentPlayer){
+			case (int)Players.One: 
+				if(CurrentPlayerAt(x,z)) return pt_spy; else return pt_guy;
+			case (int)Players.Two:
+				if(CurrentPlayerAt(x,z)) return pt_guy; else return pt_spy;
+			default:
+				return ft_taken;
+			}
 		}
 		if(type==(int)TileType.Door_Closed){
-			return doorClosed;
+			switch(map.GetDoorFacing(x,z)){
+				case (int)DoorFacings.EW: return door_EW;
+				case (int)DoorFacings.NS: return door_NS;
+			}
+		}
+		if(type==(int)TileType.Door_Open){
+			//Debug.Log ("Door is open with facing as: ");
+			//if(map.GetDoorFacing(x,z)==(int)DoorFacings.EW) Debug.Log ("EW. Door set to NS");
+			//else Debug.Log ("NS. Door set to EW");
+			switch(map.GetDoorFacing(x,z)){
+			case (int)DoorFacings.EW: return door_NS;
+			case (int)DoorFacings.NS: return door_EW;
+			}
+		}
+		if(type==(int)TileType.Extraction){
+			return ft_extraction;
+		}
+		//Check for Noise Alerts
+		if(currentPlayer==(int)Players.One){ //spies
+			if(guyNoiseAlertLocations.Contains(new Vector2(x,z))) return ft_noise;
+		}else{								//guys
+			if(spyNoiseAlertLocations.Contains(new Vector2(x,z))){ 
+				//Debug.Log ("spyNouseAlertLocations contains the vector "+x+","+z);
+				return ft_noise;
+			}
 		}
 		return ft_hidden;
 	}
@@ -264,7 +433,40 @@ public class GameEngine : MonoBehaviour {
 	public bool CurrentPlayerAt(int x, int z){
 		return map.CurrentPlayerAtTile(x,z,currentPlayer);	
 	}
+
+	public Guy ReturnClickedOnGuy(int x, int z){
+		return map.ReturnClickedOnGuy(x,z);
+	}
+
+	public Spy ReturnClickedOnSpy(int x, int z){
+		return map.ReturnClickedOnSpy(x,z);
+	}
 	
+	public Guy ReturnSelectedGuy(){
+		return map.ReturnSelectedGuy();
+	}
+
+	public Spy ReturnSelectedSpy(){
+		return map.ReturnSelectedSpy();
+	}
+
+	public Player ReturnSelectedPlayer(){
+		return map.ReturnSelectedPlayer(currentPlayer);
+	}
+
+	public int ReturnSelectedPlayerIndex(){
+		return map.ReturnSelectedPlayerIdx(currentPlayer);
+	}
+
+	public int ReturnNumberOfLiveCharactersOnCurrentTeam(){
+		return map.ReturnNumberOfLivePlayersOnTeam(currentPlayer);
+	}
+
+	public Vector2 ReturnSelectedPlayerPosition(int idx){
+		return map.ReturnPlayerPosition(idx,currentPlayer);
+	}
+	
+
 	public bool OpenTileAt(int x, int z){
 		return map.OpenTileAt(x,z);
 	}
@@ -275,6 +477,10 @@ public class GameEngine : MonoBehaviour {
 	
 	public bool VisibleTileAt(int x, int z){
 		return map.VisibleTileAt(x,z);	
+	}
+
+	public bool BlockedTileAt(Vector2 tileLocation){
+		return map.BlockedTileAt((int)tileLocation.x,(int)tileLocation.y);
 	}
 	
 	public bool TileTakenByEnemy(int x, int z){
@@ -291,15 +497,15 @@ public class GameEngine : MonoBehaviour {
 	{
 		//save revert information
 		selectedPlayerIdx = map.ReturnSelectedPlayerIdx(currentPlayer);
-		originalPosition = map.ReturnSelectedPlayerPosition(selectedPlayerIdx, currentPlayer);
+		originalPosition = map.ReturnPlayerPosition(selectedPlayerIdx, currentPlayer);
 		
-		Debug.Log ("CurrentPlayer: "+currentPlayer+". Idx: "+selectedPlayerIdx+". OG Position: "+originalPosition);
-		Debug.Log ("Prepared for movement");
+		//Debug.Log ("CurrentPlayer: "+currentPlayer+". Idx: "+selectedPlayerIdx+". OG Position: "+originalPosition);
+		//Debug.Log ("Prepared for movement");
 	}
 
 	public void BeginMovement (int goalX, int goalZ)
 	{
-		Debug.Log ("Beginning movement to: "+goalX+","+goalZ);
+		//Debug.Log ("Beginning movement to: "+goalX+","+goalZ);
 		tstate.BeginMovement();
 		AnimateMovement(goalX,goalZ);
 	}
@@ -308,8 +514,11 @@ public class GameEngine : MonoBehaviour {
 	{
 		bool done = false;
 		tstate.AnimateMovement();
-		MoveSelectedCharTo(goalX,goalZ);
-		
+		//until animation implementation:
+		done=true;
+		if(done){
+			MoveSelectedCharTo(goalX,goalZ);
+		}
 	}
 
 	public void MoveSelectedCharTo(int x, int z){
@@ -321,6 +530,7 @@ public class GameEngine : MonoBehaviour {
 
 	public void ConfirmMove(){
 		tstate.Neutralize();
+		map.AttemptExtraction(currentPlayer);
 		selectedPlayerIdx=new int(); originalPosition = new Vector2();
 		SetPlayerVisibilityUsingFoV();
 		map.DeselectCharacter(currentPlayer);
@@ -333,26 +543,176 @@ public class GameEngine : MonoBehaviour {
 		map.DeselectCharacter(currentPlayer);
 	}
 
-	public void Attack(int enemyX, int enemyZ)
-	{
-		Debug.Log ("This will kill the enemy, are you sure?");
+	public void OpenDoor(Vector2 doorLocation){
+		tstate.BeginAction((int)TurnState.ActionTypes.Door);
+		positionOfDoor = doorLocation;
+		map.OpenDoor((int)doorLocation.x,(int)doorLocation.y);
+		map.DeselectCharacter(currentPlayer);
+		//DestroyHighlights();
+		tstate.EndAction();
+		UpdateTileMaterials();
+		
+	}
+
+	public void TakeData(Vector2 dataLocation){
+		tstate.BeginAction((int)TurnState.ActionTypes.Data);
+		positionofData = dataLocation;
 		tstate.EndAction();
 	}
 	
 
-	public void BeginAction(){
-		tstate.BeginAction();
+	public void ConfirmDataSteal(){
+		DestroyHighlights();
+		tstate.Neutralize();
+		//steal data, assign to proper spy, open data tile
+		map.TakeData(positionofData);
+		SetPlayerVisibilityUsingFoV();
+		map.DeselectCharacter(currentPlayer);
+		alertMissingData = true;
+		positionofData = new Vector2();
 	}
 
-	public void AnimateAction(){
-		tstate.AnimateAction();
+	public void ResetDroppedData(Vector2 droppedDataLocation){
+		tstate.BeginAction((int)TurnState.ActionTypes.Data);
+		positionofData = droppedDataLocation;
+		tstate.EndAction();
+	}
+
+	public void ConfirmDataReset(){
+		DestroyHighlights();
+		Debug.Log ("Confirm Data Reset");
+		tstate.Neutralize();
+		map.ResetDroppedDataAt(positionofData);
+		//highlight the reset location for visual knowledge
+		SetPlayerVisibilityUsingFoV();
+		if(!map.MissingData()) alertMissingData = false;
+		positionofData = new Vector2();
+		map.DeselectCharacter(currentPlayer);
+	}
+	
+
+	public void ConfirmAction(){
+		tstate.Neutralize();
+		SetPlayerVisibilityUsingFoV();
+		map.DeselectCharacter(currentPlayer);
+	}
+
+	public void CancelAction(){
+		DestroyHighlights();
+		tstate.Neutralize();
+		switch((int)tstate.ActionType){
+		case (int)TurnState.ActionTypes.Door:
+			map.RevertDoorOpening((int)positionOfDoor.x,(int)positionOfDoor.y);
+			break;
+		//Attack case currently would do nothing
+		}
+		UpdateTileMaterials();
+		map.DeselectCharacter(currentPlayer);
 	}
 
 	public void ConfirmAttack(){
-
+		SelectedPlayerDamageEnemy(enemyLocation);
+		tstate.Neutralize();
+		SetPlayerVisibilityUsingFoV();
+		map.DeselectCharacter(currentPlayer);
+		enemyLocation = new Vector2();
 	}
 
+	public void Attack(Vector2 enemyLocationCoords)
+	{
+		enemyLocation = enemyLocationCoords;
+		tstate.BeginAction((int)TurnState.ActionTypes.Attack);
+		SelectedPlayerPredictDamageToEnemy(enemyLocationCoords);
+		DestroyHighlights();
+		tstate.EndAction();
+	}
 
+	public bool LOSCheckBetweenPlayers (Vector2 start, Vector2 end){
+		Vector2 vect = end-start;
+		Vector2 check = start;
+		float norm = Mathf.Sqrt((vect.x*vect.x) + (vect.y*vect.y));
+		Vector2 unitVect = new Vector2(vect.x/norm,vect.y/norm);
+		Vector2 roundedLocation = new Vector2((int)start.x,(int)start.y);
+		while(roundedLocation!=end){
+			check+=unitVect;
+			roundedLocation = new Vector2(Mathf.Round(check.x),Mathf.Round(check.y));
+			//Debug.Log ("roundedLocation: "+roundedLocation);
+			if(TileTakenByEnemy((int)roundedLocation.x,(int)roundedLocation.y) && VisibleTileAt((int)roundedLocation.x,(int)roundedLocation.y)){
+				//Debug.Log ("one way, now check other way");
+				return (LOSCheckBetweenPlayers(end,start)); //check the other direction
+			}else if((roundedLocation==end)&& VisibleTileAt((int)roundedLocation.x,(int)roundedLocation.y)){
+				//Debug.Log ("Full LOS check complete");
+				return true;
+			}else if((roundedLocation!=start) && BlockedTileAt(roundedLocation)){
+				//Debug.Log ("Blocked tile at "+roundedLocation);
+				return false;
+			}
+		}
+		Debug.Log ("Error: GameEngine.LOSCheckBetweenPlayers()");
+		return false;
+	}
+
+	public bool SelectedPlayerCanAttackEnemyAt(Vector2 enemyLocation){
+		switch(currentPlayer){
+		case (int)Players.One:
+			specificSpy = ReturnSelectedSpy();
+			specificGuy = ReturnClickedOnGuy((int)enemyLocation.x,(int)enemyLocation.y);
+			if(!LOSCheckBetweenPlayers(specificSpy.TileLocation,specificGuy.TileLocation)) Debug.Log ("You can't get a good shot from here!");
+			return (LOSCheckBetweenPlayers(specificSpy.TileLocation,specificGuy.TileLocation));
+		case (int)Players.Two:
+			specificGuy = ReturnSelectedGuy();
+			specificSpy = ReturnClickedOnSpy((int)enemyLocation.x,(int)enemyLocation.y);
+			if(!LOSCheckBetweenPlayers(specificGuy.TileLocation,specificSpy.TileLocation)) Debug.Log ("You can't get a good shot from here!");
+			return (LOSCheckBetweenPlayers(specificGuy.TileLocation,specificSpy.TileLocation));
+		default:
+			Debug.Log ("Error: GameEngine.SelectedPlayerCanAttackEnemyAt()");
+			return false;
+		}
+	}
+
+	public void SelectedPlayerPredictDamageToEnemy(Vector2 enemyTile){
+		switch(currentPlayer){
+		case (int)Players.One:
+			specificSpy = ReturnSelectedSpy();
+			specificGuy = ReturnClickedOnGuy((int)enemyTile.x,(int)enemyTile.y);
+			if(specificSpy.HasPoint()){
+				specificSpy.PredictDamage(specificGuy);
+			}
+			break;
+		case (int)Players.Two:
+			specificGuy = ReturnSelectedGuy();
+			specificSpy = ReturnClickedOnSpy((int)enemyTile.x,(int)enemyTile.y);
+			if(specificGuy.HasPoint()){
+				specificGuy.PredictDamage(specificSpy);
+			}
+			break;
+		}
+	}
+
+	public void SelectedPlayerDamageEnemy(Vector2 enemyTile){
+		switch(currentPlayer){
+		case (int)Players.One:
+			specificSpy = ReturnSelectedSpy();
+			specificGuy = ReturnClickedOnGuy((int)enemyTile.x,(int)enemyTile.y);
+			if(specificSpy.HasPoint()){
+				specificSpy.DealDamage(specificGuy);
+				if(!specificGuy.Alive){
+					EliminatePlayerAt((int)specificGuy.TileLocation.x,(int)specificGuy.TileLocation.y);
+				}
+			}
+			break;
+		case (int)Players.Two:
+			specificGuy = ReturnSelectedGuy();
+			specificSpy = ReturnClickedOnSpy((int)enemyTile.x,(int)enemyTile.y);
+			if(specificGuy.HasPoint()){
+				specificGuy.DealDamage(specificSpy);
+				if(!specificSpy.Alive){
+					EliminatePlayerAt((int)specificSpy.TileLocation.x,(int)specificSpy.TileLocation.y);
+				}
+			}
+			break;
+		}
+	}
 	
 	public void EliminatePlayerAt(int x, int z){
 		map.EliminatePlayerAt(x,z,currentPlayer);	
@@ -360,5 +720,13 @@ public class GameEngine : MonoBehaviour {
 	
 	public List<int> MovesLeftForCurrentPlayer(){
 		return map.MovesLeftForCurrentPlayer(currentPlayer);	
+	}
+
+	public List<int> HealthLeftForCurrentPlayer(){
+		return map.HealthLeftForCurrentPlayer(currentPlayer);
+	}
+
+	public List<string> GearForCurrentPlayer(){
+		return map.GearForCurrentPlayer(currentPlayer);
 	}
 }

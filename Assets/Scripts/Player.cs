@@ -6,7 +6,9 @@ public class Player {
 	public static int totalMovementPoints = 3;
 	public static int yPlayerHeight = 0;
 	public static int sneakDistance = 4;
-	public static int sprintDistnace = 2; //in addition to sneakDistance
+	public static int sprintDistance = 2; //in addition to sneakDistance
+	public static int startingHealth = 5;
+	public static Vector2 deadPlayerTile = new Vector2(-500,-500);
 	
 	protected bool alive;
 	protected bool selected;
@@ -14,11 +16,18 @@ public class Player {
 	protected Vector3 realWorldLocation;
 	protected int movesLeft;
 	protected int gearEquipped;
-	protected int health;
+	protected int health; //0-5?
+	protected bool shocked;
+	protected bool lostSprintNotification;
+	protected int currentSprintDistance;
 	
 	public int MovesLeft{
 		get{return movesLeft;}
 		set{movesLeft=value;}
+	}
+
+	public int Health{
+		get{return health;}
 	}
 	
 	public bool Alive{
@@ -33,6 +42,10 @@ public class Player {
 	public Vector2 TileLocation{
 		get{return tileLocation;}	
 	}
+
+	public int CurrentSprintDistance{
+		get{return currentSprintDistance;}
+	}
 	
 	public Player(){}
 	
@@ -43,32 +56,42 @@ public class Player {
 		alive=true;
 		selected=false;
 		gearEquipped=0;
-		health = 10;
+		health = startingHealth;
+		shocked=false;
+		lostSprintNotification = false;
+		currentSprintDistance = sprintDistance;
+	}
+
+	public bool HasPoint(){
+		return(MovesLeft>=1);
+	}
+
+	public bool CanSprint(){
+		return (currentSprintDistance>0);
 	}
 	
-	/*public bool SpendPoints(int points){
-		if(points>movesLeft){
-			Debug.Log("points>movesLeft :: public void SpendPoints in Player.cs");
-			return false;
-		}else{
-			movesLeft = movesLeft-points;
-			return true;
+	public void Shock(){
+		shocked=true;
+	}
+
+	public void TakeDamage(int dmg){
+		health-=dmg;
+		if(health<(startingHealth/2)&&(this.CanSprint())){
+			LoseRunningCapabilities();
+		}else if(health<=0){ 
+			Die();
 		}
 	}
 
-	 public void GivePoints(int points){
-		movesLeft += points;	
+	public void LoseRunningCapabilities(){
+		Debug.Log ("LoseRunningCapabilities() called");
+		currentSprintDistance=0;
+		lostSprintNotification=true;
 	}
-	
-	public bool SpendAllPoints(){
-		if(movesLeft>0){ 
-			movesLeft=0;
-			return true;
-		}
-		return false;
-	}*/
-	public bool HasPoint(){
-		return(MovesLeft>=1);
+
+	public void GiveHealth(int hp){
+		if (hp+health>startingHealth) Debug.Log ("Error: Player.GiveHealth()");
+		health+=hp;
 	}
 
 	public void SpendPoint(){
@@ -80,12 +103,21 @@ public class Player {
 		MovesLeft++;
 	}
 	
-	public void ResetPoints(){
-		movesLeft=totalMovementPoints;	
+	public void ResetPoints(){ //called when player is given control
+		movesLeft=totalMovementPoints;
+		if(shocked){ 
+			movesLeft--;
+			shocked=false;
+		}
+		if(lostSprintNotification) Debug.Log ("You've been severely damaged, and can no longer sprint!");
 	}
 	
 	public void FreeMove(int x, int z){
 		tileLocation = new Vector2(x,z);	
+	}
+
+	public void FreeMove(Vector2 location){
+		tileLocation = location;
 	}
 	
 	public void Move(int x, int z, int dist){
@@ -100,7 +132,9 @@ public class Player {
 	
 	
 	public void Die(){
+		Debug.Log ("A player has died!");
 		alive=false;
+		health=0;
 	}
 	
 }
