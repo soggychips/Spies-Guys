@@ -6,17 +6,14 @@ public class GUIController : MonoBehaviour {
 	public float animationSpeed = 80;
 	public bool confirmationButtonFlag;
 
-	public bool confirmationButtonDisplay;
 	private bool playerHasConfirmedOrCancelled;
 	private int confirmOrCancel; //set as 1 for confirm, 2 for cancel
 	private float confirmationButtonLeft;
 	private Vector2 confirmationButtonBoxLocation, confirmButtonLocation, cancelButtonLocation;
 
 	void Awake(){
-		playerHasConfirmedOrCancelled = false;
 		confirmOrCancel = 0;
-		confirmationButtonFlag = false;
-		confirmationButtonDisplay = false;
+		ResetConfirmationButtonVariables();
 		confirmationButtonBoxLocation = new Vector2(Screen.width-100,Screen.height/2-120);
 		confirmButtonLocation = new Vector2(Screen.width-95,Screen.height/2-115);
 		cancelButtonLocation = new Vector2(Screen.width-95,Screen.height/2);
@@ -24,20 +21,12 @@ public class GUIController : MonoBehaviour {
 
 	void OnGUI(){
 		if(confirmationButtonFlag){
-			if(confirmationButtonDisplay){  //display the box and buttons
-				ConfirmationButtons();
-			}else{	//first update since flag set to true
-				confirmationButtonLeft = Screen.width;
-				confirmationButtonDisplay = true;
-			}
+			ConfirmationButtons();
 		}
 	} 
 
-	public void FlagConfirmationButtons(){
-		confirmationButtonFlag = true;
-	}
 
-	public void ConfirmationButtons(){
+	public void ConfirmationButtons(){ //called in OnGUI
 		if(confirmationButtonLeft<=confirmationButtonBoxLocation.x){ 								//box is in its final place. allow clicking by showing buttons
 			GUI.Box (new Rect(confirmationButtonBoxLocation.x,confirmationButtonBoxLocation.y,100,240),"");
 			if(GUI.Button(new Rect(confirmButtonLocation.x,confirmButtonLocation.y,90,110), "Confirm")) {
@@ -54,7 +43,14 @@ public class GUIController : MonoBehaviour {
 		}
 	}
 
-	public int ConfirmationButtonPlayerInput(){
+	private void ResetConfirmationButtonVariables ()
+	{
+		playerHasConfirmedOrCancelled = false;
+		confirmationButtonLeft = Screen.width;
+		confirmationButtonFlag = false;
+	}
+
+	public int ConfirmationButtonPlayerInput(){ //called by TouchHandler.cs 
 		if(playerHasConfirmedOrCancelled){
 			ResetConfirmationButtonVariables();
 			return confirmOrCancel;
@@ -62,11 +58,9 @@ public class GUIController : MonoBehaviour {
 		return 0;
 	}
 
-	void ResetConfirmationButtonVariables ()
-	{
-		playerHasConfirmedOrCancelled = false;
-		confirmationButtonLeft = Screen.width;
-		confirmationButtonDisplay = false;
-		confirmationButtonFlag = false;
+	public void FlagConfirmationButtons(){ //called by TouchHandler.cs
+		confirmationButtonFlag = true;
 	}
+
+
 }
