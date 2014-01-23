@@ -39,10 +39,14 @@ public class TouchHandler : MonoBehaviour {
 			switch(scene.CurrentTurnState){
 			//if turnstate: Neutral
 				case (int)TurnState.States.Neutral:
+					scene.DisplayFreeDoorButtonTiles();
 					mouseClick = MouseClickToTileCoords();
 					if(scene.CurrentPlayerAt((int)mouseClick.x,(int)mouseClick.y)){
 						//Debug.Log("Player clicked on");
 						scene.SelectCharacter((int)mouseClick.x,(int)mouseClick.y);	
+					}else if(scene.HighlightedTileAt((int)mouseClick.x,(int)mouseClick.y) && scene.WallAt(mouseClick)){
+						//door controls... open/close,pick/lock
+						scene.HandleWallButtonClickAt(mouseClick);
 					}
 					break;
 				//if turnState: CharSelected
@@ -66,6 +70,9 @@ public class TouchHandler : MonoBehaviour {
 							}else if(scene.DroppedDataAt(mouseClick)){ //only player 2 can reach this
 								scene.ResetDroppedData(mouseClick);
 							}
+						}else if(scene.WallAt(mouseClick)){
+							//door controls... open/close,pick/lock
+							scene.HandleWallButtonClickAt(mouseClick);
 						}
 					}else if(scene.CurrentPlayerAt((int)mouseClick.x,(int)mouseClick.y)){
 						scene.DeselectCharacter();
@@ -360,6 +367,10 @@ public class TouchHandler : MonoBehaviour {
 			else if(buttonPressed==2) 	scene.CancelAction();
 			break;
 		case (int)TurnState.ActionTypes.Door:
+			if(buttonPressed==1)		scene.ConfirmAction();
+			else if(buttonPressed==2) 	scene.CancelAction();
+			break;
+		case (int)TurnState.ActionTypes.Door_Priced:
 			if(buttonPressed==1)		scene.ConfirmAction();
 			else if(buttonPressed==2) 	scene.CancelAction();
 			break;

@@ -116,6 +116,10 @@ public class Tile {
 		type = (int)TileType.Door_Open;
 	}
 
+	public void LockDoor(){
+		type = (int)TileType.Door_Locked;
+	}
+
 	public void MakeExtractionPoint(){
 		type = (int)TileType.Extraction;
 	}
@@ -156,6 +160,10 @@ public class Tile {
 
 	public bool hasLockedDoor(){
 		return (type==(int)TileType.Door_Locked);
+	}
+
+	public bool hasOpenDoor(){
+		return (type==(int)TileType.Door_Open);
 	}
 
 	public bool hasWall(){

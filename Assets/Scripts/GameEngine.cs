@@ -15,7 +15,8 @@ public class GameEngine : MonoBehaviour {
 	public Material pt_spy, pt_guy;
 	public Material wall_n_end, wall_s_end, wall_e_end, wall_w_end, wall_ne_corn,wall_nw_corn,
 					wall_se_corn,wall_sw_corn,wall_h_mid,wall_v_mid,wall_s_t,wall_n_t,wall_e_t,wall_w_t;
-	public Material door_NS, door_EW;
+	public Transform wallButton_unlock, wallButton_lock, wallButton_CloseDoor, wallButton_OpenDoor, wallButton_lightswitch, wallButton_LockDown;
+	public Material door_NS, door_EW, lockedDoor;
 	public Transform sneakHighlight;
 	public Transform sprintHighlight;
 	public Transform InteractionHighlight;
@@ -31,6 +32,8 @@ public class GameEngine : MonoBehaviour {
 	private Spy specificSpy;
 	public int currentPlayer; //set using Players enum
 	private bool alertMissingData = false;
+	private bool freeDoorButtonsAreDisplayed = false;
+	private bool pricedDoorButtonsAreDisplayed = false;
 
 	//movement variables
 	private Vector2 originalPosition; private int selectedPlayerIdx;
@@ -80,7 +83,6 @@ public class GameEngine : MonoBehaviour {
 			gstate.EndGame();
 			tstate.Neutralize();
 		}
-
 	}
 
 	public void SGDataInit ()
@@ -129,6 +131,7 @@ public class GameEngine : MonoBehaviour {
 		map.SelectCharacterAtTile(x,z,currentPlayer);
 		HighlightMovementTiles(x,z);
 		HighlightInteractionObjects(x,z);
+		DisplayPricedDoorButtonTiles();
 		tstate.SelectCharacter();	
 	}
 	
@@ -148,8 +151,6 @@ public class GameEngine : MonoBehaviour {
 	
 	public void GiveControlToPlayer2(){ //Give control to Guys
 		turn++;
-		//Debug.Log ("contents of spyNoiseAlertLocations at beginning of guys' turn");
-		//foreach(Vector2 v in spyNoiseAlertLocations) Debug.Log (v);
 		guyNoiseAlertLocations.Clear();
 		map.ResetPoints();
 		SetPlayerVisibilityUsingFoV();
@@ -158,6 +159,7 @@ public class GameEngine : MonoBehaviour {
 
 	public void EndTurn ()
 	{
+		DestroyHighlights();
 		tstate.EndTurn();
 	}
 	
@@ -213,6 +215,10 @@ public class GameEngine : MonoBehaviour {
 		}
 	}
 
+	public bool DoorAt(Vector2 mouseClick){
+		return(map.TileAt(mouseClick).hasDoor());
+	}
+
 	public bool LockedDoorAt (Vector2 mouseClick)
 	{
 		return(map.TileAt(mouseClick).hasLockedDoor());
@@ -241,18 +247,147 @@ public class GameEngine : MonoBehaviour {
 		return(!map.TileAt(mouseClick).isBlocked());
 	}
 
-	public void HighlightClosedDoors (int x, int z)
-	{ //if player is not next to a door, does nothing
-		Vector2 doorLocation = map.GetAdjacentClosedDoorLocation(x,z);
-		if(doorLocation.x!=-1000){
-			map.TileAt(doorLocation).Highlight();
-			Instantiate (InteractionHighlight, new Vector3(doorLocation.x*Tile.spacing,.2f,doorLocation.y*Tile.spacing),Quaternion.identity);
+	public bool WallAt(Vector2 mouseClick){
+		return(map.TileAt(mouseClick).hasWall());
+	}
+
+	//Free Door Buttons - Open/Close
+	//Priced Door Buttons - Un/Lock
+	//
+	public void DisplayFreeDoorButtonTiles(){
+		if(!freeDoorButtonsAreDisplayed){	
+			List<Vector2> playerPositions = map.ReturnPlayerPositions(currentPlayer);
+			List<Vector2> doorLocations = new List<Vector2>();
+			//Debug.Log ("DisplayFreeDoorButtonTiles called");
+			foreach(Vector2 position in playerPositions) 
+				doorLocations.Add(map.GetAdjacentDoorLocation((int)position.x,(int)position.y));
+			foreach(Vector2 location in doorLocations){
+				if(location.x!=-1000){
+					//Debug.Log ("checking "+location);
+					//instantiate the option tiles appropriately
+					if(map.TileAt(location).hasOpenDoor()){
+						ShowDoorCloseWallButton(location);
+						freeDoorButtonsAreDisplayed = true;
+					}else if(map.TileAt(location).hasClosedDoor()){
+						ShowDoorOpenWallButton(location);
+						freeDoorButtonsAreDisplayed = true;
+					}else if(map.TileAt (location).hasLockedDoor() && currentPlayer==(int)Players.Two){
+						ShowDoorOpenWallButton(location);
+						freeDoorButtonsAreDisplayed=true;
+					}
+				}
+			}
 		}
 	}
 
-	public void HighlightDoors(int x, int z){
-		//if player is not next to a door, does nothing
-		Vector2 doorLocation = map.GetAdjacentDoorLocation(x,z);
+	public void DisplayPricedDoorButtonTiles(){
+		if(!pricedDoorButtonsAreDisplayed){	
+			List<Vector2> playerPositions = map.ReturnPlayerPositions(currentPlayer);
+			List<Vector2> doorLocations = new List<Vector2>();
+			//Debug.Log ("DisplayPricedDoorButtonTiles called");
+			foreach(Vector2 position in playerPositions) 
+				doorLocations.Add(map.GetAdjacentDoorLocation((int)position.x,(int)position.y));
+			foreach(Vector2 location in doorLocations){
+				if(location.x!=-1000){
+					//Debug.Log ("checking "+location);
+					//instantiate the option tiles appropriately
+					if(map.TileAt(location).hasLockedDoor() && currentPlayer == (int)Players.One){ //spies only get unlock
+						ShowUnlockDoorWallButton(location);
+						pricedDoorButtonsAreDisplayed = true;
+					}else if(map.TileAt (location).hasClosedDoor() && !map.TileAt (location).hasLockedDoor() && currentPlayer == (int)Players.Two){ //guys only get lock
+						ShowLockDoorWallButton(location);
+						pricedDoorButtonsAreDisplayed = true;
+					}
+				}
+			}
+		}
+	}
+
+	public void ShowDoorOpenWallButton(Vector2 tileLocation){
+		Vector2 wallButtonLocation = new Vector2();
+		if(map.TileAt (tileLocation).DoorFacing == (int)DoorFacings.EW){
+			wallButtonLocation = tileLocation + Vector2.up;
+		}else{
+			wallButtonLocation = tileLocation - Vector2.right;
+		}
+		map.TileAt(wallButtonLocation).Highlight();
+		Instantiate(wallButton_OpenDoor, new Vector3(wallButtonLocation.x*Tile.spacing,.2f,wallButtonLocation.y*Tile.spacing),Quaternion.identity);
+		//Debug.Log ("Open door button instantiated at "+wallButtonLocation);
+	}
+	
+	public void ShowDoorCloseWallButton(Vector2 tileLocation){
+		Vector2 wallButtonLocation = new Vector2();
+		if(map.TileAt (tileLocation).DoorFacing == (int)DoorFacings.EW){
+			wallButtonLocation = tileLocation + Vector2.up;
+		}else{
+			wallButtonLocation = tileLocation - Vector2.right;
+		}
+		map.TileAt(wallButtonLocation).Highlight();
+		Instantiate(wallButton_CloseDoor, new Vector3(wallButtonLocation.x*Tile.spacing,.2f,wallButtonLocation.y*Tile.spacing),Quaternion.identity);
+		//Debug.Log ("Close door button instantiated at "+wallButtonLocation);
+	}
+
+	public void ShowLockDoorWallButton(Vector2 tileLocation){
+		Vector2 wallButtonLocation = new Vector2();
+		if(map.TileAt (tileLocation).DoorFacing == (int)DoorFacings.EW){
+			wallButtonLocation = tileLocation - Vector2.up;
+		}else{
+			wallButtonLocation = tileLocation + Vector2.right;
+		}
+		map.TileAt(wallButtonLocation).Highlight();
+		Instantiate(wallButton_lock, new Vector3(wallButtonLocation.x*Tile.spacing,.2f,wallButtonLocation.y*Tile.spacing),Quaternion.identity);
+		//Debug.Log ("Lock door button instantiated at "+wallButtonLocation);
+	}
+
+	public void ShowUnlockDoorWallButton(Vector2 tileLocation){
+		Vector2 wallButtonLocation = new Vector2();
+		if(map.TileAt (tileLocation).DoorFacing == (int)DoorFacings.EW){
+			wallButtonLocation = tileLocation - Vector2.up;
+		}else{
+			wallButtonLocation = tileLocation + Vector2.right;
+		}
+		map.TileAt(wallButtonLocation).Highlight();
+		Instantiate(wallButton_unlock, new Vector3(wallButtonLocation.x*Tile.spacing,.2f,wallButtonLocation.y*Tile.spacing),Quaternion.identity);
+	}
+
+	public void HandleWallButtonClickAt(Vector2 mouseClick){
+		Debug.Log ("HandleWallButtonClickAt called");
+		if(map.TileAt(mouseClick-Vector2.up).hasOpenDoor()){ //close - BOTH
+			Debug.Log ("Close EW door");
+			CloseDoor(mouseClick-Vector2.up);
+		}else if(map.TileAt(mouseClick+Vector2.right).hasOpenDoor()){ //close - BOTH
+			Debug.Log ("Close NS door");
+			CloseDoor(mouseClick+Vector2.right);
+		}else if(map.TileAt (mouseClick-Vector2.up).hasClosedDoor()){ //open - BOTH
+			Debug.Log ("Open EW door");
+			OpenDoor(mouseClick-Vector2.up);
+		}else if(map.TileAt (mouseClick+Vector2.right).hasClosedDoor()){ //open - BOTH
+			Debug.Log ("Open NS door");
+			OpenDoor(mouseClick+Vector2.right);
+		}else if(map.TileAt(mouseClick-Vector2.up).hasLockedDoor()){ //open - GUYS
+			Debug.Log ("Open EW door");
+			OpenDoor(mouseClick-Vector2.up);
+		}else if(map.TileAt (mouseClick+Vector2.right).hasLockedDoor()){ //open - GUYS
+			Debug.Log ("Open NS door");
+			OpenDoor(mouseClick+Vector2.right);
+		}else if(map.TileAt(mouseClick+Vector2.up).hasLockedDoor()){ //unlock - SPIES
+			Debug.Log ("Unlock EW door");
+			UnlockDoor(mouseClick+Vector2.up);
+		}else if(map.TileAt(mouseClick-Vector2.right).hasLockedDoor()){ //unlock - SPIES
+			Debug.Log ("Unlock NS door");
+			UnlockDoor(mouseClick-Vector2.right);
+		}else if(map.TileAt(mouseClick+Vector2.up).hasClosedDoor() && !map.TileAt(mouseClick+Vector2.up).hasLockedDoor()){ //lock - GUYS
+			Debug.Log ("Lock EW door");
+			LockDoor(mouseClick+Vector2.up);
+		}else if(map.TileAt(mouseClick-Vector2.right).hasClosedDoor() && !map.TileAt(mouseClick-Vector2.right).hasLockedDoor()){ //lock - GUYS
+			Debug.Log ("Lock NS door");
+			LockDoor(mouseClick-Vector2.right);
+		}
+	}
+	
+	public void HighlightClosedDoors(int x, int z)
+	{ //if player is not next to a door, does nothing
+		Vector2 doorLocation = map.GetAdjacentClosedDoorLocation(x,z);
 		if(doorLocation.x!=-1000){
 			map.TileAt(doorLocation).Highlight();
 			Instantiate (InteractionHighlight, new Vector3(doorLocation.x*Tile.spacing,.2f,doorLocation.y*Tile.spacing),Quaternion.identity);
@@ -327,6 +462,8 @@ public class GameEngine : MonoBehaviour {
 	public void DestroyHighlights(){
 		foreach(GameObject g in GameObject.FindGameObjectsWithTag("highlight")) Destroy(g);
 		map.ResetHighlights();
+		freeDoorButtonsAreDisplayed = false;
+		pricedDoorButtonsAreDisplayed = false;
 	}
 	
 	public void RemoveVisibility(){
@@ -405,6 +542,9 @@ public class GameEngine : MonoBehaviour {
 			default:
 				return ft_taken;
 			}
+		}
+		if(type==(int)TileType.Door_Locked){
+			return lockedDoor;
 		}
 		if(type==(int)TileType.Door_Closed){
 			switch(map.GetDoorFacing(x,z)){
@@ -560,6 +700,37 @@ public class GameEngine : MonoBehaviour {
 		
 	}
 
+	public void CloseDoor(Vector2 doorLocation){
+		tstate.BeginAction((int)TurnState.ActionTypes.Door);
+		positionOfDoor = doorLocation;
+		map.CloseDoor((int)doorLocation.x,(int)doorLocation.y);
+		//map.DeselectCharacter(currentPlayer);
+		DestroyHighlights();
+		tstate.EndAction();
+		UpdateTileMaterials();
+	}
+
+	public void LockDoor(Vector2 doorLocation){
+		tstate.BeginAction((int)TurnState.ActionTypes.Door_Priced);
+		positionOfDoor = doorLocation;
+		map.LockDoor((int)doorLocation.x,(int)doorLocation.y);
+		ReturnSelectedGuy().SpendPoint();
+		DestroyHighlights();
+		tstate.EndAction();
+		UpdateTileMaterials();
+	}
+
+	public void UnlockDoor(Vector2 doorLocation){
+		tstate.BeginAction((int)TurnState.ActionTypes.Door_Priced);
+		positionOfDoor = doorLocation;
+		map.CloseDoor((int)doorLocation.x,(int)doorLocation.y);
+		ReturnSelectedSpy().SpendPoint();
+		//map.DeselectCharacter(currentPlayer);
+		DestroyHighlights();
+		tstate.EndAction();
+		UpdateTileMaterials();
+	}
+
 	public void TakeData(Vector2 dataLocation){
 		tstate.BeginAction((int)TurnState.ActionTypes.Data);
 		positionofData = dataLocation;
@@ -609,6 +780,10 @@ public class GameEngine : MonoBehaviour {
 		switch((int)tstate.ActionType){
 		case (int)TurnState.ActionTypes.Door:
 			map.RevertDoorOpening((int)positionOfDoor.x,(int)positionOfDoor.y);
+			break;
+		case (int)TurnState.ActionTypes.Door_Priced:
+			map.RevertDoorOpening((int)positionOfDoor.x,(int)positionOfDoor.y);
+			ReturnSelectedPlayer().GivePoint();
 			break;
 		//Attack case currently would do nothing
 		}

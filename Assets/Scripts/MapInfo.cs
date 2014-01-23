@@ -549,6 +549,22 @@ public class MapInfo{
 		}
 	}
 
+	public List<Vector2> ReturnPlayerPositions(int currentPlayer){
+		List<Vector2> positions = new List<Vector2>();
+		if(currentPlayer == (int)GameEngine.Players.One){
+			foreach(Spy spy in spies){
+				positions.Add (spy.TileLocation);
+			}
+		}else if(currentPlayer == (int)GameEngine.Players.Two){
+			foreach(Guy guy in guys){
+				positions.Add (guy.TileLocation);
+			}
+		}else{
+			Debug.Log ("Error: MapInfo.ReturnPlayerPositions");
+		}
+		return positions;
+	}
+
 	public Player ReturnSelectedPlayer(int currentPlayer){
 		if(currentPlayer==(int)GameEngine.Players.One){
 			foreach(Spy spy in spies){
@@ -657,6 +673,17 @@ public class MapInfo{
 		map[x,z].StoreType();
 		map[x,z].OpenDoor();
 	}
+
+	public void CloseDoor(int x, int z){
+		map[x,z].StoreType();
+		map[x,z].CloseDoor();
+	}
+
+	public void LockDoor(int x, int z){
+		map[x,z].StoreType();
+		map[x,z].LockDoor();
+	}
+	
 
 	public void RevertDoorOpening(int x, int z){
 		map[x,z].LoadStoredType();
@@ -980,7 +1007,8 @@ public class MapInfo{
 	//returns location of an adjacent door
 	public Vector2 GetAdjacentDoorLocation(int x, int z){
 		if(x>=mapSize || z>=mapSize || x<0 || z<0){
-			Debug.Log ("Error: MapInfo.GetAdjacentDoorLocation");	
+			Debug.Log ("Error: MapInfo.GetAdjacentDoorLocation");
+			return new Vector2(-1000,-1000);
 		}
 		if(x-1>=0 && map[x-1,z].hasDoor()) return new Vector2(x-1,z);
 		if(z-1>=0 && map[x,z-1].hasDoor()) return new Vector2(x,z-1);

@@ -4,7 +4,7 @@ using System.Collections;
 public class TurnState {
 	
 	public enum States: int{Begin, Neutral, CharSelected, MoveBegin, MoveAnimate, MoveConfirm, ActionBegin, ActionAnimate, ActionConfirm, End};
-	public enum ActionTypes: int{Door,Data,Lightswitch,Attack,Shock};
+	public enum ActionTypes: int{Door,Door_Priced,Data,Lightswitch,Attack,Shock};
 	
 	private int currentState;
 	private int actionType;
