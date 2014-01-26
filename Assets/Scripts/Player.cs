@@ -76,11 +76,13 @@ public class Player {
 
 	public void TakeDamage(int dmg){
 		health-=dmg;
-		if(health<(startingHealth/2)&&(this.CanSprint())){
-			LoseRunningCapabilities();
-		}else if(health<=0){ 
+		Debug.Log ("health = "+health+"\nstartingHealth/2 = "+(startingHealth/2));
+		if(health<=0){ 
 			Die();
+		}else if(health<=(startingHealth/2)&&(this.CanSprint())){
+			LoseRunningCapabilities();
 		}
+
 	}
 
 	public void LoseRunningCapabilities(){

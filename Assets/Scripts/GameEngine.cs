@@ -291,12 +291,14 @@ public class GameEngine : MonoBehaviour {
 				if(location.x!=-1000){
 					//Debug.Log ("checking "+location);
 					//instantiate the option tiles appropriately
-					if(map.TileAt(location).hasLockedDoor() && currentPlayer == (int)Players.One){ //spies only get unlock
-						ShowUnlockDoorWallButton(location);
-						pricedDoorButtonsAreDisplayed = true;
-					}else if(map.TileAt (location).hasClosedDoor() && !map.TileAt (location).hasLockedDoor() && currentPlayer == (int)Players.Two){ //guys only get lock
-						ShowLockDoorWallButton(location);
-						pricedDoorButtonsAreDisplayed = true;
+					if(map.TileAt(location).hasLockedDoor() && currentPlayer == (int)Players.One 
+					   && ReturnSelectedPlayer().HasPoint()){ //spies only get unlock
+							ShowUnlockDoorWallButton(location);
+							pricedDoorButtonsAreDisplayed = true;
+					}else if(map.TileAt (location).hasClosedDoor() && !map.TileAt (location).hasLockedDoor() 
+					         && currentPlayer == (int)Players.Two && ReturnSelectedPlayer().HasPoint()){ //guys only get lock
+							ShowLockDoorWallButton(location);
+							pricedDoorButtonsAreDisplayed = true;
 					}
 				}
 			}
@@ -373,13 +375,13 @@ public class GameEngine : MonoBehaviour {
 		}else if(map.TileAt(mouseClick+Vector2.up).hasLockedDoor()){ //unlock - SPIES
 			Debug.Log ("Unlock EW door");
 			UnlockDoor(mouseClick+Vector2.up);
-		}else if(map.TileAt(mouseClick-Vector2.right).hasLockedDoor()){ //unlock - SPIES
+		}else if(map.TileAt(mouseClick-Vector2.right).hasLockedDoor() ){ //unlock - SPIES
 			Debug.Log ("Unlock NS door");
 			UnlockDoor(mouseClick-Vector2.right);
-		}else if(map.TileAt(mouseClick+Vector2.up).hasClosedDoor() && !map.TileAt(mouseClick+Vector2.up).hasLockedDoor()){ //lock - GUYS
+		}else if(map.TileAt(mouseClick+Vector2.up).hasClosedDoor() && !map.TileAt(mouseClick+Vector2.up).hasLockedDoor() ){ //lock - GUYS
 			Debug.Log ("Lock EW door");
 			LockDoor(mouseClick+Vector2.up);
-		}else if(map.TileAt(mouseClick-Vector2.right).hasClosedDoor() && !map.TileAt(mouseClick-Vector2.right).hasLockedDoor()){ //lock - GUYS
+		}else if(map.TileAt(mouseClick-Vector2.right).hasClosedDoor() && !map.TileAt(mouseClick-Vector2.right).hasLockedDoor() ){ //lock - GUYS
 			Debug.Log ("Lock NS door");
 			LockDoor(mouseClick-Vector2.right);
 		}
@@ -452,6 +454,16 @@ public class GameEngine : MonoBehaviour {
 			spyNoiseAlertLocations.Add(mouseClick);
 		}else{ //guys
 			guyNoiseAlertLocations.Add (mouseClick);
+		}
+	}
+
+	public void UnmarkTileAsSprintTile(Vector2 tileToUnmark){
+		map.TileAt(tileToUnmark).SprintedTo = false;
+		if(currentPlayer==(int)Players.One){ //spies
+			Debug.Log ("tile unmarked as sprinted (spies)");
+			spyNoiseAlertLocations.Remove(tileToUnmark);
+		}else{ //guys
+			guyNoiseAlertLocations.Remove(tileToUnmark);
 		}
 	}
 
@@ -668,6 +680,11 @@ public class GameEngine : MonoBehaviour {
 	}
 
 	public void MoveSelectedCharTo(int x, int z){
+		Vector2 mouseClick = new Vector2(x,z);
+		if(TileIsSprintDistance(mouseClick)){
+			Debug.Log ("Sprinting to tile "+mouseClick);
+			MarkTileAsSprintTile(mouseClick);
+		}
 		DestroyHighlights();
 		map.MoveSelectedCharTo(x,z,currentPlayer);
 		tstate.EndMovement();
@@ -684,6 +701,7 @@ public class GameEngine : MonoBehaviour {
 	
 	public void CancelMove(){
 		tstate.Neutralize();
+		UnmarkTileAsSprintTile(ReturnSelectedPlayerPosition(selectedPlayerIdx));
 		map.RevertMovement(selectedPlayerIdx,originalPosition,currentPlayer);
 		UpdateTileMaterials();
 		map.DeselectCharacter(currentPlayer);

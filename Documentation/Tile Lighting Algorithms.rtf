@@ -24,10 +24,10 @@ Spies Vs. Guys\
 There will be two searching modes for the algorithm: SeekNextRoom, and FleshOutRoom.\
 	
 \b Seek Next Room:
-\b0  Visit tiles incrementally, switching to FleshOutRoom mode when an unassigned tile has been found. Repeat until all tile locations have been assigned to a room or were found to be walls (visited).\
+\b0  Visit tiles incrementally, switching to FleshOutRoom mode when an unassigned tile has been found. Repeat until all tile locations have been assigned to a room or were found to be walls (visited). It's worth noting that the only tiles you will find if incrementing through X values for each z value (in ascending order) are going to be the left-most bottom most tiles of their respective rooms.\
 	
 \b Flesh Out Room
-\b0 : Move counter clockwise as outward as possible, spiraling in, always turning right if an unvisited tile is found.\
+\b0 : Move counter clockwise as outward as possible, spiraling in, always turning right if an unvisited tile is found. A facing is used to determine the next tile to visit, and in which direction to be looking for openings.\
 \
 The information needed for this algorithm:\
 \pard\tx220\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\li720\fi-720\pardirnatural
@@ -40,6 +40,5 @@ Algorithm:\
 Create a new array of ints (visited) to keep track of which tiles have been checked for room location\
 Create a List of lists, called Rooms (Rooms[0] would be the first list of tiles all associated with room 0)\
 Create a boolean to keep track of the current  \
-\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
-\cf0 \
+\
 }
