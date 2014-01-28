@@ -23,7 +23,7 @@ public class TouchHandler : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		scene = GameObject.Find("Engine").GetComponent("GameEngine") as GameEngine; //gives us access to the GameEngine script
-		guiController = GameObject.FindWithTag("GUIController").GetComponent("GUIController") as GUIController;
+		guiController = GameObject.Find("GUIController").GetComponent("GUIController") as GUIController;
 	}
 
 	public bool Player1(){
