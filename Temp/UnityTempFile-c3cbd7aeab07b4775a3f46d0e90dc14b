@@ -46,6 +46,7 @@
 'Assets/Scripts/HighlightPulse.cs'
 'Assets/Scripts/MapInfo.cs'
 'Assets/Scripts/Player.cs'
+'Assets/Scripts/RoomFinder.cs'
 'Assets/Scripts/Spy.cs'
 'Assets/Scripts/Tile.cs'
 'Assets/Scripts/TouchHandler.cs'

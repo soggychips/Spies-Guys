@@ -73,54 +73,7 @@ public class MapInfo{
 			}
 		}	
 	}
-	
-	public void SetUpSGData_Old(){
-		Debug.Log ("Loading level...");
-		//walls,doors,player tiles
-		//outside walls
-		GiveWallInRange(0,0,12,0);
-		GiveWallInRange(16,0,32,0);
-		GiveWallInRange(0,0,0,23);
-		GiveWallInRange(1,23,32,23);
-		GiveWallInRange(32,1,32,22);
-		//walls arranged from NW to SE corners
-		GiveWallInRange(5,22,5,21);
-		GiveWallInRange(5,13,5,19);
-		GiveWallInRange(5,1,5,11);
-		map[6,8].GiveWall();
-		GiveWallInRange(8,8,13,8);
-		GiveWallInRange(8,1,8,4);
-		GiveWallInRange(9,15,9,19);
-		GiveWallInRange(9,9,9,13);
-		map[9,4].GiveWall();
-		GiveWallInRange(9,19,14,19);
-		GiveWallInRange(11,4,16,4);
-		map[12,3].GiveWall();
-		map[12,1].GiveWall();
-		GiveWallInRange(16,19,20,19);
-		GiveWallInRange(15,8,20,8);
-		GiveWallInRange(16,1,16,4);
-		GiveWallInRange(20,14,20,19);
-		GiveWallInRange(20,8,20,12);
-		GiveWallInRange(27,21,27,23);
-		GiveWallInRange(27,9,27,19);
-		GiveWallInRange(27,1,27,7);
-		GiveWallInRange(27,10,32,10);
-		
-		/*guys = new Guy[2];
-		guys[0] = new Guy(30,3);
-		guys[1] = new Guy(29,5);
-		spies = new Spy[2];
-		spies[0] = new Spy(3,8);
-		spies[1] = new Spy(3,16);
-		map[3,8].Take(); map[3,16].Take(); //spies
-		map[29,5].Take(); map[30,3].Take(); //guys*/
 
-		map[4,9].GiveLightswitch();
-
-		SetAllTilesVisible();
-		Debug.Log("Level Loaded.");
-	}
 
 	public void SetUpSGData(){
 		Debug.Log ("Loading level: SG_DATA...");
@@ -163,16 +116,16 @@ public class MapInfo{
 
 		//PLAYERS
 		spies = new List<Spy>();
-		//CreateSpy(6,18);
-		//CreateSpy(6,20);
-		CreateSpy(15,21);
-		CreateSpy(15,18);
+		CreateSpy(6,18);
+		CreateSpy(6,20);
+		//CreateSpy(15,21);
+		//CreateSpy(15,18);
 
 		guys = new List<Guy>();
-		//CreateGuy(35,25);
-		//CreateGuy(35,11);
-		CreateGuy(24,17);
-		CreateGuy(24,19);
+		CreateGuy(35,25);
+		CreateGuy(35,11);
+		//CreateGuy(24,17);
+		//CreateGuy(24,19);
 
 		//OBJECTIVES
 		CreateData(20,19);

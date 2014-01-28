@@ -56,6 +56,7 @@
      <Compile Include="Assets\Scripts\HighlightPulse.cs" />
      <Compile Include="Assets\Scripts\MapInfo.cs" />
      <Compile Include="Assets\Scripts\Player.cs" />
+     <Compile Include="Assets\Scripts\RoomFinder.cs" />
      <Compile Include="Assets\Scripts\Spy.cs" />
      <Compile Include="Assets\Scripts\Tile.cs" />
      <Compile Include="Assets\Scripts\TouchHandler.cs" />

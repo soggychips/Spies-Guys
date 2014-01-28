@@ -20,6 +20,7 @@ public class Tile {
 	//private Vector3 realWorldLocation;
 	private bool stored; private int storedType;
 
+	private int room; //-1 for walls
 	private int depth;
 	private Vector2 pathPredecessor;
 	
@@ -30,11 +31,17 @@ public class Tile {
 		//realWorldLocation = new Vector3(x*spacing,yTileHeight,z*spacing);
 		stored=false; storedType=(int)TileType.Open;
 		sprintedTo=false;
+		room = -1;
 	}
 	
 
 	public int Type{
 		get{ return type; }	
+	}
+
+	public int Room{
+		get{return room;}
+		set{room = value;}
 	}
 
 	public bool SprintedTo{
