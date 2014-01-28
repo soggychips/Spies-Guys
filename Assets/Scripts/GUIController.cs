@@ -9,7 +9,8 @@ public class GUIController : MonoBehaviour {
 	private bool playerHasConfirmedOrCancelled;
 	private int confirmOrCancel; //set as 1 for confirm, 2 for cancel
 	private float confirmationButtonLeft;
-	private Vector2 confirmationButtonBoxLocation, midDivLocation, confirmButtonLocation, cancelButtonLocation;
+	private Vector2 confirmationButtonBoxLocation, confirmButtonLocation, cancelButtonLocation;
+	private Vector2 camButtonMainLocation, camButtonP1Location, camButtonP2Location;
 
 	public GUIStyle game_confSlider_base_iPhone;
 	public GUIStyle game_confSlider_green_iPhone;
@@ -27,12 +28,16 @@ public class GUIController : MonoBehaviour {
 		confirmationButtonBoxLocation = new Vector2(Screen.width-204,0);
 		confirmButtonLocation = new Vector2(Screen.width-200,68);
 		cancelButtonLocation = new Vector2(Screen.width-200,396);
+		camButtonMainLocation = new Vector2(0, 200);
+		camButtonP1Location = new Vector2(0, 316);
+		camButtonP2Location = new Vector2(0, 460);
 	}
 
 	void OnGUI(){
 		if(confirmationButtonFlag){
 			ConfirmationButtons();
 		}
+		CameraButtons();
 	} 
 
 
@@ -71,6 +76,17 @@ public class GUIController : MonoBehaviour {
 
 	public void FlagConfirmationButtons(){ //called by TouchHandler.cs
 		confirmationButtonFlag = true;
+	}
+
+	public void CameraButtons(){
+		if(GUI.Button(new Rect(camButtonMainLocation.x,camButtonMainLocation.y,128,88),"", game_camBtn_main_iPhone)){
+		}
+		if(GUI.Button(new Rect(camButtonP1Location.x,camButtonP1Location.y,128,136),"", game_camBtn_p1_iPhone)){
+		}
+		GUI.Label(new Rect(camButtonP1Location.x+4,camButtonP1Location.y+90, 114, 26),"", game_item_shotgun_iPhone);
+		if(GUI.Button(new Rect(camButtonP2Location.x,camButtonP2Location.y,128,136),"", game_camBtn_p2_iPhone)){
+		}
+		GUI.Label (new Rect(camButtonP2Location.x+4, camButtonP2Location.y+90, 114, 26),"", game_item_m14_iPhone);
 	}
 
 
