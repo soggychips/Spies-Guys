@@ -235,9 +235,9 @@ public class TouchHandler : MonoBehaviour {
 			turnStateString = "End";
 			break;
 		}
-		GUI.Label(new Rect(Screen.width-200,0,150,30),"Game State: "+gameStateString);
-		GUI.Label(new Rect(Screen.width-200,30,150,30),"Turn State: "+turnStateString);
-		GUI.Label(new Rect(Screen.width-200,60,150,30),"Turn: "+ scene.Turn);
+		GUI.Label(new Rect(Screen.width-400,0,150,30),"Game State: "+gameStateString);
+		GUI.Label(new Rect(Screen.width-400,30,150,30),"Turn State: "+turnStateString);
+		GUI.Label(new Rect(Screen.width-400,60,150,30),"Turn: "+ scene.Turn);
 	}
 
 	public void DisplaySelectedPlayerData(){
@@ -249,34 +249,34 @@ public class TouchHandler : MonoBehaviour {
 		switch(scene.CurrentGameState){
 		case (int)GameState.States.P1:
 			if(selectedPlayerIndex==0){
-				GUI.Label(new Rect(Screen.width-500,0,150,30),"Spy[0]: "+movesLeftForPlayers[0]);
-				GUI.Label(new Rect(Screen.width-200,80,150,30),"Health:");
-				GUI.Label(new Rect(Screen.width-200,95,150,30),"Spy[0]: "+ healthLeftForPlayers[0]);
-				GUI.Label(new Rect(Screen.width-200,175,150,30),"Gear:");
-				GUI.Label(new Rect(Screen.width-200,200,150,30),"Spy[0]: "+ gearForPlayers[0]);
+				GUI.Label(new Rect(Screen.width-700,0,150,30),"Spy[0]: "+movesLeftForPlayers[0]);
+				GUI.Label(new Rect(Screen.width-400,80,150,30),"Health:");
+				GUI.Label(new Rect(Screen.width-400,95,150,30),"Spy[0]: "+ healthLeftForPlayers[0]);
+				GUI.Label(new Rect(Screen.width-400,175,150,30),"Gear:");
+				GUI.Label(new Rect(Screen.width-400,200,150,30),"Spy[0]: "+ gearForPlayers[0]);
 			}else if(selectedPlayerIndex==1){
-				GUI.Label(new Rect(Screen.width-500,30,150,30),"Spy[1]: "+movesLeftForPlayers[1]);
-				GUI.Label(new Rect(Screen.width-200,80,150,30),"Health:");
-				GUI.Label(new Rect(Screen.width-200,125,150,30),"Spy[1]: "+ healthLeftForPlayers[1]);
-				GUI.Label(new Rect(Screen.width-200,175,150,30),"Gear:");
-				GUI.Label(new Rect(Screen.width-200,230,150,30),"Spy[1]: "+ gearForPlayers[1]);
+				GUI.Label(new Rect(Screen.width-700,30,150,30),"Spy[1]: "+movesLeftForPlayers[1]);
+				GUI.Label(new Rect(Screen.width-400,80,150,30),"Health:");
+				GUI.Label(new Rect(Screen.width-400,125,150,30),"Spy[1]: "+ healthLeftForPlayers[1]);
+				GUI.Label(new Rect(Screen.width-400,175,150,30),"Gear:");
+				GUI.Label(new Rect(Screen.width-400,230,150,30),"Spy[1]: "+ gearForPlayers[1]);
 			}else{
 				Debug.Log ("Error: TouchHandler.DisplaySelectedPlayerData()");
 			}
 			break;
 		case (int)GameState.States.P2:
 			if(selectedPlayerIndex==0){
-				GUI.Label(new Rect(Screen.width-500,0,150,30),"Guy[0]: "+movesLeftForPlayers[0]);
-				GUI.Label(new Rect(Screen.width-200,80,150,30),"Health:");
-				GUI.Label(new Rect(Screen.width-200,95,150,30),"Guy[0]: "+ healthLeftForPlayers[0]);
-				GUI.Label(new Rect(Screen.width-200,175,150,30),"Gear:");
-				GUI.Label(new Rect(Screen.width-200,200,150,30),"Guy[0]: "+ gearForPlayers[0]);
+				GUI.Label(new Rect(Screen.width-700,0,150,30),"Guy[0]: "+movesLeftForPlayers[0]);
+				GUI.Label(new Rect(Screen.width-400,80,150,30),"Health:");
+				GUI.Label(new Rect(Screen.width-400,95,150,30),"Guy[0]: "+ healthLeftForPlayers[0]);
+				GUI.Label(new Rect(Screen.width-400,175,150,30),"Gear:");
+				GUI.Label(new Rect(Screen.width-400,200,150,30),"Guy[0]: "+ gearForPlayers[0]);
 			}else{
-				GUI.Label(new Rect(Screen.width-500,30,150,30),"Guy[1]: "+movesLeftForPlayers[1]);
-				GUI.Label(new Rect(Screen.width-200,80,150,30),"Health:");
-				GUI.Label(new Rect(Screen.width-200,125,150,30),"Guy[1]: "+ healthLeftForPlayers[1]);
-				GUI.Label(new Rect(Screen.width-200,175,150,30),"Gear:");
-				GUI.Label(new Rect(Screen.width-200,230,150,30),"Guy[1]: "+ gearForPlayers[1]);
+				GUI.Label(new Rect(Screen.width-700,30,150,30),"Guy[1]: "+movesLeftForPlayers[1]);
+				GUI.Label(new Rect(Screen.width-400,80,150,30),"Health:");
+				GUI.Label(new Rect(Screen.width-400,125,150,30),"Guy[1]: "+ healthLeftForPlayers[1]);
+				GUI.Label(new Rect(Screen.width-400,175,150,30),"Gear:");
+				GUI.Label(new Rect(Screen.width-400,230,150,30),"Guy[1]: "+ gearForPlayers[1]);
 			}
 			break;
 		}
@@ -288,24 +288,24 @@ public class TouchHandler : MonoBehaviour {
 		List<string> gearForPlayers = scene.GearForCurrentPlayer();
 		switch(scene.CurrentGameState){
 		case (int)GameState.States.P1:
-			GUI.Label(new Rect(Screen.width-500,0,150,30),"Spy[0]: "+movesLeftForPlayers[0]);
-			GUI.Label(new Rect(Screen.width-500,30,150,30),"Spy[1]: "+movesLeftForPlayers[1]);
-			GUI.Label(new Rect(Screen.width-200,80,150,30),"Health:");
-			GUI.Label(new Rect(Screen.width-200,95,150,30),"Spy[0]: "+ healthLeftForPlayers[0]);
-			GUI.Label(new Rect(Screen.width-200,125,150,30),"Spy[1]: "+ healthLeftForPlayers[1]);
-			GUI.Label(new Rect(Screen.width-200,175,150,30),"Gear:");
-			GUI.Label(new Rect(Screen.width-200,200,150,30),"Spy[0]: "+ gearForPlayers[0]);
-			GUI.Label(new Rect(Screen.width-200,230,150,30),"Spy[1]: "+ gearForPlayers[1]);
+			GUI.Label(new Rect(Screen.width-700,0,150,30),"Spy[0]: "+movesLeftForPlayers[0]);
+			GUI.Label(new Rect(Screen.width-400,30,150,30),"Spy[1]: "+movesLeftForPlayers[1]);
+			GUI.Label(new Rect(Screen.width-400,80,150,30),"Health:");
+			GUI.Label(new Rect(Screen.width-400,95,150,30),"Spy[0]: "+ healthLeftForPlayers[0]);
+			GUI.Label(new Rect(Screen.width-400,125,150,30),"Spy[1]: "+ healthLeftForPlayers[1]);
+			GUI.Label(new Rect(Screen.width-400,175,150,30),"Gear:");
+			GUI.Label(new Rect(Screen.width-400,200,150,30),"Spy[0]: "+ gearForPlayers[0]);
+			GUI.Label(new Rect(Screen.width-400,230,150,30),"Spy[1]: "+ gearForPlayers[1]);
 			break;
 		case (int)GameState.States.P2:
-			GUI.Label(new Rect(Screen.width-500,0,150,30),"Guy[0]: "+movesLeftForPlayers[0]);
-			GUI.Label(new Rect(Screen.width-500,30,150,30),"Guy[1]: "+movesLeftForPlayers[1]);
-			GUI.Label(new Rect(Screen.width-200,80,150,30),"Health:");
-			GUI.Label(new Rect(Screen.width-200,95,150,30),"Guy[0]: "+ healthLeftForPlayers[0]);
-			GUI.Label(new Rect(Screen.width-200,125,150,30),"Guy[1]: "+ healthLeftForPlayers[1]);
-			GUI.Label(new Rect(Screen.width-200,175,150,30),"Gear:");
-			GUI.Label(new Rect(Screen.width-200,200,150,30),"Guy[0]: "+ gearForPlayers[0]);
-			GUI.Label(new Rect(Screen.width-200,230,150,30),"Guy[1]: "+ gearForPlayers[1]);
+			GUI.Label(new Rect(Screen.width-700,0,150,30),"Guy[0]: "+movesLeftForPlayers[0]);
+			GUI.Label(new Rect(Screen.width-700,30,150,30),"Guy[1]: "+movesLeftForPlayers[1]);
+			GUI.Label(new Rect(Screen.width-400,80,150,30),"Health:");
+			GUI.Label(new Rect(Screen.width-400,95,150,30),"Guy[0]: "+ healthLeftForPlayers[0]);
+			GUI.Label(new Rect(Screen.width-400,125,150,30),"Guy[1]: "+ healthLeftForPlayers[1]);
+			GUI.Label(new Rect(Screen.width-400,175,150,30),"Gear:");
+			GUI.Label(new Rect(Screen.width-400,200,150,30),"Guy[0]: "+ gearForPlayers[0]);
+			GUI.Label(new Rect(Screen.width-400,230,150,30),"Guy[1]: "+ gearForPlayers[1]);
 			break;
 		}
 		
