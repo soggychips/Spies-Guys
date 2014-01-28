@@ -1,0 +1,8 @@
+guiTexture Dimensions
+
+114x26 - Item Icons
+128x136 - Player Cam Buttons 
+128x88 - Main Cam Button
+204x640 - Confirmation Slider
+206x160 - Slider Mid Pad
+200x244 - Confirmation Buttons
