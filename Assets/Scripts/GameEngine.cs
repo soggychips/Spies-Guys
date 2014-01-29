@@ -20,6 +20,8 @@ public class GameEngine : MonoBehaviour {
 	public Transform sneakHighlight;
 	public Transform sprintHighlight;
 	public Transform InteractionHighlight;
+	public Color unlit = Color.gray; 
+	public Color lit = Color.white;
 	
 	
 	private int winner;					//whoever is the winner is awarded this int, as a humble prize from me
@@ -88,6 +90,7 @@ public class GameEngine : MonoBehaviour {
 	public void SGDataInit ()
 	{
 		map.SetUpSGData();
+		//map.SetUpTestCaseForRoomFinder();
 		LoadTiles();
 	}
 	
@@ -189,6 +192,7 @@ public class GameEngine : MonoBehaviour {
 			for(int j=0; j<map.MapSize;j++){
 				Material temp = AssignMaterial(i,j);
 				tileGraphics[i,j].renderer.material = temp;
+				tileGraphics[i,j].renderer.material.color = Color.white;
 				//Debug.Log("tile "+i+","+j+" mat set to "+ temp);
 			}
 		}
@@ -204,11 +208,13 @@ public class GameEngine : MonoBehaviour {
 						tileGraphics[i,j].renderer.material=ft_noise;
 					}else{
 						tileGraphics[i,j].renderer.material=ft_hidden;
+						tileGraphics[i,j].renderer.material.color = Color.grey;
 					}
 				}else{
 					Material temp = AssignMaterial(i,j);
-					//tileGraphics[i,j].renderer.material.SetColor("_Color",temp.color);
 					tileGraphics[i,j].renderer.material=temp;
+					if(map.TileAt(new Vector2(i,j)).hasWall() || map.TileAt (new Vector2(i,j)).Lit) tileGraphics[i,j].renderer.material.color = Color.white; //lit
+					else tileGraphics[i,j].renderer.material.color = Color.gray; //unlit
 					//Debug.Log("tile "+i+","+j+" mat set to "+ temp);
 				}
 			}
@@ -590,6 +596,10 @@ public class GameEngine : MonoBehaviour {
 	
 	public bool CurrentPlayerAt(int x, int z){
 		return map.CurrentPlayerAtTile(x,z,currentPlayer);	
+	}
+
+	public int ReturnRoomContainingTile(int x, int z){
+		return map.ReturnRoomContainingTile(x,z);
 	}
 
 	public Guy ReturnClickedOnGuy(int x, int z){

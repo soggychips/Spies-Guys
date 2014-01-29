@@ -12,6 +12,7 @@ public class MapInfo{
 	private int winner;
 	private Tile[,] map;
 	private int[,] visibility; //used for visibility reference, set each entry to 0 or 1 only!
+	private List<List<Vector2>> Rooms;
 	private int[,] previouslySeenTiles;
 	
 	public List<Guy> guys;
@@ -157,11 +158,48 @@ public class MapInfo{
 		CreateDoor(25,18);
 		CreateDoor(32,13);
 		CreateDoor(32,25);
+		CreateDoor(27,28);
 		CreateDoor(41,4);
 
+		RoomFinder rf = new RoomFinder(map);
+		rf.FindRooms();
+		Rooms = rf.ReturnRooms();
+		//map = rf.ReturnMap();
+		LightRoom(2);
 
 		SetAllTilesVisible();
 		Debug.Log("Level Loaded.");
+	}
+
+	public void SetUpTestCaseForRoomFinder(){
+
+		RoomFinder rf = new RoomFinder(map);
+		GiveWallInRange(0,0,20,0);
+		GiveWallInRange(20,0,20,20);
+		GiveWallInRange(0,0,0,20);
+		GiveWallInRange(0,20,20,20);
+		rf.FindRooms();
+		//rf.FleshOutRoom(1,1,0);
+	}
+
+	public void LightRoom(int roomNumber){
+		if(roomNumber>=Rooms.Count) Debug.Log ("Error: MapInfo.LightRoom");
+		else{
+			//Debug.Log ("Lighting Room "+roomNumber+": BEGIN");
+			foreach(Vector2 tile in Rooms[roomNumber]){
+				//Debug.Log (tile + " lit");
+				LightTile (tile);
+			}
+			//Debug.Log ("Lighting Room "+roomNumber+": END");
+		}
+	}
+
+	public void LightTile(Vector2 v){
+		map[(int)v.x,(int)v.y].Lit = true;
+	}
+
+	public int ReturnRoomContainingTile(int x, int z){
+		return map[x,z].Room;
 	}
 
 	public void CreateData(int x, int z){

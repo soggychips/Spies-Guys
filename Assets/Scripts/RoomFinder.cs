@@ -35,10 +35,11 @@ public class RoomFinder {
 	private int size;
 	private bool[,] visited;
 	private int facing;
-	private int facingBias = (int)drctns.east;
+	private int facingBias = (int)drctns.south;
 	private List<List<Vector2>> Rooms;
 	private int roomCount;
 	private Tile[,] map;
+	private Vector2 oob = new Vector2(-1000,-1000); //out of bounds
 
 	private Vector2 currentTile;
 
@@ -82,15 +83,21 @@ public class RoomFinder {
 			for(int x=0;x<size;x++){
 				if(!visited[x,z]){
 					if(map[x,z].hasWall() || map[x,z].hasDoor()){ //wall/door case
+						//Debug.Log ("wall/door case");
 						visited[x,z] = true; 
 						map[x,z].Room = -1;
 					}else if(z==0){								//bottom (first) row case. Tile must be a new room
+						//Debug.Log ("First row case. roomCount = "+roomCount);
+						Rooms.Add (new List<Vector2>());
 						FleshOutRoom(x,z,roomCount);
 					}else{ 										//switch to FoR
 						if(TileInEstablishedRoom(x,z)){
+							//Debug.Log ("continuing established room case ");
 							FleshOutRoom(x,z,GetRoomNumberOfSouthAdjacentTile(x,z));
 						}else{
+							//Debug.Log("new room case");
 							roomCount++; //new room found, increase room count
+							Rooms.Add (new List<Vector2>());
 							FleshOutRoom(x,z,roomCount);
 						}
 					}
@@ -112,73 +119,154 @@ public class RoomFinder {
 	Return when surrounded by visited tiles.
 	*/ 
 	public void FleshOutRoom(int x,int z,int roomNumber){
+		//Debug.Log ("FleshOutRoom "+roomNumber);
+
 		//set facing
 		facing = facingBias;
+
 		//set initial tile to visited and assign room number
 		currentTile = new Vector2(x,z);
 		visited[(int)currentTile.x,(int)currentTile.y]=true;
 		map[(int)currentTile.x,(int)currentTile.y].Room = roomNumber;
 		Rooms[roomNumber].Add (currentTile);
-		while(GetNextTile((int)currentTile.x,(int)currentTile.y).x!=-1000){
-			currentTile = GetNextTile((int)currentTile.x,(int)currentTile.y);
+		//Debug.Log ("Added "+currentTile + "to room "+roomNumber);
+		Vector2 nextTile = GetNextTile((int)currentTile.x,(int)currentTile.y);
+		while(nextTile!=oob){
+			currentTile = nextTile;
+			//Debug.Log ("currentTile = "+currentTile);
 			visited[(int)currentTile.x,(int)currentTile.y]=true;
 			map[(int)currentTile.x,(int)currentTile.y].Room = roomNumber;
 			Rooms[roomNumber].Add (currentTile);
+			//Debug.Log ("Added "+currentTile + "to room "+roomNumber);
+			nextTile = GetNextTile((int)currentTile.x,(int)currentTile.y);
+
 		}
 	}
 
+	/*GetNextTile(int x, int z)
+	 * Steps:
+	 * 1. Get the next tile given the current facing, the tile to the left, and the tile to the right. Assigned to oob if out of bounds.
+	 * 2. Check if the current tile is surrounded by visited tiles. If it is, return oob (ending condition in FoR).
+	 * 3. If not 2. and not facing in direction bias, and there's an unvisited, lightable tile to the right, turn right.
+	 * 4. If not (2. or 3.) and the next tile is out of bounds, has a wall, or is visited, and there's an unvisited, lightable tile to the left, turn left.
+	 * 5. Return the next tile given the NEW current facing, if it's unvisited. Otherwise return oob.
+	 */ 
 	public Vector2 GetNextTile(int x, int z){
-		Vector2 nextTileInCurrentFacing = new Vector2();
-		switch(facing){
-		case (int)drctns.east:
-			nextTileInCurrentFacing = new Vector2(x+1,z);
-			break;
-		case (int)drctns.north:
-			nextTileInCurrentFacing = new Vector2(x,z+1);
-			break;
-		case (int)drctns.west:
-			nextTileInCurrentFacing = new Vector2(x-1,z);
-			break;
-		case (int)drctns.south:
-			nextTileInCurrentFacing = new Vector2(x,z-1);
-			break;
-		}
-
+		//Debug.Log ("GetNextTile("+x+","+z+")");
+		//Debug.Log ("facing: "+facing);
+		Vector2 nextTileInCurrentFacing = NextTileInCurrentDirection(x,z);
 		Vector2 tileToRight = TileToRight(x,z);
-		if(SurroundedByVisitedTiles(x,z)){ //no more tiles
-			return new Vector2(-1000,-1000);
-		}else if(facing!=facingBias && !HasWallOrDoor(tileToRight) && !visited[(int)tileToRight.x,(int)tileToRight.y]){ //opening to the right
-			TurnRight();
-		}else if((nextTileInCurrentFacing.x>=size || nextTileInCurrentFacing.x<0 || nextTileInCurrentFacing.y>=size || nextTileInCurrentFacing.y<0) 
-		         || HasWallOrDoor(nextTileInCurrentFacing) || visited[(int)nextTileInCurrentFacing.x,(int)nextTileInCurrentFacing.y]){ 
+		Vector2 tileToLeft = TileToLeft(x,z);
+		//Debug.Log ("nextTileInFacing"+nextTileInCurrentFacing);
+		//Debug.Log ("tileToRight = "+tileToRight);
 
-			TurnLeft();
+		if(SurroundedByVisitedTiles(x,z)){ //no more tiles
+			return oob;
+		}else if(facing!=facingBias && !HasWallOrDoor(tileToRight) && !visited[(int)tileToRight.x,(int)tileToRight.y]){ //opening to the right
+			//Debug.Log ("Turn Right");
+			TurnRight();
+		}else if( nextTileInCurrentFacing==oob || HasWallOrDoor(nextTileInCurrentFacing) || visited[(int)nextTileInCurrentFacing.x,(int)nextTileInCurrentFacing.y]){ //next tile not availabe
+			if(!HasWallOrDoor(tileToLeft) && !visited[(int)tileToLeft.x,(int)tileToLeft.y]){ //opening to the left
+				//Debug.Log ("Turn left");
+				TurnLeft();
+			}
 		}
+		nextTileInCurrentFacing = NextTileInCurrentDirection(x,z);
+		if(visited[(int)nextTileInCurrentFacing.x,(int)nextTileInCurrentFacing.y]) return oob;
+		return nextTileInCurrentFacing;
+	}
+
+	public Vector2 NextTileInCurrentDirection(int x, int z){
 		switch(facing){
 		case (int)drctns.east:
+			if(x+1>=size) return oob;
 			return new Vector2(x+1,z);
 			//break;
 		case (int)drctns.north:
+			if(z+1>=size) return oob;
 			return new Vector2(x,z+1);
 			//break;
 		case (int)drctns.west:
+			if(x-1<0) return oob;
 			return new Vector2(x-1,z);
 			//break;
 		case (int)drctns.south:
+			if(z-1<0) return oob;
 			return new Vector2(x,z-1);
 			//break;
 		}
+		Debug.Log ("Error: RoomFinder.NextTileInCurrentDirection");
+		return oob;
+	}
 
-		Debug.Log ("Error: RoomFinder.GetNextTile");
-		return Vector2.up;
+	public Vector2 TileToRight(int x, int z){
+		
+		switch(facing){
+		case (int)drctns.east:
+			if(z-1<0) return oob;
+			return new Vector2(x,z-1);
+			//break;
+		case (int)drctns.north:
+			if(x+1>=size) return oob;
+			return new Vector2(x+1,z);
+			//break;
+		case (int)drctns.west:
+			if(z+1>=size) return oob;
+			return new Vector2(x,z+1);
+			//break;
+		case (int)drctns.south:
+			if(x-1<0) return oob;
+			return new Vector2(x-1,z);
+			//break;
+		}
+		Debug.Log ("ERROR: RoomFinder.TileToRight");
+		return oob;
+	}
+
+	public Vector2 TileToLeft(int x, int z){
+		
+		switch(facing){
+		case (int)drctns.west:
+			if(z-1<0) return oob;
+			return new Vector2(x,z-1);
+			//break;
+		case (int)drctns.south:
+			if(x+1>=size) return oob;
+			return new Vector2(x+1,z);
+			//break;
+		case (int)drctns.east:
+			if(z+1>=size) return oob;
+			return new Vector2(x,z+1);
+			//break;
+		case (int)drctns.north:
+			if(x-1<0) return oob;
+			return new Vector2(x-1,z);
+			//break;
+		}
+		Debug.Log ("ERROR: RoomFinder.TileToLeft");
+		return oob;
 	}
 
 	public bool HasWallOrDoor(Vector2 v){
+		if(v.x==-1000) return true;
 		return (map[(int)v.x,(int)v.y].hasWall() || map[(int)v.x,(int)v.y].hasDoor());
 	}
 
+	public bool HasWallOrDoor(int x, int z){
+		if(x==-1000) return true;
+		return (map[x,z].hasWall() || map[x,z].hasDoor());
+	}
+
 	public bool SurroundedByVisitedTiles(int x, int z){
-		return (visited[x,z-1] && visited[x,z+1] && visited[x+1,z] && visited[x-1,z] );
+		if(z-1>=0) //out of bounds checks
+			if(!visited[x,z-1] && !HasWallOrDoor(x,z)) return false;
+		if(z+1<size)
+			if(!visited[x,z+1] && !HasWallOrDoor(x,z)) return false;
+		if(x+1<size)
+			if(!visited[x+1,z] && !HasWallOrDoor(x,z)) return false;
+		if(x-1>=0)
+			if(!visited[x-1,z] && !HasWallOrDoor(x,z)) return false;
+		return true;
 	}
 
 	//returns true if the tile is north of a visited tile that's NOT a wall
@@ -188,25 +276,6 @@ public class RoomFinder {
 
 	public int GetRoomNumberOfSouthAdjacentTile(int x, int z){
 		return map[x,z-1].Room;
-	}
-
-	public Vector2 TileToRight(int x, int z){
-		switch(facing){
-		case (int)drctns.east:
-			return new Vector2(x,z-1);
-			//break;
-		case (int)drctns.north:
-			return new Vector2(x+1,z);
-			//break;
-		case (int)drctns.west:
-			return new Vector2(x,z-1);
-			//break;
-		case (int)drctns.south:
-			return new Vector2(x-1,z);
-			//break;
-		}
-		Debug.Log ("ERROR: RoomFinder.TileToRight");
-		return new Vector2(-1000,-1000);
 	}
 
 
@@ -238,6 +307,9 @@ public class RoomFinder {
 			break;
 		case (int)drctns.south:
 			facing = (int)drctns.west;
+			break;
+		case (int)drctns.east:
+			facing = (int)drctns.south;
 			break;
 		}
 	}

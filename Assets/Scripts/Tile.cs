@@ -15,6 +15,7 @@ public class Tile {
 	private int wallType;
 	private int doorFacing_Direction;
 	private bool visible;
+	private bool lit;
 	private bool highlighted;
 	private bool sprintedTo;
 	//private Vector3 realWorldLocation;
@@ -31,12 +32,18 @@ public class Tile {
 		//realWorldLocation = new Vector3(x*spacing,yTileHeight,z*spacing);
 		stored=false; storedType=(int)TileType.Open;
 		sprintedTo=false;
-		room = -1;
+		room = -10;
+		lit = false;
 	}
 	
 
 	public int Type{
 		get{ return type; }	
+	}
+
+	public bool Lit{
+		get{return lit;}
+		set{lit = value;}
 	}
 
 	public int Room{

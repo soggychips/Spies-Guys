@@ -98,6 +98,7 @@ public class TouchHandler : MonoBehaviour {
 					z = Mathf.Floor(z) + (Tile.spacing-Mathf.Floor(z)%Tile.spacing);
 				x=x/Tile.spacing; z=z/Tile.spacing;
 				Debug.Log("Clicked on ("+x+","+z+")");
+				Debug.Log(x+","+z+" in room "+scene.ReturnRoomContainingTile((int)x,(int)z));
 				return new Vector2(x,z);
 			}
 		}
