@@ -17,17 +17,22 @@ public class CameraController : MonoBehaviour {
 
 	Texture2D leftArrow, rightArrow;
 
+	public GUIStyle game_camBtn_main_iPhone;
+	private Vector2 camButtonMainLocation;
+
 	void Start(){
 		scene = GameObject.Find("Engine").GetComponent("GameEngine") as GameEngine;
 		InitializeCamera();
 		InitializeCameraAccess();
+		camButtonMainLocation = new Vector2(0, 200);
 
 	}
 
 
 	void OnGUI(){
-		//DisplayCameraButtons();
+		DisplayCameraStatus();
 		DisplayCameraMainButton();
+
 	}
 
 	// Update is called once per frame
@@ -62,8 +67,8 @@ public class CameraController : MonoBehaviour {
 		 */ 
 
 
-		/* // The following will zoom in on selected characters
-		 */ 
+		 // The following will zoom in on selected characters selected NOT via the player buttons, but by clicking a player character
+
 		if(scene.CurrentTurnState==(int)TurnState.States.CharSelected){
 			Vector2 playerTileLocation = scene.ReturnSelectedPlayer().TileLocation;
 			Vector3 playerCameraLocation = new Vector3(playerTileLocation.x*Tile.spacing,main.y,playerTileLocation.y*Tile.spacing);
@@ -73,8 +78,8 @@ public class CameraController : MonoBehaviour {
 				zoomGoal = zoom;
 			}
 		}
-		/*
-		*/
+
+
 	}
 
 	public void InitializeCamera(){
@@ -92,57 +97,48 @@ public class CameraController : MonoBehaviour {
 		noCameraAccessGameState.Add ((int)GameState.States.Menu);
 		noCameraAccessGameState.Add ((int)GameState.States.MatchCreated);
 
-		noCameraAccessTurnState.Add((int)TurnState.States.CharSelected); //1-button camera mode
-		noCameraAccessTurnState.Add ((int)TurnState.States.End); 
+		noCameraAccessTurnState.Add((int)TurnState.States.MoveConfirm);
+		noCameraAccessTurnState.Add((int)TurnState.States.ActionConfirm);
+		noCameraAccessTurnState.Add((int)TurnState.States.End); 
 	}
 
 	public void DisplayCameraMainButton(){
-		string cameraString = GetCurrentCameraPositionString();
-		GUI.Label(new Rect(0,20,100,20),"Camera:");
-		GUI.Label(new Rect(0,40,100,20),cameraString);
-		if(!noCameraAccessGameState.Contains((int)scene.CurrentGameState) && !noCameraAccessTurnState.Contains((int)scene.CurrentTurnState)){
-			if(GUI.Button(new Rect(5,0,60,20),"Main")){
+		if(!noCameraAccessGameState.Contains((int)scene.CurrentGameState) && !noCameraAccessTurnState.Contains((int)scene.CurrentTurnState)&&focus!=main){
+			if(GUI.Button(new Rect(camButtonMainLocation.x,camButtonMainLocation.y,128,88),"", game_camBtn_main_iPhone)){
+				scene.DeselectCharacter();
 				currentCamera = (int)CameraPositions.main;
 				focus = main;
 				zoomGoal = normal;
 			}
-		}else{
-			GUI.Label(new Rect(5,0,50,20),"----");
 		}
 	}
 
-	public void DisplayCameraButtons(){
+	public void DisplayCameraStatus(){
 		string cameraString = GetCurrentCameraPositionString();
 		GUI.Label(new Rect(0,20,100,20),"Camera:");
 		GUI.Label(new Rect(0,40,100,20),cameraString);
-		if(GUI.Button(new Rect(0,0,20,20),"L") && !noCameraAccessGameState.Contains((int)scene.CurrentGameState) && !noCameraAccessTurnState.Contains((int)scene.CurrentTurnState)){
-			currentCamera--;
-			if(currentCamera<0){ 
-				currentCamera = (int)CameraPositions.main;
-				focus = main;
-				zoomGoal = normal;
-			}else{
-				Vector2 focus2d = scene.ReturnSelectedPlayerPosition(currentCamera);
-				focus = new Vector3(focus2d.x*Tile.spacing,main.y,focus2d.y*Tile.spacing);
-				zoomGoal = zoom;
-			}
-		}
-		if(GUI.Button(new Rect(25,0,20,20),"R") && !noCameraAccessGameState.Contains((int)scene.CurrentGameState) && !noCameraAccessTurnState.Contains((int)scene.CurrentTurnState)){
-			currentCamera++;
-			if(currentCamera>2){
-				currentCamera = (int)CameraPositions.charOne;
-			}
-			if(currentCamera<2){
-				Vector2 focus2d = scene.ReturnSelectedPlayerPosition(currentCamera);
-				focus = new Vector3(focus2d.x*Tile.spacing,main.y,focus2d.y*Tile.spacing);
-				zoomGoal = zoom;
-			}else{
-				focus=main;
-				zoomGoal = normal;
-			}
-			
+	}
+
+	public void FirstPlayerButtonPress(){
+		if(scene.CurrentTurnState==(int)TurnState.States.Neutral || scene.CurrentTurnState==(int)TurnState.States.CharSelected){
+			scene.DeselectCharacter();
+			currentCamera = (int)CameraPositions.charOne;
+			Vector2 firstPlayerLocation = scene.ReturnSelectedPlayerPosition(currentCamera);
+			scene.SelectCharacter((int)firstPlayerLocation.x,(int)firstPlayerLocation.y);
+			zoomGoal = zoom;
 		}
 	}
+
+	public void SecondPlayerButtonPress(){
+		if(scene.CurrentTurnState==(int)TurnState.States.Neutral || scene.CurrentTurnState==(int)TurnState.States.CharSelected){
+			scene.DeselectCharacter();
+			currentCamera = (int)CameraPositions.charTwo;
+			Vector2 secondPlayerLocation = scene.ReturnSelectedPlayerPosition(currentCamera);
+			scene.SelectCharacter((int)secondPlayerLocation.x,(int)secondPlayerLocation.y);
+			zoomGoal = zoom;
+		}
+	}
+	
 
 	string GetCurrentCameraPositionString ()
 	{
