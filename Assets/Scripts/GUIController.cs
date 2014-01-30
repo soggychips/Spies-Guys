@@ -12,6 +12,8 @@ public class GUIController : MonoBehaviour {
 	private Vector2 confirmationButtonBoxLocation, confirmButtonLocation, cancelButtonLocation;
 	private Vector2 camButtonMainLocation, camButtonP1Location, camButtonP2Location;
 
+	public GUIStyle game_actionPointText_iPhone;
+	public GUIStyle game_healthPointText_iPhone;
 	public GUIStyle game_confSlider_base_iPhone;
 	public GUIStyle game_confSlider_green_iPhone;
 	public GUIStyle game_confSlider_red_iPhone;
@@ -83,9 +85,13 @@ public class GUIController : MonoBehaviour {
 		}
 		if(GUI.Button(new Rect(camButtonP1Location.x,camButtonP1Location.y,128,136),"", game_camBtn_p1_iPhone)){
 		}
+		GUI.Label(new Rect(camButtonP1Location.x+52,camButtonP1Location.y+8, 64,32),"AP: 3", game_actionPointText_iPhone);
+		GUI.Label(new Rect(camButtonP1Location.x+52,camButtonP1Location.y+48, 64,32),"Health: 5", game_healthPointText_iPhone);
 		GUI.Label(new Rect(camButtonP1Location.x+4,camButtonP1Location.y+90, 114, 26),"", game_item_shotgun_iPhone);
 		if(GUI.Button(new Rect(camButtonP2Location.x,camButtonP2Location.y,128,136),"", game_camBtn_p2_iPhone)){
 		}
+		GUI.Label(new Rect(camButtonP2Location.x+52,camButtonP2Location.y+8, 64,32),"AP: 3", game_actionPointText_iPhone);
+		GUI.Label(new Rect(camButtonP2Location.x+52,camButtonP2Location.y+48, 64,32),"Health: 5", game_healthPointText_iPhone);
 		GUI.Label (new Rect(camButtonP2Location.x+4, camButtonP2Location.y+90, 114, 26),"", game_item_m14_iPhone);
 	}
 
