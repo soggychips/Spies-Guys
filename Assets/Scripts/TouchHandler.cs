@@ -39,7 +39,7 @@ public class TouchHandler : MonoBehaviour {
 			switch(scene.CurrentTurnState){
 			//if turnstate: Neutral
 				case (int)TurnState.States.Neutral:
-					scene.DisplayFreeDoorButtonTiles();
+					//scene.DisplayFreeDoorButtonTiles();
 					mouseClick = MouseClickToTileCoords();
 					if(scene.CurrentPlayerAt((int)mouseClick.x,(int)mouseClick.y)){
 						//Debug.Log("Player clicked on");
@@ -55,11 +55,11 @@ public class TouchHandler : MonoBehaviour {
 					if(scene.HighlightedTileAt((int)mouseClick.x,(int)mouseClick.y) && !scene.CurrentPlayerAt((int)mouseClick.x,(int)mouseClick.y)){
 						if(scene.UnblockedTileAt(mouseClick)){
 							scene.Movement((int)mouseClick.x,(int)mouseClick.y);
-						}else if(scene.ClosedDoorAt(mouseClick)){
+						/*}else if(scene.ClosedDoorAt(mouseClick)){
 							if(scene.UnlockedDoorAt(mouseClick)){ //open the door
 								scene.OpenDoor(mouseClick);
 							}
-							Debug.Log ("Open Door");
+							Debug.Log ("Open Door");*/
 						}else if(scene.DataAt(mouseClick)){ 
 							if(Player1()){
 								scene.TakeData(mouseClick);
@@ -68,6 +68,7 @@ public class TouchHandler : MonoBehaviour {
 							}
 						}else if(scene.WallAt(mouseClick)){
 							//door controls... open/close,pick/lock
+							//lightswitch controls
 							scene.HandleWallButtonClickAt(mouseClick);
 						}
 					}else if(scene.CurrentPlayerAt((int)mouseClick.x,(int)mouseClick.y)){

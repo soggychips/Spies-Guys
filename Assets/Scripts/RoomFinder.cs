@@ -114,8 +114,7 @@ public class RoomFinder {
 	When it finds an opening (always looking to the right), it turns and continues in that direction. 
 	If there's no opening to the right, it moves forward. 
 	If it can't move forward, it turns left and continues. 
-	The direction is biased, meaning there is a goal direction (e.g. east). 
-	This means when heading in the biased direction, don't look to the right. 
+	The direction bias is the initial movement direction.
 	Return when surrounded by visited tiles.
 	*/ 
 	public void FleshOutRoom(int x,int z,int roomNumber){
@@ -147,7 +146,7 @@ public class RoomFinder {
 	 * Steps:
 	 * 1. Get the next tile given the current facing, the tile to the left, and the tile to the right. Assigned to oob if out of bounds.
 	 * 2. Check if the current tile is surrounded by visited tiles. If it is, return oob (ending condition in FoR).
-	 * 3. If not 2. and not facing in direction bias, and there's an unvisited, lightable tile to the right, turn right.
+	 * 3. If not 2. and there's an unvisited, lightable tile to the right, turn right.
 	 * 4. If not (2. or 3.) and the next tile is out of bounds, has a wall, or is visited, and there's an unvisited, lightable tile to the left, turn left.
 	 * 5. Return the next tile given the NEW current facing, if it's unvisited. Otherwise return oob.
 	 */ 
@@ -162,7 +161,7 @@ public class RoomFinder {
 
 		if(SurroundedByVisitedTiles(x,z)){ //no more tiles
 			return oob;
-		}else if(facing!=facingBias && !HasWallOrDoor(tileToRight) && !visited[(int)tileToRight.x,(int)tileToRight.y]){ //opening to the right
+		}else if(!HasWallOrDoor(tileToRight) && !visited[(int)tileToRight.x,(int)tileToRight.y]){ //opening to the right
 			//Debug.Log ("Turn Right");
 			TurnRight();
 		}else if( nextTileInCurrentFacing==oob || HasWallOrDoor(nextTileInCurrentFacing) || visited[(int)nextTileInCurrentFacing.x,(int)nextTileInCurrentFacing.y]){ //next tile not availabe
