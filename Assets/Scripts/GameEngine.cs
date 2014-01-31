@@ -36,6 +36,7 @@ public class GameEngine : MonoBehaviour {
 	private bool alertMissingData = false;
 	private bool freeDoorButtonsAreDisplayed = false;
 	private bool pricedDoorButtonsAreDisplayed = false;
+	private bool lightswitchButtonsDisplayed = false;
 
 	//movement variables
 	private Vector2 originalPosition; private int selectedPlayerIdx;
@@ -134,7 +135,6 @@ public class GameEngine : MonoBehaviour {
 		map.SelectCharacterAtTile(x,z,currentPlayer);
 		HighlightMovementTiles(x,z);
 		HighlightInteractionObjects(x,z);
-		DisplayPricedDoorButtonTiles();
 		tstate.SelectCharacter();	
 	}
 	
@@ -311,6 +311,36 @@ public class GameEngine : MonoBehaviour {
 		}
 	}
 
+	public void DisplayLightswitchWallButton(){
+		if(!lightswitchButtonsDisplayed){	
+			Vector2 playerPosition = map.ReturnSelectedPlayer(currentPlayer).TileLocation;
+			if(playerPosition.x!=-1000){
+				if(map.TileAt(playerPosition).StoredType==(int)TileType.Lightswitch){
+					//show the lightswitch button
+					ShowLightswitchWallButton(playerPosition);
+					lightswitchButtonsDisplayed = true;
+				}
+			}
+		}
+	}
+
+	public void ShowLightswitchWallButton(Vector2 tileLocation){
+		Vector2 wallButtonLocation = new Vector2();
+		if(map.TileAt (tileLocation+Vector2.right).hasWall()){
+			wallButtonLocation = tileLocation+Vector2.right;
+		}else if(map.TileAt (tileLocation-Vector2.right).hasWall()){
+			wallButtonLocation = tileLocation-Vector2.right;
+		}else if(map.TileAt (tileLocation+Vector2.up).hasWall()){
+			wallButtonLocation = tileLocation+Vector2.up;
+		}else if(map.TileAt (tileLocation-Vector2.up).hasWall()){
+			wallButtonLocation = tileLocation-Vector2.up;
+		}else{
+			Debug.Log ("Error: GameEngine.ShowLightswitchWallButton");
+		}
+		map.TileAt(wallButtonLocation).Highlight();
+		Instantiate(wallButton_lightswitch, new Vector3(wallButtonLocation.x*Tile.spacing,.2f,wallButtonLocation.y*Tile.spacing),Quaternion.identity);
+	}
+
 	public void ShowDoorOpenWallButton(Vector2 tileLocation){
 		Vector2 wallButtonLocation = new Vector2();
 		if(map.TileAt (tileLocation).DoorFacing == (int)DoorFacings.EW){
@@ -424,12 +454,15 @@ public class GameEngine : MonoBehaviour {
 	public void HighlightInteractionObjects (int x, int z)
 	{
 		if(currentPlayer==(int)Players.One){//spies
-			HighlightClosedDoors(x,z);
+			//HighlightClosedDoors(x,z);
 			HighlightData(x,z);
 		}else{//guys
-			HighlightClosedDoors(x,z);
+			//HighlightClosedDoors(x,z);
 			HighlightDroppedData(x,z);
 		}
+		DisplayFreeDoorButtonTiles();
+		DisplayPricedDoorButtonTiles();
+		DisplayLightswitchWallButton();
 	}
 	
 	public void HighlightMovementTiles(int x, int z){
@@ -482,6 +515,7 @@ public class GameEngine : MonoBehaviour {
 		map.ResetHighlights();
 		freeDoorButtonsAreDisplayed = false;
 		pricedDoorButtonsAreDisplayed = false;
+		lightswitchButtonsDisplayed = false;
 	}
 	
 	public void RemoveVisibility(){
@@ -725,6 +759,7 @@ public class GameEngine : MonoBehaviour {
 		DestroyHighlights();
 		tstate.EndAction();
 		UpdateTileMaterials();
+		ConfirmAction();
 		
 	}
 
@@ -736,6 +771,7 @@ public class GameEngine : MonoBehaviour {
 		DestroyHighlights();
 		tstate.EndAction();
 		UpdateTileMaterials();
+		ConfirmAction();
 	}
 
 	public void LockDoor(Vector2 doorLocation){

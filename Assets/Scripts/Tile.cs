@@ -41,6 +41,10 @@ public class Tile {
 		get{ return type; }	
 	}
 
+	public int StoredType{
+		get{return storedType;}
+	}
+
 	public bool Lit{
 		get{return lit;}
 		set{lit = value;}
