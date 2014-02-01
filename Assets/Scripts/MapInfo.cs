@@ -1057,9 +1057,9 @@ public class MapInfo{
 			}
 		}else if(currentPlayer==(int)GameEngine.Players.Two){
 			foreach(Guy guy in guys){
-				if(guy.Alive)
-					//TODO an if for lights on/off
-					FoV (guy.TileLocation,maxViewDist);	
+				if(guy.Alive){
+					FoVForGuy (guy.TileLocation,maxViewDist);	
+				}
 			}
 		}else{
 			Debug.Log ("Error: MapInfo.FoVForCurrentPlayer");	
@@ -1120,6 +1120,41 @@ public class MapInfo{
 					TileAt(roundedLocation).Visible=true;
 				}
 				if(TileAt(roundedLocation).isBlocked() && roundedLocation!=doorLocationToIgnore) break;
+			}
+		}
+	}
+
+	public void FoVForGuy(Vector2 playerLocation, int maxViewDistance){
+		//Debug.Log("Ignoring door at "+doorLocationToIgnore);
+		List<Vector2> edgeOfVisionTiles = ReturnAllMaxDistanceTiles((int)playerLocation.x,(int)playerLocation.y,maxViewDistance);
+		foreach(Vector2 endpoint in edgeOfVisionTiles){
+			int unlitCount = 0;
+			Vector2 start = playerLocation;
+			Vector2 end = endpoint;
+			//Debug.Log("Calculating vision from "+start+" to "+end);
+			Vector2 vect = end-start;
+			float norm = Mathf.Sqrt((vect.x*vect.x) + (vect.y*vect.y));
+			Vector2 unitVect = new Vector2(vect.x/norm,vect.y/norm);
+			TileAt(start).Visible=true;
+			//Debug.Log ("starting start = "+start.ToString());
+			//Debug.Log ("end = "+end.ToString());
+			Vector2 roundedLocation = new Vector2((int)start.x,(int)start.y);
+			while(roundedLocation!=end){
+				start+=unitVect;
+				roundedLocation = new Vector2(Mathf.Round(start.x),Mathf.Round(start.y));
+				//if(roundedLocation==doorLocationToIgnore){
+				//	Debug.Log ("roundedLoc=doorLoc");
+				//}
+				//Debug.Log ("location = ["+start.x+","+start.y+"]");
+				//Debug.Log ("rounded location = ["+roundedLocation.x+","+roundedLocation.y+"]");
+				if(TileAt (roundedLocation).Lit==false){
+					unlitCount++;
+					//Debug.Log ("unlitCount = "+unlitCount);
+				}
+				if(!TileAt(roundedLocation).Visible){
+					TileAt(roundedLocation).Visible=true;
+				}
+				if(TileAt(roundedLocation).isBlocked() || unlitCount>=3) break;
 			}
 		}
 	}
