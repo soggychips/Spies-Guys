@@ -37,6 +37,8 @@ public class GameEngine : MonoBehaviour {
 	private bool freeDoorButtonsAreDisplayed = false;
 	private bool pricedDoorButtonsAreDisplayed = false;
 	private bool lightswitchButtonsDisplayed = false;
+	private bool lockdownButtonDisplayed = false;
+	private bool lockdownButtonUsed = false;
 
 	//movement variables
 	private Vector2 originalPosition; private int selectedPlayerIdx;
@@ -226,6 +228,10 @@ public class GameEngine : MonoBehaviour {
 		return(map.TileAt(mouseClick).hasDoor());
 	}
 
+	public bool LightswitchAt(Vector2 mouseClick){
+		return (map.TileAt(mouseClick).hasLightswitch());
+	}
+
 	public bool LockedDoorAt (Vector2 mouseClick)
 	{
 		return(map.TileAt(mouseClick).hasLockedDoor());
@@ -311,12 +317,7 @@ public class GameEngine : MonoBehaviour {
 			}
 		}
 	}
-
-	public void DisplayAvailableEMPActions(){
-		if(!lightswitchButtonsDisplayed){
-
-		}
-	}
+	
 
 	public void DisplayLightswitchWallButton(){
 		if(!lightswitchButtonsDisplayed){	
@@ -346,6 +347,36 @@ public class GameEngine : MonoBehaviour {
 		}
 		map.TileAt(wallButtonLocation).Highlight();
 		Instantiate(wallButton_lightswitch, new Vector3(wallButtonLocation.x*Tile.spacing,.2f,wallButtonLocation.y*Tile.spacing),Quaternion.identity);
+	}
+
+	public void DisplayLockdownWallButton(){
+		if(!lockdownButtonDisplayed && !lockdownButtonUsed){	
+			Vector2 playerPosition = map.ReturnSelectedPlayer(currentPlayer).TileLocation;
+			if(playerPosition.x!=-1000){
+				if(map.TileAt(playerPosition).hasLockdownSwitch()){
+					//show the lockdown button
+					ShowLockdownWallButton(playerPosition);
+					lockdownButtonDisplayed = true;
+				}
+			}
+		}
+	}
+
+	public void ShowLockdownWallButton(Vector2 tileLocation){
+		Vector2 wallButtonLocation = new Vector2();
+		if(map.TileAt (tileLocation+Vector2.right).hasWall()){
+			wallButtonLocation = tileLocation+Vector2.right;
+		}else if(map.TileAt (tileLocation-Vector2.right).hasWall()){
+			wallButtonLocation = tileLocation-Vector2.right;
+		}else if(map.TileAt (tileLocation+Vector2.up).hasWall()){
+			wallButtonLocation = tileLocation+Vector2.up;
+		}else if(map.TileAt (tileLocation-Vector2.up).hasWall()){
+			wallButtonLocation = tileLocation-Vector2.up;
+		}else{
+			Debug.Log ("Error: GameEngine.ShowLockdownWallButton");
+		}
+		map.TileAt(wallButtonLocation).Highlight();
+		Instantiate(wallButton_LockDown, new Vector3(wallButtonLocation.x*Tile.spacing,.2f,wallButtonLocation.y*Tile.spacing),Quaternion.identity);
 	}
 
 	public void ShowDoorOpenWallButton(Vector2 tileLocation){
@@ -397,6 +428,18 @@ public class GameEngine : MonoBehaviour {
 
 	public void HandleWallButtonClickAt(Vector2 mouseClick){
 		Debug.Log ("HandleWallButtonClickAt called");
+		if(currentPlayer == (int)Players.Two){	
+			if(map.TileAt (mouseClick+Vector2.up).hasLockdownSwitch()){
+				Lockdown();
+			}else if(map.TileAt (mouseClick-Vector2.up).hasLockdownSwitch() ){
+				Lockdown();
+			}else if(map.TileAt (mouseClick+Vector2.right).hasLockdownSwitch()){
+				Lockdown();
+			}else if(map.TileAt (mouseClick-Vector2.right).hasLockdownSwitch() ){
+				Lockdown();
+			}
+		}
+
 		if(map.TileAt (mouseClick+Vector2.up).hasLightswitch()){
 			FlipLightswitch(mouseClick+Vector2.up);
 		}else if(map.TileAt (mouseClick-Vector2.up).hasLightswitch() ){
@@ -465,15 +508,23 @@ public class GameEngine : MonoBehaviour {
 		}
 	}
 
+	public void HighlightLightswitchTiles(int room){
+		foreach(Vector2 tile in map.ReturnRoom(room)){
+			if(map.TileAt(tile).hasLightswitch()&& !map.TileAt(tile).isTaken()){
+				map.TileAt (tile).Highlight();
+				Instantiate(InteractionHighlight, new Vector3(tile.x*Tile.spacing,.2f,tile.y*Tile.spacing),Quaternion.identity);
+			}
+		}
+	}
+
 
 	public void HighlightInteractionObjects (int x, int z)
 	{
 		if(currentPlayer==(int)Players.One){//spies
-			//HighlightClosedDoors(x,z);
 			HighlightData(x,z);
 		}else{//guys
-			//HighlightClosedDoors(x,z);
 			HighlightDroppedData(x,z);
+			DisplayLockdownWallButton();
 		}
 		DisplayFreeDoorButtonTiles();
 		DisplayPricedDoorButtonTiles();
@@ -531,6 +582,7 @@ public class GameEngine : MonoBehaviour {
 		freeDoorButtonsAreDisplayed = false;
 		pricedDoorButtonsAreDisplayed = false;
 		lightswitchButtonsDisplayed = false;
+		lockdownButtonDisplayed = false;
 	}
 	
 	public void RemoveVisibility(){
@@ -827,6 +879,17 @@ public class GameEngine : MonoBehaviour {
 		ConfirmAction();
 	}
 
+	public void Lockdown(){
+		tstate.BeginAction((int)TurnState.ActionTypes.Lockdown);
+		map.Lockdown();
+		lockdownButtonUsed = true;
+		ReturnSelectedGuy().SpendPoint();
+		DestroyHighlights();
+		tstate.EndAction();
+		UpdateTileMaterials();
+
+	}
+
 	public void TakeData(Vector2 dataLocation){
 		tstate.BeginAction((int)TurnState.ActionTypes.Data);
 		positionofData = dataLocation;
@@ -880,6 +943,11 @@ public class GameEngine : MonoBehaviour {
 		case (int)TurnState.ActionTypes.Door_Priced:
 			map.RevertDoorOpening((int)positionOfDoor.x,(int)positionOfDoor.y);
 			ReturnSelectedPlayer().GivePoint();
+			break;
+		case (int)TurnState.ActionTypes.Lockdown:
+			map.Unlockdown();
+			ReturnSelectedGuy().GivePoint();
+			lockdownButtonUsed =false;
 			break;
 		//Attack case currently would do nothing
 		}

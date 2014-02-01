@@ -379,6 +379,10 @@ public class TouchHandler : MonoBehaviour {
 			}else if(buttonPressed==2) 	
 				scene.CancelAction();
 			break;
+		default:
+			if(buttonPressed==1)		scene.ConfirmAction();
+			else if(buttonPressed==2) 	scene.CancelAction();
+			break;
 		}
 	}
 	

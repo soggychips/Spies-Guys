@@ -27,7 +27,11 @@ public class Spy : Player{
 		get{return hasData;}
 	}
 
-	public string GearEquipped(){
+	public int GearEquipped(){
+		return this.gearEquipped;
+	}
+
+	public string GearEquipped_String(){
 		if(this.gearEquipped==(int)SpyGear.empGun) return "EMP Gun";
 		else return "Shock Rifle";
 	}

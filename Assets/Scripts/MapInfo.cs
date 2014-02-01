@@ -19,7 +19,7 @@ public class MapInfo{
 	public List<Spy> spies;
 
 	private DataCollection data;
-	private List<Vector2> lightswitchLocations;
+	//private List<Vector2> lightswitchLocations;
 	private List<Vector2> extractionPoints;
 
 	public int Winner{
@@ -59,7 +59,7 @@ public class MapInfo{
 	public MapInfo () {
 		map = new Tile[mapSize,mapSize];
 		visibility = new int[mapSize,mapSize];
-		lightswitchLocations = new List<Vector2>();
+		//lightswitchLocations = new List<Vector2>();
 		extractionPoints = new List<Vector2>();
 		data = new DataCollection();
 		MapInit();
@@ -118,9 +118,9 @@ public class MapInfo{
 		//PLAYERS
 		spies = new List<Spy>();
 		CreateSpy(6,18);
-		//CreateSpy(6,20);
+		CreateSpy(6,20);
 		//CreateSpy(15,21);
-		CreateSpy(16,17);
+		//CreateSpy(16,17);
 
 		guys = new List<Guy>();
 		CreateGuy(35,25);
@@ -134,15 +134,18 @@ public class MapInfo{
 		CreateExtractionPoint(27,30);
 
 		//LIGHTSWITCHES
-		CreateLightswitch(9,24);
-		CreateLightswitch(9,18);
+		CreateLightswitch(9,23);
+		CreateLightswitch(9,19);
 		CreateLightswitch(18,23);
 		CreateLightswitch(24,20);
 		CreateLightswitch(21,14);
 		CreateLightswitch(15,17);
 		CreateLightswitch(33,23);
 		CreateLightswitch(33,11);
-		CreateLightswitch(17,8);
+		CreateLightswitch(15,6);
+
+		CreateLockdownSwitch(6,15);
+		CreateLockdownSwitch(36,11);
 
 		//DOORS
 		CreateDoor(5,19);
@@ -165,7 +168,7 @@ public class MapInfo{
 		rf.FindRooms();
 		Rooms = rf.ReturnRooms();
 		//map = rf.ReturnMap();
-		LightRoom(2);
+		LightAllRooms();
 
 		SetAllTilesVisible();
 		Debug.Log("Level Loaded.");
@@ -198,6 +201,12 @@ public class MapInfo{
 				}
 			}
 			//Debug.Log ("Lighting Room "+roomNumber+": END");
+		}
+	}
+
+	public void LightAllRooms(){
+		for(int i=0;i<Rooms.Count;i++){
+			LightRoom (i);
 		}
 	}
 
@@ -305,7 +314,11 @@ public class MapInfo{
 	public void CreateLightswitch (int x, int z)
 	{
 		map[x,z].GiveLightswitch();
-		lightswitchLocations.Add(new Vector2(x,z));
+		//lightswitchLocations.Add(new Vector2(x,z));
+	}
+
+	public void CreateLockdownSwitch(int x, int z){
+		map[x,z].GiveLockdownSwitch();
 	}
 	
 
@@ -513,6 +526,11 @@ public class MapInfo{
 		return visibility;	
 	}
 
+	public List<Vector2> ReturnRoom(int roomNumber){
+		if(roomNumber>=Rooms.Count) Debug.Log ("ERROR: MapInfo.ReturnRoom");
+		return Rooms[roomNumber];
+	}
+
 	public int ReturnSelectedPlayerIdx (int currentPlayer)
 	{	//must use indexes to iterate through spies/guys instead of foreach
 		switch(currentPlayer){
@@ -697,6 +715,25 @@ public class MapInfo{
 		map[x,z].StoreType();
 		map[x,z].LockDoor();
 	}
+
+	public void Lockdown(){
+		foreach(Tile tile in map){
+				//Debug.Log ("a");
+			if(tile.hasDoor()){
+				tile.StoreType();
+				tile.LockDoor();
+			}
+
+		}
+	}
+
+	public void Unlockdown(){
+		foreach(Tile tile in map){
+			if(tile.hasDoor()){
+				tile.LoadStoredType();
+			}
+		}
+	}
 	
 
 	public void RevertDoorOpening(int x, int z){
@@ -788,7 +825,7 @@ public class MapInfo{
 		List<string> gear = new List<string>();
 		if(currentPlayer==(int)GameEngine.Players.One){
 			foreach(Spy spy in spies){
-				gear.Add (spy.GearEquipped());
+				gear.Add (spy.GearEquipped_String());
 			}
 		}else if(currentPlayer==(int)GameEngine.Players.Two){
 			foreach(Guy guy in guys){
@@ -993,15 +1030,15 @@ public class MapInfo{
 		return adjTiles;
 	}
 
-	//returns location of an adjacent CLOSED door
+	//returns location of an adjacent CLOSED (or locked) door
 	public Vector2 GetAdjacentClosedDoorLocation(int x, int z){
 		if(x>=mapSize || z>=mapSize || x<0 || z<0){
 			Debug.Log ("Error: MapInfo.GetAdjacentClosedDoorLocation");	
 		}
-		if(x-1>=0 && map[x-1,z].hasClosedDoor()) return new Vector2(x-1,z);
-		if(z-1>=0 && map[x,z-1].hasClosedDoor()) return new Vector2(x,z-1);
-		if(x+1<mapSize && map[x+1,z].hasClosedDoor()) return new Vector2(x+1,z);
-		if(z+1<mapSize && map[x,z+1].hasClosedDoor()) return new Vector2(x,z+1);
+		if(x-1>=0 && (map[x-1,z].hasClosedDoor() || map[x-1,z].hasLockedDoor())) return new Vector2(x-1,z);
+		if(z-1>=0 && (map[x,z-1].hasClosedDoor() || map[x,z-1].hasLockedDoor())) return new Vector2(x,z-1);
+		if(x+1<mapSize && (map[x+1,z].hasClosedDoor() || map[x+1,z].hasClosedDoor())) return new Vector2(x+1,z);
+		if(z+1<mapSize && (map[x,z+1].hasClosedDoor() || map[x,z+1].hasClosedDoor())) return new Vector2(x,z+1);
 		//Debug.Log ("Spy at "+x+","+z+" not next to a door");
 		return new Vector2(-1000,-1000);
 	}
