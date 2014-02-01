@@ -5,6 +5,8 @@ public class GUIController : MonoBehaviour {
 
 	public float animationSpeed = 800;
 	public bool confirmationButtonFlag;
+	public bool lightswitchFlag;
+	public bool doorActionsFlag;
 
 	private bool playerHasConfirmedOrCancelled;
 	private int confirmOrCancel; //set as 1 for confirm, 2 for cancel
