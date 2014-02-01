@@ -10,8 +10,9 @@ public class CameraController : MonoBehaviour {
 	public int zoom;
 	public float smooth;
 	public float zoomGoal;
+	public Vector3 main;
 	private GameEngine scene;
-	private Vector3 main,playerFocus, focus;
+	private Vector3 playerFocus, focus;
 	private int currentCamera;
 	private List<int> noCameraAccessTurnState, noCameraAccessGameState;
 

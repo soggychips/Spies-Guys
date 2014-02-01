@@ -169,7 +169,7 @@ public class Tile {
 	}
 
 	public bool hasLightswitch(){
-		return (type==(int)TileType.Lightswitch);
+		return (type==(int)TileType.Lightswitch || storedType==(int)TileType.Lightswitch);
 	}
 
 	public bool hasLockdownSwitch(){

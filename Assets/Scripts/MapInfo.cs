@@ -118,9 +118,9 @@ public class MapInfo{
 		//PLAYERS
 		spies = new List<Spy>();
 		CreateSpy(6,18);
-		CreateSpy(6,20);
+		//CreateSpy(6,20);
 		//CreateSpy(15,21);
-		//CreateSpy(15,18);
+		CreateSpy(16,17);
 
 		guys = new List<Guy>();
 		CreateGuy(35,25);
@@ -182,6 +182,25 @@ public class MapInfo{
 		//rf.FleshOutRoom(1,1,0);
 	}
 
+	public void FlipLightswitch(int roomNumber){
+		if(roomNumber>=Rooms.Count) Debug.Log ("Error: MapInfo.FlipLightswitch");
+		else{
+			if(!TileAt (Rooms[roomNumber][0]).Lit){
+			//Debug.Log ("Lighting Room "+roomNumber+": BEGIN");
+				foreach(Vector2 tile in Rooms[roomNumber]){
+					//Debug.Log (tile + " lit");
+					LightTile (tile);
+				}
+			}else{
+				foreach(Vector2 tile in Rooms[roomNumber]){
+					//Debug.Log (tile + " lit");
+					UnlightTile (tile);
+				}
+			}
+			//Debug.Log ("Lighting Room "+roomNumber+": END");
+		}
+	}
+
 	public void LightRoom(int roomNumber){
 		if(roomNumber>=Rooms.Count) Debug.Log ("Error: MapInfo.LightRoom");
 		else{
@@ -196,6 +215,10 @@ public class MapInfo{
 
 	public void LightTile(Vector2 v){
 		map[(int)v.x,(int)v.y].Lit = true;
+	}
+
+	public void UnlightTile(Vector2 v){
+		TileAt (v).Lit = false;
 	}
 
 	public int ReturnRoomContainingTile(int x, int z){

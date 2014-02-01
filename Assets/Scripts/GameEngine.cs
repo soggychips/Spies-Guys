@@ -315,7 +315,7 @@ public class GameEngine : MonoBehaviour {
 		if(!lightswitchButtonsDisplayed){	
 			Vector2 playerPosition = map.ReturnSelectedPlayer(currentPlayer).TileLocation;
 			if(playerPosition.x!=-1000){
-				if(map.TileAt(playerPosition).StoredType==(int)TileType.Lightswitch){
+				if(map.TileAt(playerPosition).hasLightswitch()){
 					//show the lightswitch button
 					ShowLightswitchWallButton(playerPosition);
 					lightswitchButtonsDisplayed = true;
@@ -390,7 +390,15 @@ public class GameEngine : MonoBehaviour {
 
 	public void HandleWallButtonClickAt(Vector2 mouseClick){
 		Debug.Log ("HandleWallButtonClickAt called");
-		if(map.TileAt(mouseClick-Vector2.up).hasOpenDoor()){ //close - BOTH
+		if(map.TileAt (mouseClick+Vector2.up).hasLightswitch()){
+			FlipLightswitch(mouseClick+Vector2.up);
+		}else if(map.TileAt (mouseClick-Vector2.up).hasLightswitch() ){
+			FlipLightswitch(mouseClick-Vector2.up);
+		}else if(map.TileAt (mouseClick+Vector2.right).hasLightswitch()){
+			FlipLightswitch(mouseClick+Vector2.right);
+		}else if(map.TileAt (mouseClick-Vector2.right).hasLightswitch() ){
+			FlipLightswitch(mouseClick-Vector2.right);
+		}else if(map.TileAt(mouseClick-Vector2.up).hasOpenDoor()){ //close - BOTH
 			Debug.Log ("Close EW door");
 			CloseDoor(mouseClick-Vector2.up);
 		}else if(map.TileAt(mouseClick+Vector2.right).hasOpenDoor()){ //close - BOTH
@@ -795,6 +803,15 @@ public class GameEngine : MonoBehaviour {
 		UpdateTileMaterials();
 	}
 
+	public void FlipLightswitch(Vector2 lightswitchLocation){
+		tstate.BeginAction((int)TurnState.ActionTypes.Lightswitch);
+		map.FlipLightswitch(map.TileAt(lightswitchLocation).Room);
+		DestroyHighlights();
+		tstate.EndAction();
+		UpdateTileMaterials();
+		ConfirmAction();
+	}
+
 	public void TakeData(Vector2 dataLocation){
 		tstate.BeginAction((int)TurnState.ActionTypes.Data);
 		positionofData = dataLocation;
@@ -830,7 +847,7 @@ public class GameEngine : MonoBehaviour {
 		if(!map.MissingData()) alertMissingData = false;
 		positionofData = new Vector2();
 	}
-	
+
 
 	public void ConfirmAction(){
 		tstate.Neutralize();
