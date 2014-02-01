@@ -213,7 +213,8 @@ public class GameEngine : MonoBehaviour {
 				}else{
 					Material temp = AssignMaterial(i,j);
 					tileGraphics[i,j].renderer.material=temp;
-					if(map.TileAt(new Vector2(i,j)).hasWall() || map.TileAt (new Vector2(i,j)).Lit) tileGraphics[i,j].renderer.material.color = Color.white; //lit
+					if(map.TileAt(new Vector2(i,j)).hasWall() || map.TileAt(new Vector2(i,j)).hasLightswitch() || map.TileAt (new Vector2(i,j)).Lit) 
+						tileGraphics[i,j].renderer.material.color = Color.white; //lit
 					else tileGraphics[i,j].renderer.material.color = Color.gray; //unlit
 					//Debug.Log("tile "+i+","+j+" mat set to "+ temp);
 				}
@@ -308,6 +309,12 @@ public class GameEngine : MonoBehaviour {
 					}
 				}
 			}
+		}
+	}
+
+	public void DisplayAvailableEMPActions(){
+		if(!lightswitchButtonsDisplayed){
+
 		}
 	}
 
@@ -531,12 +538,12 @@ public class GameEngine : MonoBehaviour {
 		UpdateTileMaterials();	
 	}
 	
-	public void SetPlayerVisibility(){
+	/*public void SetPlayerVisibility(){
 		map.RemoveVisibility();
 		map.FindVisibleTilesForPlayer(currentPlayer);
 		map.FindAllVisibleTiles();
 		UpdateTileMaterials();
-	}
+	}*/
 	
 	public void SetPlayerVisibilityUsingFoV(){
 		map.FoVForCurrentPlayer((int)map.MapSize/2,currentPlayer);
@@ -596,9 +603,17 @@ public class GameEngine : MonoBehaviour {
 		if(type==(int)TileType.Taken){
 			switch(currentPlayer){
 			case (int)Players.One: 
-				if(CurrentPlayerAt(x,z)) return pt_spy; else return pt_guy;
+				if(CurrentPlayerAt(x,z)) return pt_spy; 
+				else{
+					if(map.TileAt (new Vector2(x,z)).hasLightswitch()) return ft_lightswitch;
+					return pt_guy;
+				}
 			case (int)Players.Two:
-				if(CurrentPlayerAt(x,z)) return pt_guy; else return pt_spy;
+				if(CurrentPlayerAt(x,z)) return pt_guy; 
+				else{
+					if(map.TileAt (new Vector2(x,z)).hasLightswitch()) return ft_lightswitch;
+					return pt_spy;
+				}
 			default:
 				return ft_taken;
 			}

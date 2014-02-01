@@ -424,7 +424,7 @@ public class MapInfo{
 	public void RemoveVisibility(){
 		for(int i=0; i<mapSize; i++){
 			for(int j=0; j<mapSize; j++){
-				if(map[i,j].Type!=(int)TileType.Wall) //&& map[i,j].Type!=(int)TileType.Door_Closed
+				if(map[i,j].Type!=(int)TileType.Wall && !map[i,j].hasLightswitch()) //&& map[i,j].Type!=(int)TileType.Door_Closed
 					map[i,j].Visible=false;
 			}
 		}
