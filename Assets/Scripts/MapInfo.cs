@@ -1073,8 +1073,8 @@ public class MapInfo{
 		}
 		if(x-1>=0 && (map[x-1,z].hasClosedDoor() || map[x-1,z].hasLockedDoor())) return new Vector2(x-1,z);
 		if(z-1>=0 && (map[x,z-1].hasClosedDoor() || map[x,z-1].hasLockedDoor())) return new Vector2(x,z-1);
-		if(x+1<mapSize && (map[x+1,z].hasClosedDoor() || map[x+1,z].hasClosedDoor())) return new Vector2(x+1,z);
-		if(z+1<mapSize && (map[x,z+1].hasClosedDoor() || map[x,z+1].hasClosedDoor())) return new Vector2(x,z+1);
+		if(x+1<mapSize && (map[x+1,z].hasClosedDoor() || map[x+1,z].hasLockedDoor())) return new Vector2(x+1,z);
+		if(z+1<mapSize && (map[x,z+1].hasClosedDoor() || map[x,z+1].hasLockedDoor())) return new Vector2(x,z+1);
 		//Debug.Log ("Spy at "+x+","+z+" not next to a door");
 		return new Vector2(-1000,-1000);
 	}
