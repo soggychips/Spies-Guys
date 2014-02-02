@@ -17,6 +17,8 @@ public class TouchHandler : MonoBehaviour {
 	int gearPage = 1;
 	int spyToAssignGear=0;
 	int guyToAssignGear=0;
+	private int count = 0;
+
 
 	
 	
@@ -39,6 +41,13 @@ public class TouchHandler : MonoBehaviour {
 		if(scene.CurrentGameState==(int)GameState.States.P1 ||scene.CurrentGameState==(int)GameState.States.P2){
 			switch(scene.CurrentTurnState){
 			//if turnstate: Neutral
+				case (int)TurnState.States.Begin:
+						if(count==0){
+							scene.CheckForWinner();
+							scene.RemoveVisibility();
+							count=1;
+						}
+					break;
 				case (int)TurnState.States.Neutral:
 					//scene.DisplayFreeDoorButtonTiles();
 					mouseClick = MouseClickToTileCoords();
@@ -123,8 +132,6 @@ public class TouchHandler : MonoBehaviour {
 			//Debug.Log("P1 turn");
 			switch(scene.CurrentTurnState){
 			case (int)TurnState.States.Begin:
-				scene.CheckForWinner();
-				scene.RemoveVisibility();
 				BeginTurnMenu();
 				break;
 			case (int)TurnState.States.Neutral:
@@ -148,8 +155,6 @@ public class TouchHandler : MonoBehaviour {
 			//Debug.Log("P2 turn");
 			switch(scene.CurrentTurnState){
 			case (int)TurnState.States.Begin:
-				scene.CheckForWinner();
-				scene.RemoveVisibility();
 				BeginTurnMenu();
 				break;
 			case (int)TurnState.States.Neutral:
@@ -493,6 +498,7 @@ public class TouchHandler : MonoBehaviour {
 		if(GUI.Button(new Rect(Screen.width/2-100,Screen.height/2-50,100,50), "Begin")) { 
 			if(scene.CurrentGameState==(int)GameState.States.P1) scene.GiveControlToPlayer1();
 			else if(scene.CurrentGameState==(int)GameState.States.P2) scene.GiveControlToPlayer2();
+			count = 0;
 		}	
 	}
 
