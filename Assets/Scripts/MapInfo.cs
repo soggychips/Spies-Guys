@@ -117,16 +117,16 @@ public class MapInfo{
 
 		//PLAYERS
 		spies = new List<Spy>();
-		CreateSpy(6,18);
-		CreateSpy(6,20);
-		//CreateSpy(15,21);
-		//CreateSpy(16,17);
+		//CreateSpy(6,18);
+		//CreateSpy(6,20);
+		CreateSpy(15,21);
+		CreateSpy(16,17);
 
 		guys = new List<Guy>();
-		CreateGuy(35,25);
-		CreateGuy(35,11);
-		//CreateGuy(24,17);
-		//CreateGuy(24,19);
+		//CreateGuy(35,25);
+		//CreateGuy(35,11);
+		CreateGuy(24,17);
+		CreateGuy(24,19);
 
 		//OBJECTIVES
 		CreateData(20,19);
@@ -681,6 +681,58 @@ public class MapInfo{
 		}
 		Debug.Log ("error! MapInfo: ReturnClickedOnSpy();");
 		return null;
+	}
+
+	public bool TeamCanSeeTileAt(int x, int z, int currentPlayer){
+		bool theyCan = false;
+		switch(currentPlayer){
+		case (int)GameEngine.Players.One:
+			foreach(Spy spy in spies){
+				if(spy.Alive){
+					theyCan = true;
+					Vector2 start = spy.TileLocation; Vector2 end = new Vector2(x,z);
+					Vector2 vect = end-start;
+					Vector2 check = start;
+					float norm = Mathf.Sqrt((vect.x*vect.x) + (vect.y*vect.y));
+					Vector2 unitVect = new Vector2(vect.x/norm,vect.y/norm);
+					Vector2 roundedLocation = new Vector2((int)start.x,(int)start.y);
+					while(roundedLocation!=end){
+						check+=unitVect;
+						roundedLocation = new Vector2(Mathf.Round(check.x),Mathf.Round(check.y));
+						if((roundedLocation!=start) && (roundedLocation!=end) && TileAt (roundedLocation).isBlocked()){
+							//Debug.Log ("Blocked tile at "+roundedLocation);
+							theyCan = false;
+							break;
+						}
+					}
+					if(theyCan) return true;
+				}
+			}
+			break;
+		case (int)GameEngine.Players.Two:
+			foreach(Guy guy in guys){
+				if(guy.Alive){
+					theyCan = true;
+					Vector2 start = guy.TileLocation; Vector2 end = new Vector2(x,z);
+					Vector2 vect = end-start;
+					Vector2 check = start;
+					float norm = Mathf.Sqrt((vect.x*vect.x) + (vect.y*vect.y));
+					Vector2 unitVect = new Vector2(vect.x/norm,vect.y/norm);
+					Vector2 roundedLocation = new Vector2((int)start.x,(int)start.y);
+					while(roundedLocation!=end){
+						check+=unitVect;
+						roundedLocation = new Vector2(Mathf.Round(check.x),Mathf.Round(check.y));
+						if((roundedLocation!=start) && (roundedLocation!=end) && TileAt (roundedLocation).isBlocked()){
+							Debug.Log ("Blocked tile at "+roundedLocation);
+							theyCan = false;
+						}
+					}
+					if(theyCan) return true;
+				}
+			}
+			break;
+		}
+		return theyCan;
 	}
 
 	public bool CurrentPlayerAtTile(int x, int z, int currentPlayer){

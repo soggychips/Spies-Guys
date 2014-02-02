@@ -643,13 +643,13 @@ public class GameEngine : MonoBehaviour {
 			case (int)Players.One: 
 				if(CurrentPlayerAt(x,z)) return pt_spy; 
 				else{
-					if(map.TileAt (new Vector2(x,z)).hasLightswitch()) return ft_lightswitch;
+					if(map.TileAt (new Vector2(x,z)).hasLightswitch() &&!TeamCanSeeTileAt(x,z)) return ft_lightswitch;
 					return pt_guy;
 				}
 			case (int)Players.Two:
 				if(CurrentPlayerAt(x,z)) return pt_guy; 
 				else{
-					if(map.TileAt (new Vector2(x,z)).hasLightswitch()) return ft_lightswitch;
+					if(map.TileAt (new Vector2(x,z)).hasLightswitch() &&!TeamCanSeeTileAt(x,z)) return ft_lightswitch;
 					return pt_spy;
 				}
 			default:
@@ -966,6 +966,10 @@ public class GameEngine : MonoBehaviour {
 		SelectedPlayerPredictDamageToEnemy(enemyLocationCoords);
 		DestroyHighlights();
 		tstate.EndAction();
+	}
+
+	public bool TeamCanSeeTileAt(int x, int z){
+		return map.TeamCanSeeTileAt(x,z,currentPlayer);
 	}
 
 	public bool LOSCheckBetweenPlayers (Vector2 start, Vector2 end){
