@@ -1,12 +1,11 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class GUIController : MonoBehaviour {
 
 	public float animationSpeed = 800;
-	public bool confirmationButtonFlag;
-	public bool lightswitchFlag;
-	public bool doorActionsFlag;
+	public bool confirmationButtonFlag, doorActionsFlag, lightswitchFlag, lockdownFlag, EMPFlag, attackFlag;
 
 	private bool playerHasConfirmedOrCancelled;
 	private int confirmOrCancel; //set as 1 for confirm, 2 for cancel
@@ -15,6 +14,7 @@ public class GUIController : MonoBehaviour {
 	private Vector2 camButtonMainLocation, camButtonP1Location, camButtonP2Location;
 	private CameraController cameraController;
 	private GameEngine scene;
+	private List<int> teamHP, teamAP;
 
 	public GUIStyle game_actionPointText_iPhone;
 	public GUIStyle game_healthPointText_iPhone;
@@ -40,6 +40,7 @@ public class GUIController : MonoBehaviour {
 		cameraController = GameObject.FindWithTag("MainCamera").GetComponent("CameraController") as CameraController;
 		scene = GameObject.Find("Engine").GetComponent("GameEngine") as GameEngine; //gives us access to the GameEngine script
 	}
+
 
 	void OnGUI(){
 		if(confirmationButtonFlag){
@@ -85,20 +86,25 @@ public class GUIController : MonoBehaviour {
 		confirmationButtonFlag = true;
 	}
 
+
 	public void CameraButtons(){
 		if(scene.CurrentGameState==(int)GameState.States.P1 || scene.CurrentGameState==(int)GameState.States.P2){
 			if(scene.CurrentTurnState!=(int)TurnState.States.Begin){
+				teamHP = scene.ReturnTeamHP();
+				teamAP = scene.ReturnTeamAP();
 				if(GUI.Button(new Rect(camButtonP1Location.x,camButtonP1Location.y,128,136),"", game_camBtn_p1_iPhone)){
-					cameraController.FirstPlayerButtonPress();
+					if(teamHP[0]>0)	
+						cameraController.FirstPlayerButtonPress();
 				}
-				GUI.Label(new Rect(camButtonP1Location.x+52,camButtonP1Location.y+8, 64,32),"AP: 3", game_actionPointText_iPhone);
-				GUI.Label(new Rect(camButtonP1Location.x+52,camButtonP1Location.y+48, 64,32),"Health: 5", game_healthPointText_iPhone);
+				GUI.Label(new Rect(camButtonP1Location.x+52,camButtonP1Location.y+8, 64,32),"AP: "+teamAP[0], game_actionPointText_iPhone);
+				GUI.Label(new Rect(camButtonP1Location.x+52,camButtonP1Location.y+48, 64,32),"Health: "+teamHP[0], game_healthPointText_iPhone);
 				GUI.Label(new Rect(camButtonP1Location.x+4,camButtonP1Location.y+90, 114, 26),"", game_item_shotgun_iPhone);
 				if(GUI.Button(new Rect(camButtonP2Location.x,camButtonP2Location.y,128,136),"", game_camBtn_p2_iPhone)){
-					cameraController.SecondPlayerButtonPress();
+					if(teamHP[1]>0)
+						cameraController.SecondPlayerButtonPress();
 				}
-				GUI.Label(new Rect(camButtonP2Location.x+52,camButtonP2Location.y+8, 64,32),"AP: 3", game_actionPointText_iPhone);
-				GUI.Label(new Rect(camButtonP2Location.x+52,camButtonP2Location.y+48, 64,32),"Health: 5", game_healthPointText_iPhone);
+				GUI.Label(new Rect(camButtonP2Location.x+52,camButtonP2Location.y+8, 64,32),"AP: "+teamAP[1], game_actionPointText_iPhone);
+				GUI.Label(new Rect(camButtonP2Location.x+52,camButtonP2Location.y+48, 64,32),"Health: "+teamHP[1], game_healthPointText_iPhone);
 				GUI.Label (new Rect(camButtonP2Location.x+4, camButtonP2Location.y+90, 114, 26),"", game_item_m14_iPhone);
 			}
 		}

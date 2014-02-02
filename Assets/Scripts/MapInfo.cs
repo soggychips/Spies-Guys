@@ -531,6 +531,42 @@ public class MapInfo{
 		return Rooms[roomNumber];
 	}
 
+	public List<int> ReturnTeamHP(int currentPlayer){
+		List<int> teamHP = new List<int>();
+		switch(currentPlayer){
+		case (int)GameEngine.Players.One:
+			for(int i = 0;i<spies.Count;i++)
+				teamHP.Add (spies[i].Health);
+			break;
+		case (int)GameEngine.Players.Two:
+			for(int i = 0;i<guys.Count;i++)
+				teamHP.Add(guys[i].Health);
+			break;
+		default:
+			Debug.Log ("Error: MapInfo.ReturnTeamHP");
+			break;
+		}
+		return teamHP;
+	}
+
+	public List<int> ReturnTeamAP(int currentPlayer){
+		List<int> teamAP = new List<int>();
+		switch(currentPlayer){
+		case (int)GameEngine.Players.One:
+			for(int i = 0;i<spies.Count;i++)
+				teamAP.Add (spies[i].MovesLeft);
+			break;
+		case (int)GameEngine.Players.Two:
+			for(int i = 0;i<guys.Count;i++)
+				teamAP.Add(guys[i].MovesLeft);
+			break;
+		default:
+			Debug.Log ("Error: MapInfo.ReturnTeamAP");
+			break;
+		}
+		return teamAP;
+	}
+
 	public int ReturnSelectedPlayerIdx (int currentPlayer)
 	{	//must use indexes to iterate through spies/guys instead of foreach
 		switch(currentPlayer){

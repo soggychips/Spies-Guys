@@ -742,6 +742,14 @@ public class GameEngine : MonoBehaviour {
 	public Vector2 ReturnSelectedPlayerPosition(int idx){
 		return map.ReturnPlayerPosition(idx,currentPlayer);
 	}
+
+	public List<int> ReturnTeamHP(){
+		return map.ReturnTeamHP(currentPlayer);
+	}
+
+	public List<int>ReturnTeamAP(){
+		return map.ReturnTeamAP(currentPlayer);
+	}
 	
 
 	public bool OpenTileAt(int x, int z){
