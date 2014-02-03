@@ -235,9 +235,9 @@ public class TouchHandler : MonoBehaviour {
 			turnStateString = "End";
 			break;
 		}
-		GUI.Label(new Rect(Screen.width-400,0,150,30),"Game State: "+gameStateString);
-		GUI.Label(new Rect(Screen.width-400,30,150,30),"Turn State: "+turnStateString);
-		GUI.Label(new Rect(Screen.width-400,60,150,30),"Turn: "+ scene.Turn);
+		GUI.Label(new Rect(Screen.width-400,0,150,50),"Game State: "+gameStateString);
+		GUI.Label(new Rect(Screen.width-400,30,150,50),"Turn State: "+turnStateString);
+		GUI.Label(new Rect(Screen.width-400,60,150,50),"Turn: "+ scene.Turn);
 	}
 
 	public void DisplaySelectedPlayerData(){
@@ -289,7 +289,7 @@ public class TouchHandler : MonoBehaviour {
 		switch(scene.CurrentGameState){
 		case (int)GameState.States.P1:
 			GUI.Label(new Rect(Screen.width-700,0,150,30),"Spy[0]: "+movesLeftForPlayers[0]);
-			GUI.Label(new Rect(Screen.width-400,30,150,30),"Spy[1]: "+movesLeftForPlayers[1]);
+			GUI.Label(new Rect(Screen.width-700,30,150,30),"Spy[1]: "+movesLeftForPlayers[1]);
 			GUI.Label(new Rect(Screen.width-400,80,150,30),"Health:");
 			GUI.Label(new Rect(Screen.width-400,95,150,30),"Spy[0]: "+ healthLeftForPlayers[0]);
 			GUI.Label(new Rect(Screen.width-400,125,150,30),"Spy[1]: "+ healthLeftForPlayers[1]);
@@ -375,14 +375,6 @@ public class TouchHandler : MonoBehaviour {
 	}
 	
 	public int ConfirmationButtons(){
-		/*GUI.Box (new Rect(Screen.width-100,Screen.height/2 -120,100,240),"");
-		if(GUI.Button(new Rect(Screen.width-95,Screen.height/2-115,90,110), "Confirm")) {
-			return 1;
-		}
-		if(GUI.Button (new Rect(Screen.width-95,Screen.height/2,90,110),"Cancel")) {
-			return 2;
-		}
-		return 0; */
 		guiController.FlagConfirmationButtons();
 		return guiController.ConfirmationButtonPlayerInput();
 	}
