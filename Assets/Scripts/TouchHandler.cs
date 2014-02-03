@@ -19,6 +19,8 @@ public class TouchHandler : MonoBehaviour {
 	int guyToAssignGear=0;
 	private int count = 0;
 
+	public GUIStyle game_turnButton_iPhone;
+
 
 	
 	
@@ -337,7 +339,7 @@ public class TouchHandler : MonoBehaviour {
 			GUI.Box(new Rect(Screen.width-150,Screen.height-120,150,120), "Turn: Complete");
 	
 		// Submit
-		if(GUI.Button(new Rect(Screen.width-140,Screen.height-95,130,80), "Submit")) { 
+		if(GUI.Button(new Rect(Screen.width-128,Screen.height-66,128,66), "", game_turnButton_iPhone)) { 
 			scene.EndTurn();
 		}
 	}
