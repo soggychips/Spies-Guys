@@ -5,13 +5,14 @@ using System.Collections.Generic;
 public class GUIController : MonoBehaviour {
 
 	public float animationSpeed = 800;
-	public bool confirmationButtonFlag, doorActionsFlag, lightswitchFlag, lockdownFlag, EMPFlag, attackFlag;
+	public bool confirmationButtonFlag, doorActionsFlag, lightSwitchFlag, lockdownFlag, EMPFlag, attackFlag;
 
 	private bool playerHasConfirmedOrCancelled;
 	private int confirmOrCancel; //set as 1 for confirm, 2 for cancel
 	private float confirmationButtonLeft;
 	private Vector2 confirmationButtonBoxLocation, confirmButtonLocation, cancelButtonLocation;
 	private Vector2 camButtonP1Location, camButtonP2Location;
+	private Vector2 lightSwitchLocation;
 	private CameraController cameraController;
 	private GameEngine scene;
 	private List<int> teamHP, teamAP;
@@ -24,8 +25,10 @@ public class GUIController : MonoBehaviour {
 	public GUIStyle game_camBtn_p1_iPhone;
 	public GUIStyle game_camBtn_p2_iPhone;
 	public GUIStyle game_camBtn_base_iPhone;
+	public GUIStyle game_lightSwitch_iPhone;
 	public GUIStyle game_item_shotgun_iPhone;
 	public GUIStyle game_item_m14_iPhone;
+
 
 
 	void Awake(){
@@ -36,6 +39,7 @@ public class GUIController : MonoBehaviour {
 		cancelButtonLocation = new Vector2(Screen.width-200,396);
 		camButtonP1Location = new Vector2(0, 316);
 		camButtonP2Location = new Vector2(0, 460);
+		lightSwitchLocation = new Vector2(220, Screen.height - 100);
 		cameraController = GameObject.FindWithTag("MainCamera").GetComponent("CameraController") as CameraController;
 		scene = GameObject.Find("Engine").GetComponent("GameEngine") as GameEngine; //gives us access to the GameEngine script
 	}
@@ -46,6 +50,9 @@ public class GUIController : MonoBehaviour {
 			ConfirmationButtons();
 		}
 		CameraButtons();
+		if(lightSwitchFlag){
+			LightSwitch();
+		}
 	} 
 
 
@@ -114,6 +121,12 @@ public class GUIController : MonoBehaviour {
 			}
 		}
 	}
+
+	public void LightSwitch(){
+		if(GUI.Button(new Rect(lightSwitchLocation.x, lightSwitchLocation.y, 138, 100),"", game_lightSwitch_iPhone)){
+		}
+	}
+
 
 
 }
