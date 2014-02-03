@@ -2,11 +2,13 @@
 using System.Collections;
 
 public class Player {
-	
+
+	public enum GearTypes{weapon,gadget};
+
 	public static int totalMovementPoints = 3;
 	public static int yPlayerHeight = 0;
-	public static int sneakDistance = 4;
-	public static int sprintDistance = 2; //in addition to sneakDistance
+	public static int sneakDistance = 3;
+	public static int sprintDistance = 1; //in addition to sneakDistance
 	public static int startingHealth = 5;
 	public static Vector2 deadPlayerTile = new Vector2(-500,-500);
 	
@@ -16,6 +18,7 @@ public class Player {
 	protected Vector3 realWorldLocation;
 	protected int movesLeft;
 	protected int gearEquipped;
+	protected int gearType;
 	protected int health; //0-5?
 	protected bool shocked;
 	protected bool lostSprintNotification;

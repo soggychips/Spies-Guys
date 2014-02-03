@@ -13,6 +13,7 @@ public class GameEngine : MonoBehaviour {
 					ft_lightswitch, ft_noise, 
 					ft_data, ft_extraction;
 	public Material pt_spy, pt_guy;
+	public Material pt_S1,pt_S2,pt_G1,pt_G2; //playerTile_Sp/GuyTile
 	public Material wall_n_end, wall_s_end, wall_e_end, wall_w_end, wall_ne_corn,wall_nw_corn,
 					wall_se_corn,wall_sw_corn,wall_h_mid,wall_v_mid,wall_s_t,wall_n_t,wall_e_t,wall_w_t;
 	public Transform wallButton_unlock, wallButton_lock, wallButton_CloseDoor, wallButton_OpenDoor, wallButton_lightswitch, wallButton_LockDown;
@@ -204,7 +205,7 @@ public class GameEngine : MonoBehaviour {
 		int[,] tileVisibility = map.ReturnAllVisibleTiles();
 		for(int i=0; i<map.MapSize;i++){
 			for(int j=0; j<map.MapSize;j++){
-				if(tileVisibility[i,j]==0 && !map.SelectedCharacterAtTile(i,j,currentPlayer)){
+				if(tileVisibility[i,j]==0 && !map.SelectedCharacterAtTile(i,j,currentPlayer)){ 
 					if((currentPlayer==(int)Players.One && guyNoiseAlertLocations.Contains(new Vector2(i,j))) 
 					|| (currentPlayer==(int)Players.Two && spyNoiseAlertLocations.Contains(new Vector2(i,j)))){
 						tileGraphics[i,j].renderer.material=ft_noise;
@@ -641,16 +642,46 @@ public class GameEngine : MonoBehaviour {
 		if(type==(int)TileType.Taken){
 			switch(currentPlayer){
 			case (int)Players.One: 
-				if(CurrentPlayerAt(x,z)) return pt_spy; 
-				else{
+				if(CurrentPlayerAt(x,z)){ 
+					switch(map.ReturnPlayerIdxFromPosition(x,z,currentPlayer)){
+					case 0:
+						return pt_S1;
+					case 1:
+						return pt_S2;
+					default:
+						return pt_spy;
+					}
+				}else{
 					if(map.TileAt (new Vector2(x,z)).hasLightswitch() &&!TeamCanSeeTileAt(x,z)) return ft_lightswitch;
-					return pt_guy;
+					switch(map.ReturnEnemyIdxFromPosition(x,z,currentPlayer)){
+					case 0:
+						return pt_G1;
+					case 1:
+						return pt_G2;
+					default:
+						return pt_guy;
+					}
 				}
 			case (int)Players.Two:
-				if(CurrentPlayerAt(x,z)) return pt_guy; 
-				else{
+				if(CurrentPlayerAt(x,z)){ 
+					switch(map.ReturnPlayerIdxFromPosition(x,z,currentPlayer)){
+					case 0:
+						return pt_G1;
+					case 1:
+						return pt_G2;
+					default:
+						return pt_guy;
+					} 
+				}else{
 					if(map.TileAt (new Vector2(x,z)).hasLightswitch() &&!TeamCanSeeTileAt(x,z)) return ft_lightswitch;
-					return pt_spy;
+					switch(map.ReturnEnemyIdxFromPosition(x,z,currentPlayer)){
+					case 0:
+						return pt_S1;
+					case 1:
+						return pt_S2;
+					default:
+						return pt_spy;
+					}
 				}
 			default:
 				return ft_taken;
@@ -961,11 +992,16 @@ public class GameEngine : MonoBehaviour {
 
 	public void Attack(Vector2 enemyLocationCoords)
 	{
-		enemyLocation = enemyLocationCoords;
-		tstate.BeginAction((int)TurnState.ActionTypes.Attack);
-		SelectedPlayerPredictDamageToEnemy(enemyLocationCoords);
-		DestroyHighlights();
-		tstate.EndAction();
+		if(ReturnSelectedSpy().GearEquipped() == (int)Spy.SpyGear.empGun){
+			Debug.Log ("You can't attack with that weapon!");
+			CancelAction();
+		}else{
+			enemyLocation = enemyLocationCoords;
+			tstate.BeginAction((int)TurnState.ActionTypes.Attack);
+			SelectedPlayerPredictDamageToEnemy(enemyLocationCoords);
+			DestroyHighlights();
+			tstate.EndAction();
+		}
 	}
 
 	public bool TeamCanSeeTileAt(int x, int z){

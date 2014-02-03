@@ -602,7 +602,52 @@ public class MapInfo{
 		}
 		return answer;
 	}
-	
+
+	public int ReturnPlayerIdxFromPosition(int x, int z, int currentPlayer){
+		int index = 0;
+		Vector2 position = new Vector2(x,z);
+		switch(currentPlayer){
+		case (int)GameEngine.Players.One:
+			foreach(Spy spy in spies){
+				if(spy.TileLocation == position)
+					return index;
+				index++;
+			}
+			break;
+		case (int)GameEngine.Players.Two:
+			foreach(Guy guy in guys){
+				if(guy.TileLocation == position)
+					return index;
+				index++;
+			}
+			break;
+		}
+		Debug.Log ("Error: MapInfo.ReturnPlayerIdxFromPosition");
+		return -1;
+	}
+
+	public int ReturnEnemyIdxFromPosition(int x, int z, int currentPlayer){
+		int index = 0;
+		Vector2 position = new Vector2(x,z);
+		switch(currentPlayer){
+		case (int)GameEngine.Players.One:
+			foreach(Guy guy in guys){
+				if(guy.TileLocation == position)
+					return index;
+				index++;
+			}
+			break;
+		case (int)GameEngine.Players.Two:
+			foreach(Spy spy in spies){
+				if(spy.TileLocation == position)
+					return index;
+				index++;
+			}
+			break;
+		}
+		Debug.Log ("Error: MapInfo.ReturnEnemyIdxFromPosition");
+		return -1;
+	}
 
 	public Vector2 ReturnPlayerPosition (int playerIdx, int currentPlayer)
 	{
@@ -612,7 +657,7 @@ public class MapInfo{
 		case (int)GameEngine.Players.Two:
 			return guys[playerIdx].TileLocation;
 		default:
-			Debug.Log ("Error: MapInfo.ReturnSelectedPlayerPosition");
+			Debug.Log ("Error: MapInfo.ReturnPlayerPosition");
 			return Vector2.zero;
 		}
 	}
