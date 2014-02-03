@@ -11,7 +11,7 @@ public class GUIController : MonoBehaviour {
 	private int confirmOrCancel; //set as 1 for confirm, 2 for cancel
 	private float confirmationButtonLeft;
 	private Vector2 confirmationButtonBoxLocation, confirmButtonLocation, cancelButtonLocation;
-	private Vector2 camButtonMainLocation, camButtonP1Location, camButtonP2Location;
+	private Vector2 camButtonP1Location, camButtonP2Location;
 	private CameraController cameraController;
 	private GameEngine scene;
 	private List<int> teamHP, teamAP;
@@ -21,7 +21,6 @@ public class GUIController : MonoBehaviour {
 	public GUIStyle game_confSlider_base_iPhone;
 	public GUIStyle game_confSlider_green_iPhone;
 	public GUIStyle game_confSlider_red_iPhone;
-	public GUIStyle game_camBtn_main_iPhone;
 	public GUIStyle game_camBtn_p1_iPhone;
 	public GUIStyle game_camBtn_p2_iPhone;
 	public GUIStyle game_camBtn_base_iPhone;
@@ -35,7 +34,6 @@ public class GUIController : MonoBehaviour {
 		confirmationButtonBoxLocation = new Vector2(Screen.width-204,0);
 		confirmButtonLocation = new Vector2(Screen.width-200,68);
 		cancelButtonLocation = new Vector2(Screen.width-200,396);
-		camButtonMainLocation = new Vector2(0, 200);
 		camButtonP1Location = new Vector2(0, 316);
 		camButtonP2Location = new Vector2(0, 460);
 		cameraController = GameObject.FindWithTag("MainCamera").GetComponent("CameraController") as CameraController;
@@ -93,6 +91,7 @@ public class GUIController : MonoBehaviour {
 			if(scene.CurrentTurnState!=(int)TurnState.States.Begin){
 				teamHP = scene.ReturnTeamHP();
 				teamAP = scene.ReturnTeamAP();
+
 				//p1 cam button
 				GUI.Label(new Rect(camButtonP1Location.x,camButtonP1Location.y, 128, 136),"", game_camBtn_base_iPhone);
 				if(GUI.Button(new Rect(camButtonP1Location.x,camButtonP1Location.y+4,122,76),"", game_camBtn_p1_iPhone)){
@@ -102,6 +101,7 @@ public class GUIController : MonoBehaviour {
 				GUI.Label(new Rect(camButtonP1Location.x+52,camButtonP1Location.y+8, 64, 32),"AP: "+teamAP[0], game_actionPointText_iPhone);
 				GUI.Label(new Rect(camButtonP1Location.x+52,camButtonP1Location.y+48, 64, 32),"Health: "+teamHP[0], game_healthPointText_iPhone);
 				GUI.Label(new Rect(camButtonP1Location.x+4,camButtonP1Location.y+90, 114, 26),"", game_item_shotgun_iPhone);
+
 				//p2 cam button
 				GUI.Label(new Rect(camButtonP2Location.x,camButtonP2Location.y, 128, 136),"", game_camBtn_base_iPhone);
 				if(GUI.Button(new Rect(camButtonP2Location.x,camButtonP2Location.y+4, 122, 76),"", game_camBtn_p2_iPhone)){
