@@ -20,6 +20,7 @@ public class TouchHandler : MonoBehaviour {
 	private int count = 0;
 
 	public GUIStyle game_turnButton_iPhone;
+	public GUIStyle game_turnStateText_iPhone;
 
 
 	
@@ -333,15 +334,16 @@ public class TouchHandler : MonoBehaviour {
 	public void DisplaySubmitButton ()
 	{
 		List<int> movesLeftForPlayers = scene.MovesLeftForCurrentPlayer();
-		if(movesLeftForPlayers[0]>0 && movesLeftForPlayers[1]>0)
-			GUI.Box(new Rect(Screen.width-150,Screen.height-120,150,120), "Turn: Incomplete");
-		else
-			GUI.Box(new Rect(Screen.width-150,Screen.height-120,150,120), "Turn: Complete");
-	
+
 		// Submit
-		if(GUI.Button(new Rect(Screen.width-128,Screen.height-66,128,66), "", game_turnButton_iPhone)) { 
+		if(GUI.Button(new Rect(Screen.width-128,Screen.height-134,128,134), "", game_turnButton_iPhone)) { 
 			scene.EndTurn();
 		}
+		if(movesLeftForPlayers[0]>0 && movesLeftForPlayers[1]>0)
+			GUI.Label(new Rect(Screen.width-160,Screen.height-124,150,120), "Turn: Incomplete", game_turnStateText_iPhone);
+		else
+			GUI.Label(new Rect(Screen.width-160,Screen.height-124,150,120), "Turn: Complete", game_turnStateText_iPhone);
+
 	}
 
 	public void CompleteTurnConfirmation ()

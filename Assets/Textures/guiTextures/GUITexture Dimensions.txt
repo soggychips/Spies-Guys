@@ -5,3 +5,4 @@ guiTexture Dimensions
 128x88 - Main Cam Button
 204x640 - Confirmation Slider
 200x244 - Confirmation Buttons
+128x134 - Turn Submit Button
