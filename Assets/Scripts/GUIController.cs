@@ -25,11 +25,8 @@ public class GUIController : MonoBehaviour {
 	public GUIStyle game_camBtn_p1_iPhone;
 	public GUIStyle game_camBtn_p2_iPhone;
 	public GUIStyle game_camBtn_base_iPhone;
-<<<<<<< HEAD
 	public GUIStyle game_lightSwitch_iPhone;
-=======
 	public GUIStyle game_camBtn_offline_iPhone;
->>>>>>> e2507b67ac917a417a26a776ab83334408eb7b05
 	public GUIStyle game_item_shotgun_iPhone;
 	public GUIStyle game_item_m14_iPhone;
 
