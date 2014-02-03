@@ -22,7 +22,16 @@ public class Guy : Player {
 		if(gear!=(int)GuyGear.shotgun && gear!=(int)GuyGear.rifle) 
 			Debug.Log("Guy.Equip() ERROR");
 		else 
-			this.gearEquipped = gear;	
+			this.gearEquipped = gear;
+
+		switch(this.gearEquipped){
+		case (int)GuyGear.rifle:
+			this.gearType = (int)GearTypes.weapon;
+			break;
+		case (int)GuyGear.shotgun:
+			this.gearType = (int)GearTypes.weapon;
+			break;
+		}
 	}
 
 	public void PredictDamage(Spy enemy){

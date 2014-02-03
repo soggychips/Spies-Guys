@@ -40,7 +40,16 @@ public class Spy : Player{
 		if(gear!=(int)SpyGear.empGun && gear!=(int)SpyGear.shockRifle) 
 			Debug.Log("Spy.Equip() ERROR");
 		else 
-			this.gearEquipped = gear;	
+			this.gearEquipped = gear;
+
+		switch(this.gearEquipped){
+		case (int)SpyGear.empGun:
+			this.gearType = (int)GearTypes.gadget;
+			break;
+		case (int)SpyGear.shockRifle:
+			this.gearType = (int)GearTypes.weapon;
+			break;
+		}
 	}
 
 	public void PredictDamage(Guy enemy){

@@ -25,7 +25,11 @@ public class GUIController : MonoBehaviour {
 	public GUIStyle game_camBtn_p1_iPhone;
 	public GUIStyle game_camBtn_p2_iPhone;
 	public GUIStyle game_camBtn_base_iPhone;
+<<<<<<< HEAD
 	public GUIStyle game_lightSwitch_iPhone;
+=======
+	public GUIStyle game_camBtn_offline_iPhone;
+>>>>>>> e2507b67ac917a417a26a776ab83334408eb7b05
 	public GUIStyle game_item_shotgun_iPhone;
 	public GUIStyle game_item_m14_iPhone;
 
@@ -100,24 +104,30 @@ public class GUIController : MonoBehaviour {
 				teamAP = scene.ReturnTeamAP();
 
 				//p1 cam button
-				GUI.Label(new Rect(camButtonP1Location.x,camButtonP1Location.y, 128, 136),"", game_camBtn_base_iPhone);
-				if(GUI.Button(new Rect(camButtonP1Location.x,camButtonP1Location.y+4,122,76),"", game_camBtn_p1_iPhone)){
-					if(teamHP[0]>0)	
-						cameraController.FirstPlayerButtonPress();
+				if(teamHP[0]>0){
+					GUI.Label(new Rect(camButtonP1Location.x,camButtonP1Location.y, 128, 136),"", game_camBtn_base_iPhone);
+					if(GUI.Button(new Rect(camButtonP1Location.x,camButtonP1Location.y+4,122,76),"", game_camBtn_p1_iPhone)){
+							cameraController.FirstPlayerButtonPress();
+					}
+					GUI.Label(new Rect(camButtonP1Location.x+52,camButtonP1Location.y+8, 64, 32),"AP: "+teamAP[0], game_actionPointText_iPhone);
+					GUI.Label(new Rect(camButtonP1Location.x+52,camButtonP1Location.y+48, 64, 32),"Health: "+teamHP[0], game_healthPointText_iPhone);
+					GUI.Label(new Rect(camButtonP1Location.x+4,camButtonP1Location.y+90, 114, 26),"", game_item_shotgun_iPhone);
+				}else{
+					GUI.Label(new Rect(camButtonP1Location.x,camButtonP1Location.y, 128, 136),"", game_camBtn_offline_iPhone);
 				}
-				GUI.Label(new Rect(camButtonP1Location.x+52,camButtonP1Location.y+8, 64, 32),"AP: "+teamAP[0], game_actionPointText_iPhone);
-				GUI.Label(new Rect(camButtonP1Location.x+52,camButtonP1Location.y+48, 64, 32),"Health: "+teamHP[0], game_healthPointText_iPhone);
-				GUI.Label(new Rect(camButtonP1Location.x+4,camButtonP1Location.y+90, 114, 26),"", game_item_shotgun_iPhone);
 
 				//p2 cam button
-				GUI.Label(new Rect(camButtonP2Location.x,camButtonP2Location.y, 128, 136),"", game_camBtn_base_iPhone);
-				if(GUI.Button(new Rect(camButtonP2Location.x,camButtonP2Location.y+4, 122, 76),"", game_camBtn_p2_iPhone)){
-					if(teamHP[1]>0)
-						cameraController.SecondPlayerButtonPress();
+				if(teamHP[1]>0){
+					GUI.Label(new Rect(camButtonP2Location.x,camButtonP2Location.y, 128, 136),"", game_camBtn_base_iPhone);
+					if(GUI.Button(new Rect(camButtonP2Location.x,camButtonP2Location.y+4, 122, 76),"", game_camBtn_p2_iPhone)){
+							cameraController.SecondPlayerButtonPress();
+					}
+					GUI.Label(new Rect(camButtonP2Location.x+52,camButtonP2Location.y+8, 64,32),"AP: "+teamAP[1], game_actionPointText_iPhone);
+					GUI.Label(new Rect(camButtonP2Location.x+52,camButtonP2Location.y+48, 64,32),"Health: "+teamHP[1], game_healthPointText_iPhone);
+					GUI.Label (new Rect(camButtonP2Location.x+4, camButtonP2Location.y+90, 114, 26),"", game_item_m14_iPhone);
+				}else{
+					GUI.Label(new Rect(camButtonP2Location.x,camButtonP2Location.y, 128, 136),"", game_camBtn_offline_iPhone);
 				}
-				GUI.Label(new Rect(camButtonP2Location.x+52,camButtonP2Location.y+8, 64,32),"AP: "+teamAP[1], game_actionPointText_iPhone);
-				GUI.Label(new Rect(camButtonP2Location.x+52,camButtonP2Location.y+48, 64,32),"Health: "+teamHP[1], game_healthPointText_iPhone);
-				GUI.Label (new Rect(camButtonP2Location.x+4, camButtonP2Location.y+90, 114, 26),"", game_item_m14_iPhone);
 			}
 		}
 	}
