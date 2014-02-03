@@ -1,7 +1,9 @@
 guiTexture Dimensions
 
 114x26 - Item Icons
-128x136 - Player Cam Buttons 
+128x136 - Player Cam Button Base
+122x76 (0, -4) - Player Cam Button Switches
+122x124 - Agent Offline Switch
 128x88 - Main Cam Button
 204x640 - Confirmation Slider
 200x244 - Confirmation Buttons
