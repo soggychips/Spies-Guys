@@ -20,12 +20,14 @@ public class CameraController : MonoBehaviour {
 
 	public GUIStyle game_camBtn_main_iPhone;
 	private Vector2 camButtonMainLocation;
+	public float animationSpeed = 8;
+
 
 	void Start(){
 		scene = GameObject.Find("Engine").GetComponent("GameEngine") as GameEngine;
 		InitializeCamera();
 		InitializeCameraAccess();
-		camButtonMainLocation = new Vector2(0, 200);
+		camButtonMainLocation = new Vector2(-128, 200);
 
 	}
 
@@ -104,12 +106,33 @@ public class CameraController : MonoBehaviour {
 	}
 
 	public void DisplayCameraMainButton(){
+
+		if(GUI.Button(new Rect(camButtonMainLocation.x,camButtonMainLocation.y,128,88),"", game_camBtn_main_iPhone)){
+			scene.DeselectCharacter();
+			currentCamera = (int)CameraPositions.main;
+			focus = main;
+			zoomGoal = normal;
+			
+		}
+		
 		if(!noCameraAccessGameState.Contains((int)scene.CurrentGameState) && !noCameraAccessTurnState.Contains((int)scene.CurrentTurnState)&&focus!=main){
-			if(GUI.Button(new Rect(camButtonMainLocation.x,camButtonMainLocation.y,128,88),"", game_camBtn_main_iPhone)){
-				scene.DeselectCharacter();
-				currentCamera = (int)CameraPositions.main;
-				focus = main;
-				zoomGoal = normal;
+
+		if(camButtonMainLocation.x < 0){
+			camButtonMainLocation.x += Time.deltaTime * animationSpeed;
+			
+			if(camButtonMainLocation.x > 0){
+				camButtonMainLocation.x = 0;
+			}
+		}
+
+			
+		}
+		else{
+			if(camButtonMainLocation.x > - 128){
+				camButtonMainLocation.x -= Time.deltaTime * animationSpeed;
+			if(camButtonMainLocation.x < -128){
+				camButtonMainLocation.x = -128;
+			}
 			}
 		}
 	}
