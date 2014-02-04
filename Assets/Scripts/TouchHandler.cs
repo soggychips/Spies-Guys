@@ -76,18 +76,13 @@ public class TouchHandler : MonoBehaviour {
 					if(scene.HighlightedTileAt((int)mouseClick.x,(int)mouseClick.y) && !scene.CurrentPlayerAt((int)mouseClick.x,(int)mouseClick.y)){
 						if(scene.UnblockedTileAt(mouseClick)){
 							scene.Movement((int)mouseClick.x,(int)mouseClick.y);
-						/*}else if(scene.ClosedDoorAt(mouseClick)){
-							if(scene.UnlockedDoorAt(mouseClick)){ //open the door
-								scene.OpenDoor(mouseClick);
-							}
-							Debug.Log ("Open Door");*/
 						}else if(scene.DataAt(mouseClick)){ 
 							if(Player1()){
 								scene.TakeData(mouseClick);
 							}else if(scene.DroppedDataAt(mouseClick)){ //only player 2 can reach this
 								scene.ResetDroppedData(mouseClick);
 							}
-						}else if(scene.WallAt(mouseClick)){
+						}else if(scene.WallAt(mouseClick)){ //DELETE
 							//door controls... open/close,pick/lock
 							//lightswitch controls
 							scene.HandleWallButtonClickAt(mouseClick);

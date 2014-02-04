@@ -762,6 +762,10 @@ public class GameEngine : MonoBehaviour {
 		return map.ReturnPlayerPosition(idx,currentPlayer);
 	}
 
+	public List<Vector2> ReturnTeamLocations(){
+		return map.ReturnPlayerPositions(currentPlayer);
+	}
+
 	public List<int> ReturnTeamHP(){
 		return map.ReturnTeamHP(currentPlayer);
 	}
@@ -994,7 +998,7 @@ public class GameEngine : MonoBehaviour {
 
 	public void Attack(Vector2 enemyLocationCoords)
 	{
-		if(ReturnSelectedSpy().GearEquipped() == (int)Spy.SpyGear.empGun){
+		if(currentPlayer==(int)Players.One && ReturnSelectedSpy().GearEquipped() == (int)Spy.SpyGear.empGun){
 			Debug.Log ("You can't attack with that weapon!");
 			CancelAction();
 		}else{

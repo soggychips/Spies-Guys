@@ -666,11 +666,13 @@ public class MapInfo{
 		List<Vector2> positions = new List<Vector2>();
 		if(currentPlayer == (int)GameEngine.Players.One){
 			foreach(Spy spy in spies){
-				positions.Add (spy.TileLocation);
+				if(spy.Alive)
+					positions.Add (spy.TileLocation);
 			}
 		}else if(currentPlayer == (int)GameEngine.Players.Two){
 			foreach(Guy guy in guys){
-				positions.Add (guy.TileLocation);
+				if(guy.Alive)
+					positions.Add (guy.TileLocation);
 			}
 		}else{
 			Debug.Log ("Error: MapInfo.ReturnPlayerPositions");

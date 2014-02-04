@@ -61,6 +61,7 @@
      <Compile Include="Assets\Scripts\Tile.cs" />
      <Compile Include="Assets\Scripts\TouchHandler.cs" />
      <Compile Include="Assets\Scripts\TurnState.cs" />
+     <Compile Include="Assets\TestCameraDragMovement.cs" />
      <None Include="Assets\Textures\guiTextures\GUITexture Dimensions.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

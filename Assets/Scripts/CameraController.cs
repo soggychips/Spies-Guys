@@ -11,10 +11,12 @@ public class CameraController : MonoBehaviour {
 	public float smooth;
 	public float zoomGoal;
 	public Vector3 main;
+	public bool unhinged; //allows free movement of camera
 	private GameEngine scene;
 	private Vector3 playerFocus, focus;
 	private int currentCamera;
 	private List<int> noCameraAccessTurnState, noCameraAccessGameState;
+	private List<Vector2> playerPositions;
 
 	Texture2D leftArrow, rightArrow;
 
@@ -22,13 +24,17 @@ public class CameraController : MonoBehaviour {
 	private Vector2 camButtonMainLocation;
 	public float animationSpeed = 8;
 
+	public float dragSpeed = 2;
+	private Vector3 mousePositionBeforeDrag;
+
 
 	void Start(){
 		scene = GameObject.Find("Engine").GetComponent("GameEngine") as GameEngine;
 		InitializeCamera();
 		InitializeCameraAccess();
 		camButtonMainLocation = new Vector2(-128, 200);
-
+		playerPositions = new List<Vector2>();
+		unhinged=false;
 	}
 
 
@@ -40,10 +46,24 @@ public class CameraController : MonoBehaviour {
 
 	// Update is called once per frame
 	void Update () {
+		//Get positions of players on team and Lerp halfway to center camera between players, set that as main
+		if(scene.CurrentGameState==(int)GameState.States.P1 || scene.CurrentGameState==(int)GameState.States.P2){
+			if(scene.ReturnNumberOfLiveCharactersOnCurrentTeam()>1){
+				playerPositions = scene.ReturnTeamLocations();
+				Vector2 inBetweenPosition = Vector2.Lerp ((Vector2)playerPositions[0],(Vector2)playerPositions[1],.5f);
+				main = new Vector3(inBetweenPosition.x*Tile.spacing,main.y,inBetweenPosition.y*Tile.spacing);
+			}else if(scene.ReturnNumberOfLiveCharactersOnCurrentTeam()==1){
+				playerPositions = scene.ReturnTeamLocations();
+				main = new Vector3(playerPositions[0].x*Tile.spacing,main.y,playerPositions[0].y*Tile.spacing);
+			}
+			if(!unhinged && currentCamera==(int)CameraPositions.main){
+				focus = main;
+				zoomGoal = normal;
+			}
+		}
 
-		/* The following provides camera cycle button(s) movement
-		 */ 
-		if(camera.transform.position!=focus || camera.fieldOfView!=zoomGoal){
+		//move the camera's position to focus and set the camera's FoV to zoomGoal
+		if((camera.transform.position!=focus || camera.fieldOfView!=zoomGoal) && !unhinged){
 			camera.transform.position = Vector3.Lerp(camera.transform.position,focus,Time.deltaTime*smooth);
 			camera.fieldOfView = Mathf.Lerp (camera.fieldOfView,zoomGoal,Time.deltaTime*smooth);
 		}
@@ -59,16 +79,12 @@ public class CameraController : MonoBehaviour {
 			}
 		}
 
+		//move the camera to the main position when ending the turn
 		if(scene.CurrentTurnState == (int)TurnState.States.End){
 			currentCamera = (int)CameraPositions.main;
 			focus = main;
 			zoomGoal = normal;
 		}
-
-
-		/*
-		 */ 
-
 
 		 // The following will zoom in on selected characters selected NOT via the player buttons, but by clicking a player character
 
@@ -81,6 +97,23 @@ public class CameraController : MonoBehaviour {
 				zoomGoal = zoom;
 			}
 		}
+
+		//allow unhinging of camera
+		if(Input.GetMouseButtonDown(0)){
+			mousePositionBeforeDrag = Input.mousePosition;
+			Debug.Log ("Mouse button 0 pressed down");
+			unhinged=true;
+			return;
+		}
+		
+		if(!Input.GetMouseButton(0))
+			return;
+		
+		Vector3 pos = Camera.main.ScreenToViewportPoint(Input.mousePosition - mousePositionBeforeDrag);
+		Vector3 move = new Vector3(pos.x * dragSpeed, 0, pos.y * dragSpeed);
+		if(move == Vector3.zero) unhinged = false;
+		Debug.Log ("Moving by" + move);
+		transform.Translate(move, Space.World);
 
 
 	}
@@ -112,27 +145,22 @@ public class CameraController : MonoBehaviour {
 			currentCamera = (int)CameraPositions.main;
 			focus = main;
 			zoomGoal = normal;
-			
+			unhinged=false;
 		}
 		
-		if(!noCameraAccessGameState.Contains((int)scene.CurrentGameState) && !noCameraAccessTurnState.Contains((int)scene.CurrentTurnState)&&focus!=main){
-
-		if(camButtonMainLocation.x < 0){
-			camButtonMainLocation.x += Time.deltaTime * animationSpeed;
-			
-			if(camButtonMainLocation.x > 0){
-				camButtonMainLocation.x = 0;
+		if(!noCameraAccessGameState.Contains((int)scene.CurrentGameState) && !noCameraAccessTurnState.Contains((int)scene.CurrentTurnState) && zoomGoal!=normal ){
+			if(camButtonMainLocation.x < 0){
+				camButtonMainLocation.x += Time.deltaTime * animationSpeed;
+				if(camButtonMainLocation.x > 0){
+					camButtonMainLocation.x = 0;
+				}
 			}
-		}
-
-			
-		}
-		else{
+		}else{
 			if(camButtonMainLocation.x > - 128){
 				camButtonMainLocation.x -= Time.deltaTime * animationSpeed;
-			if(camButtonMainLocation.x < -128){
-				camButtonMainLocation.x = -128;
-			}
+				if(camButtonMainLocation.x < -128){
+					camButtonMainLocation.x = -128;
+				}
 			}
 		}
 	}
@@ -150,6 +178,7 @@ public class CameraController : MonoBehaviour {
 			Vector2 firstPlayerLocation = scene.ReturnSelectedPlayerPosition(currentCamera);
 			scene.SelectCharacter((int)firstPlayerLocation.x,(int)firstPlayerLocation.y);
 			zoomGoal = zoom;
+			unhinged = false;
 		}
 	}
 
@@ -160,6 +189,7 @@ public class CameraController : MonoBehaviour {
 			Vector2 secondPlayerLocation = scene.ReturnSelectedPlayerPosition(currentCamera);
 			scene.SelectCharacter((int)secondPlayerLocation.x,(int)secondPlayerLocation.y);
 			zoomGoal = zoom;
+			unhinged = false;
 		}
 	}
 	
