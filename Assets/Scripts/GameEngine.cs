@@ -56,7 +56,9 @@ public class GameEngine : MonoBehaviour {
 	private Vector2 enemyLocation;
 
 
-	
+	public bool LightswitchButtonsDisplayed{
+		get{return lightswitchButtonsDisplayed;}
+	}
 	
 	public int Winner{
 		get{return winner;}	
@@ -312,7 +314,7 @@ public class GameEngine : MonoBehaviour {
 			if(playerPosition.x!=-1000){
 				if(map.TileAt(playerPosition).hasLightswitch()){
 					//show the lightswitch button
-					ShowLightswitchWallButton(playerPosition);
+					//ShowLightswitchWallButton(playerPosition);
 					lightswitchButtonsDisplayed = true;
 				}
 			}

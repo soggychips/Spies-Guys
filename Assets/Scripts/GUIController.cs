@@ -7,7 +7,7 @@ public class GUIController : MonoBehaviour {
 	public float animationSpeed = 800;
 	public bool confirmationButtonFlag, doorActionsFlag, lightSwitchFlag, lockdownFlag, EMPFlag, attackFlag;
 
-	private bool playerHasConfirmedOrCancelled;
+	private bool playerHasConfirmedOrCancelled, playerHasFlippedLightswitch;
 	private int confirmOrCancel; //set as 1 for confirm, 2 for cancel
 	private float confirmationButtonLeft;
 	private Vector2 confirmationButtonBoxLocation, confirmButtonLocation, cancelButtonLocation;
@@ -47,14 +47,18 @@ public class GUIController : MonoBehaviour {
 
 
 	void OnGUI(){
+		CameraButtons();
 		if(confirmationButtonFlag){
 			ConfirmationButtons();
 		}
-		CameraButtons();
 		if(lightSwitchFlag){
 			LightSwitch();
 		}
 	} 
+
+	void Update(){
+		if(lightSwitchFlag && scene.CurrentTurnState!=(int)TurnState.States.CharSelected) lightSwitchFlag = false;
+	}
 
 
 	public void ConfirmationButtons(){ //called in OnGUI
@@ -72,6 +76,21 @@ public class GUIController : MonoBehaviour {
 			GUI.Box (new Rect(confirmationButtonLeft,confirmationButtonBoxLocation.y,204,Screen.height),"", game_confSlider_base_iPhone);  //Display texture containing the button images pasted on (unclickable)
 			confirmationButtonLeft -= Time.deltaTime * animationSpeed;
 		}
+	}
+
+	public void LightSwitch(){
+		if(GUI.Button(new Rect(lightSwitchLocation.x, lightSwitchLocation.y, 138, 100),"", game_lightSwitch_iPhone)){
+			playerHasFlippedLightswitch = true;
+		}
+	}
+
+	public bool LightSwitched(){
+		return playerHasFlippedLightswitch;
+	}
+
+	public void ResetLightswitch(){
+		playerHasFlippedLightswitch = false;
+		lightSwitchFlag = false;
 	}
 
 	private void ResetConfirmationButtonVariables ()
@@ -93,6 +112,10 @@ public class GUIController : MonoBehaviour {
 		confirmationButtonFlag = true;
 	}
 
+	public void FlagLightswitchButtons(){ //called by TouchHandler.cs
+		lightSwitchFlag = true;
+	}
+
 
 	public void CameraButtons(){
 		if(scene.CurrentGameState==(int)GameState.States.P1 || scene.CurrentGameState==(int)GameState.States.P2){
@@ -104,7 +127,10 @@ public class GUIController : MonoBehaviour {
 				if(teamHP[0]>0){
 					GUI.Label(new Rect(camButtonP1Location.x,camButtonP1Location.y, 128, 136),"", game_camBtn_base_iPhone);
 					if(GUI.Button(new Rect(camButtonP1Location.x,camButtonP1Location.y+4,122,76),"", game_camBtn_p1_iPhone)){
-							cameraController.FirstPlayerButtonPress();
+						ResetLightswitch();
+						cameraController.FirstPlayerButtonPress();
+						if(scene.LightswitchButtonsDisplayed) 
+							FlagLightswitchButtons();
 					}
 					GUI.Label(new Rect(camButtonP1Location.x+52,camButtonP1Location.y+8, 64, 32),"AP: "+teamAP[0], game_actionPointText_iPhone);
 					GUI.Label(new Rect(camButtonP1Location.x+52,camButtonP1Location.y+48, 64, 32),"Health: "+teamHP[0], game_healthPointText_iPhone);
@@ -117,7 +143,10 @@ public class GUIController : MonoBehaviour {
 				if(teamHP[1]>0){
 					GUI.Label(new Rect(camButtonP2Location.x,camButtonP2Location.y, 128, 136),"", game_camBtn_base_iPhone);
 					if(GUI.Button(new Rect(camButtonP2Location.x,camButtonP2Location.y+4, 122, 76),"", game_camBtn_p2_iPhone)){
-							cameraController.SecondPlayerButtonPress();
+						ResetLightswitch();
+						cameraController.SecondPlayerButtonPress();
+						if(scene.LightswitchButtonsDisplayed) 
+							FlagLightswitchButtons();
 					}
 					GUI.Label(new Rect(camButtonP2Location.x+52,camButtonP2Location.y+8, 64,32),"AP: "+teamAP[1], game_actionPointText_iPhone);
 					GUI.Label(new Rect(camButtonP2Location.x+52,camButtonP2Location.y+48, 64,32),"Health: "+teamHP[1], game_healthPointText_iPhone);
@@ -129,10 +158,7 @@ public class GUIController : MonoBehaviour {
 		}
 	}
 
-	public void LightSwitch(){
-		if(GUI.Button(new Rect(lightSwitchLocation.x, lightSwitchLocation.y, 138, 100),"", game_lightSwitch_iPhone)){
-		}
-	}
+
 
 
 
