@@ -212,7 +212,7 @@ public class GameEngine : MonoBehaviour {
 					|| (currentPlayer==(int)Players.Two && spyNoiseAlertLocations.Contains(new Vector2(i,j)))){
 						tileGraphics[i,j].renderer.material=ft_noise;
 					}else{
-						tileGraphics[i,j].renderer.material=ft_hidden;
+						tileGraphics[i,j].renderer.sharedMaterial=ft_hidden;
 						tileGraphics[i,j].renderer.material.color = Color.grey;
 					}
 				}else{
@@ -1017,8 +1017,9 @@ public class GameEngine : MonoBehaviour {
 	public bool LOSCheckBetweenPlayers (Vector2 start, Vector2 end){
 		Vector2 vect = end-start;
 		Vector2 check = start;
-		float norm = Mathf.Sqrt((vect.x*vect.x) + (vect.y*vect.y));
-		Vector2 unitVect = new Vector2(vect.x/norm,vect.y/norm);
+		//float norm = Mathf.Sqrt((vect.x*vect.x) + (vect.y*vect.y));
+		//Vector2 unitVect = new Vector2(vect.x/norm,vect.y/norm);
+		Vector2 unitVect = vect.normalized;
 		Vector2 roundedLocation = new Vector2((int)start.x,(int)start.y);
 		while(roundedLocation!=end){
 			check+=unitVect;

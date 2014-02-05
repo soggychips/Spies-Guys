@@ -2,14 +2,15 @@
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
   <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/CameraController.cs">
     <Files>
-      <File FileName="Assets/Scripts/GameEngine.cs" Line="766" Column="35" />
-      <File FileName="Assets/Scripts/GUIController.cs" Line="28" Column="42" />
-      <File FileName="Assets/Scripts/TouchHandler.cs" Line="128" Column="13" />
+      <File FileName="Assets/Scripts/GameEngine.cs" Line="88" Column="21" />
+      <File FileName="Assets/Scripts/CameraController.cs" Line="63" Column="5" />
+      <File FileName="Assets/Scripts/GUIController.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/TouchHandler.cs" Line="67" Column="2" />
       <File FileName="Assets/Scripts/Player.cs" Line="1" Column="1" />
       <File FileName="Assets/Scripts/Spy.cs" Line="1" Column="1" />
       <File FileName="Assets/Scripts/Guy.cs" Line="1" Column="1" />
-      <File FileName="Assets/Scripts/MapInfo.cs" Line="592" Column="1" />
-      <File FileName="Assets/Scripts/CameraController.cs" Line="99" Column="4" />
+      <File FileName="Assets/Scripts/MapInfo.cs" Line="1062" Column="26" />
+      <File FileName="Assets/Scripts/DataCollection.cs" Line="67" Column="2" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

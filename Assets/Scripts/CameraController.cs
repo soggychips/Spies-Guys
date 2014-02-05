@@ -13,7 +13,7 @@ public class CameraController : MonoBehaviour {
 	public Vector3 main;
 	public bool unhinged; //allows free movement of camera
 	private GameEngine scene;
-	private Vector3 playerFocus, focus;
+	public Vector3 focus;
 	private int currentCamera;
 	private List<int> noCameraAccessTurnState, noCameraAccessGameState;
 	private List<Vector2> playerPositions;
@@ -56,9 +56,26 @@ public class CameraController : MonoBehaviour {
 				playerPositions = scene.ReturnTeamLocations();
 				main = new Vector3(playerPositions[0].x*Tile.spacing,main.y,playerPositions[0].y*Tile.spacing);
 			}
+
 			if(!unhinged && currentCamera==(int)CameraPositions.main){
 				focus = main;
-				zoomGoal = normal;
+				//zoomGoal = normal;
+			}
+
+
+			//checks to see if players are off screen and adjusts FoV accordingly
+			if(focus==main && !unhinged /*&& camera.fieldOfView==zoomGoal*/){
+				//Debug.Log ("Ok, what?");
+				int multiplier = 0;
+				playerPositions = scene.ReturnTeamLocations();
+				foreach(Vector2 posit in playerPositions){
+					Vector3 viewportPoint = camera.WorldToViewportPoint(new Vector3(posit.x*Tile.spacing,0.0f,posit.y*Tile.spacing));
+					//Debug.Log ("viewportPoint = "+viewportPoint);
+					if(!(viewportPoint.z>0 && (viewportPoint.x<1 && viewportPoint.x>0) && (viewportPoint.y<1 && viewportPoint.y>0))){ //not on screen
+						multiplier++;
+					}
+				}
+				zoomGoal += .5f*(multiplier);
 			}
 		}
 
@@ -83,6 +100,7 @@ public class CameraController : MonoBehaviour {
 		if(scene.CurrentTurnState == (int)TurnState.States.End){
 			currentCamera = (int)CameraPositions.main;
 			focus = main;
+			//if(zoomGoal<normal)
 			zoomGoal = normal;
 		}
 
@@ -98,6 +116,7 @@ public class CameraController : MonoBehaviour {
 			}
 		}
 
+		/*
 		//allow unhinging of camera
 		if(Input.GetMouseButtonDown(0)){
 			mousePositionBeforeDrag = Input.mousePosition;
@@ -109,12 +128,12 @@ public class CameraController : MonoBehaviour {
 		if(!Input.GetMouseButton(0))
 			return;
 		
-		Vector3 pos = Camera.main.ScreenToViewportPoint(Input.mousePosition - mousePositionBeforeDrag);
+		Vector3 pos = Camera.main.ScreenToViewportPoint(mousePositionBeforeDrag - Input.mousePosition);
 		Vector3 move = new Vector3(pos.x * dragSpeed, 0, pos.y * dragSpeed);
 		if(move == Vector3.zero) unhinged = false;
-		Debug.Log ("Moving by" + move);
+		//Debug.Log ("Moving by" + move);
 		transform.Translate(move, Space.World);
-
+		*/
 
 	}
 
@@ -148,7 +167,7 @@ public class CameraController : MonoBehaviour {
 			unhinged=false;
 		}
 		
-		if(!noCameraAccessGameState.Contains((int)scene.CurrentGameState) && !noCameraAccessTurnState.Contains((int)scene.CurrentTurnState) && zoomGoal!=normal ){
+		if(!noCameraAccessGameState.Contains((int)scene.CurrentGameState) && !noCameraAccessTurnState.Contains((int)scene.CurrentTurnState) && (zoomGoal==zoom || unhinged) ){
 			if(camButtonMainLocation.x < 0){
 				camButtonMainLocation.x += Time.deltaTime * animationSpeed;
 				if(camButtonMainLocation.x > 0){

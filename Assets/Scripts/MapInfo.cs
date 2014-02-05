@@ -7,7 +7,7 @@ public class MapInfo{
 	public static int spacing = 10;
 	public int viewDistance = 4;
 	
-	private int mapSize = 50;
+	private int mapSize = 40;
 	
 	private int winner;
 	private Tile[,] map;
@@ -117,10 +117,10 @@ public class MapInfo{
 
 		//PLAYERS
 		spies = new List<Spy>();
-		//CreateSpy(6,18);
-		//CreateSpy(6,20);
-		CreateSpy(15,21);
-		CreateSpy(16,17);
+		CreateSpy(27,10);
+		CreateSpy(27,27);
+		//CreateSpy(15,21);
+		//CreateSpy(16,17);
 
 		guys = new List<Guy>();
 		//CreateGuy(35,25);
@@ -162,7 +162,7 @@ public class MapInfo{
 		CreateDoor(32,13);
 		CreateDoor(32,25);
 		CreateDoor(27,28);
-		CreateDoor(41,4);
+		//CreateDoor(41,4);
 
 		RoomFinder rf = new RoomFinder(map);
 		rf.FindRooms();
@@ -1208,6 +1208,7 @@ public class MapInfo{
 		if(x>=mapSize || z>=mapSize || x<0 || z<0){
 			Debug.Log ("Error: MapInfo.GetAppropriateDoorFacing");	
 		}
+		//Debug.Log ("(x,z) = ("+x+","+z+")");
 		if(x-1>=0 && (map[x-1,z].hasWall())) return (int)DoorFacings.NS;
 		if(x+1<mapSize && (map[x+1,z].hasWall())) return (int)DoorFacings.NS;
 		if(z-1>=0 && (map[x,z-1].hasWall())) return (int)DoorFacings.EW;
@@ -1248,8 +1249,9 @@ public class MapInfo{
 	public void ScanLine(Vector2 start, Vector2 end){ //used for Field of View Algorithms
 		Vector2 vect = end-start;
 		Vector2 check = start;
-		float norm = Mathf.Sqrt((vect.x*vect.x) + (vect.y*vect.y));
-		Vector2 unitVect = new Vector2(vect.x/norm,vect.y/norm);
+		//float norm = Mathf.Sqrt((vect.x*vect.x) + (vect.y*vect.y));
+		//Vector2 unitVect = new Vector2(vect.x/norm,vect.y/norm);
+		Vector2 unitVect = vect.normalized;
 		TileAt(start).Visible=true;
 		//Debug.Log ("starting start = "+start.ToString());
 		//Debug.Log ("end = "+end.ToString());
@@ -1274,8 +1276,9 @@ public class MapInfo{
 			Vector2 end = endpoint;
 			//Debug.Log("Calculating vision from "+start+" to "+end);
 			Vector2 vect = end-start;
-			float norm = Mathf.Sqrt((vect.x*vect.x) + (vect.y*vect.y));
-			Vector2 unitVect = new Vector2(vect.x/norm,vect.y/norm);
+			//float norm = Mathf.Sqrt((vect.x*vect.x) + (vect.y*vect.y));
+			//Vector2 unitVect = new Vector2(vect.x/norm,vect.y/norm);
+			Vector2 unitVect = vect.normalized;
 			TileAt(start).Visible=true;
 			//Debug.Log ("starting start = "+start.ToString());
 			//Debug.Log ("end = "+end.ToString());
@@ -1305,8 +1308,9 @@ public class MapInfo{
 			Vector2 end = endpoint;
 			//Debug.Log("Calculating vision from "+start+" to "+end);
 			Vector2 vect = end-start;
-			float norm = Mathf.Sqrt((vect.x*vect.x) + (vect.y*vect.y));
-			Vector2 unitVect = new Vector2(vect.x/norm,vect.y/norm);
+			//float norm = Mathf.Sqrt((vect.x*vect.x) + (vect.y*vect.y));
+			//Vector2 unitVect = new Vector2(vect.x/norm,vect.y/norm);
+			Vector2 unitVect = vect.normalized;
 			TileAt(start).Visible=true;
 			//Debug.Log ("starting start = "+start.ToString());
 			//Debug.Log ("end = "+end.ToString());
