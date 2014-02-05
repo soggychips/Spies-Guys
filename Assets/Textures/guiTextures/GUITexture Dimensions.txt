@@ -8,3 +8,6 @@ guiTexture Dimensions
 204x640 - Confirmation Slider
 200x244 - Confirmation Buttons
 128x134 - Turn Submit Button
+138x100 - Light Switch
+512x256 - Turn Submit Box
+128x88 - Turn Submit Buttons
