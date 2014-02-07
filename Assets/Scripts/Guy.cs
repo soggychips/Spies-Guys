@@ -13,7 +13,11 @@ public class Guy : Player {
 		this.currentSprintDistance=Player.sprintDistance;
 	}
 
-	public string GearEquipped(){
+	public int GearEquipped{
+		get{return this.gearEquipped;}
+	}
+
+	public string GearEquipped_String(){
 		if(this.gearEquipped == (int)GuyGear.shotgun) return "Shotgun";
 		else return "Rifle";
 	}

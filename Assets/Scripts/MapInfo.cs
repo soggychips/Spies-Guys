@@ -117,21 +117,21 @@ public class MapInfo{
 
 		//PLAYERS
 		spies = new List<Spy>();
-		CreateSpy(27,10);
-		CreateSpy(27,27);
-		//CreateSpy(15,21);
-		//CreateSpy(16,17);
+		//CreateSpy(27,10);
+		//CreateSpy(27,27);
+		CreateSpy(20,5);
+		CreateSpy(21,6);
 
 		guys = new List<Guy>();
 		//CreateGuy(35,25);
 		//CreateGuy(35,11);
-		CreateGuy(24,17);
-		CreateGuy(24,19);
+		CreateGuy(27,30);
+		CreateGuy(26,29);
 
 		//OBJECTIVES
 		CreateData(20,19);
-		CreateExtractionPoint(20,5);
-		CreateExtractionPoint(27,30);
+		CreateExtractionPoint(20,4);
+		CreateExtractionPoint(27,32);
 
 		//LIGHTSWITCHES
 		CreateLightswitch(9,23);
@@ -202,6 +202,14 @@ public class MapInfo{
 			}
 			//Debug.Log ("Lighting Room "+roomNumber+": END");
 		}
+	}
+
+	public bool IsRoomLit(int roomNumber){
+		foreach(Vector2 tile in Rooms[roomNumber]){
+			if(!TileAt (tile).Lit)
+				return false;
+		}
+		return true;
 	}
 
 	public void LightAllRooms(){
@@ -529,6 +537,23 @@ public class MapInfo{
 	public List<Vector2> ReturnRoom(int roomNumber){
 		if(roomNumber>=Rooms.Count) Debug.Log ("ERROR: MapInfo.ReturnRoom");
 		return Rooms[roomNumber];
+	}
+
+	public List<int> ReturnGadgetsForTeam(int teamNumber){
+		List<int> gadgets = new List<int>();
+		switch(teamNumber){
+		case (int)GameEngine.Players.One:
+			foreach(Spy spy in spies){
+				gadgets.Add(spy.GearEquipped);
+			}
+			break;
+		case (int)GameEngine.Players.Two:
+			foreach(Guy guy in guys){
+				gadgets.Add (guy.GearEquipped);
+			}
+			break;
+		}
+		return gadgets;
 	}
 
 	public List<int> ReturnTeamHP(int currentPlayer){
@@ -964,7 +989,7 @@ public class MapInfo{
 			}
 		}else if(currentPlayer==(int)GameEngine.Players.Two){
 			foreach(Guy guy in guys){
-				gear.Add (guy.GearEquipped());
+				gear.Add (guy.GearEquipped_String());
 			}
 		}else{
 			Debug.Log ("Error: MapInfo.GearForCurrentPlayer");

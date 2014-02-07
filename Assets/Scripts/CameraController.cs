@@ -14,6 +14,8 @@ public class CameraController : MonoBehaviour {
 	public bool unhinged; //allows free movement of camera
 	private GameEngine scene;
 	public Vector3 focus;
+	private Vector3 mouseLocationThisFrame, mouseLocationLastFrame;
+	private int mouseHoldCount = 0;
 	private int currentCamera;
 	private List<int> noCameraAccessTurnState, noCameraAccessGameState;
 	private List<Vector2> playerPositions;
@@ -98,15 +100,17 @@ public class CameraController : MonoBehaviour {
 
 		//move the camera to the main position when ending the turn
 		if(scene.CurrentTurnState == (int)TurnState.States.End){
+			unhinged = false;
 			currentCamera = (int)CameraPositions.main;
 			focus = main;
-			//if(zoomGoal<normal)
-			zoomGoal = normal;
+			if(zoomGoal<normal)
+				zoomGoal = normal;
 		}
 
 		 // The following will zoom in on selected characters selected NOT via the player buttons, but by clicking a player character
 
 		if(scene.CurrentTurnState==(int)TurnState.States.CharSelected){
+			unhinged=false;
 			Vector2 playerTileLocation = scene.ReturnSelectedPlayer().TileLocation;
 			Vector3 playerCameraLocation = new Vector3(playerTileLocation.x*Tile.spacing,main.y,playerTileLocation.y*Tile.spacing);
 			if(focus!=playerCameraLocation){
@@ -114,6 +118,29 @@ public class CameraController : MonoBehaviour {
 				focus = playerCameraLocation;
 				zoomGoal = zoom;
 			}
+		}
+
+		//TODO: If turnstate = gadgetSelected, move/zoom camera so that the player and any visible enemies (from the player) are on screen
+
+		if(Input.GetMouseButtonDown(0)){ //initial click
+			mouseLocationThisFrame = Input.mousePosition;
+			//Debug.Log ("Mouse button 0 pressed down");
+		}else if(Input.GetMouseButton(0)){ //mouse button held down
+			if(mouseHoldCount>=3){	//prevents a fast click from causing camera drag
+				mouseLocationLastFrame = mouseLocationThisFrame;
+				mouseLocationThisFrame = Input.mousePosition;
+				if(!(mouseLocationThisFrame-mouseLocationLastFrame == Vector3.zero)){ //mouse has been dragged
+					unhinged = true;
+					Vector3 pos = Camera.main.ScreenToViewportPoint(mouseLocationLastFrame - mouseLocationThisFrame);
+					Vector3 move = new Vector3(pos.x * dragSpeed, 0, pos.y * dragSpeed);
+					transform.Translate(move,Space.World);
+				}
+			}else{
+				mouseHoldCount++;
+			}
+		}else if(Input.GetMouseButtonUp(0)){ //mouse button let go
+			//Debug.Log ("Mouse button 0 let go");
+			mouseHoldCount = 0;
 		}
 
 		/*

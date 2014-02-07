@@ -30,7 +30,7 @@ public class TurnState {
 	public void SelectCharacter(){
 		CurrentState = (int) States.CharSelected;	
 	}
-	
+
 	public void BeginMovement(){
 		CurrentState = (int) States.MoveBegin;	
 	}

@@ -1,23 +1,14 @@
 ﻿<Properties>
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-<<<<<<< HEAD
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/GameEngine.cs">
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="MonoDevelop.Default" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/GUIController.cs">
     <Files>
-      <File FileName="Assets/Scripts/RoomFinder.cs" Line="117" Column="55" />
-      <File FileName="Assets/Scripts/GameEngine.cs" Line="392" Column="48" />
-      <File FileName="Assets/Scripts/TouchHandler.cs" Line="49" Column="13" />
-      <File FileName="Assets/Scripts/MapInfo.cs" Line="679" Column="2" />
-      <File FileName="Assets/Scripts/Tile.cs" Line="45" Column="26" />
-=======
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/CameraController.cs">
-    <Files>
-      <File FileName="Assets/Scripts/TouchHandler.cs" Line="378" Column="3" />
-      <File FileName="Assets/Scripts/GameEngine.cs" Line="135" Column="2" />
-      <File FileName="Assets/Scripts/MapInfo.cs" Line="539" Column="2" />
-      <File FileName="Assets/Scripts/Tile.cs" Line="1" Column="1" />
-      <File FileName="Assets/Scripts/GUIController.cs" Line="101" Column="5" />
-      <File FileName="Assets/Scripts/CameraController.cs" Line="70" Column="111" />
->>>>>>> GUI-Controller-Work
+      <File FileName="Assets/Scripts/GameEngine.cs" Line="127" Column="2" />
+      <File FileName="Assets/Scripts/CameraController.cs" Line="232" Column="123" />
+      <File FileName="Assets/Scripts/TouchHandler.cs" Line="435" Column="15" />
+      <File FileName="Assets/Scripts/GUIController.cs" Line="64" Column="5" />
+      <File FileName="Assets/Scripts/TurnState.cs" Line="32" Column="3" />
+      <File FileName="Assets/Scripts/MapInfo.cs" Line="79" Column="18" />
+      <File FileName="Assets/Scripts/GameState.cs" Line="1" Column="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

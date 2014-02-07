@@ -26,9 +26,12 @@ public class GUIController : MonoBehaviour {
 	public GUIStyle game_camBtn_p2_iPhone;
 	public GUIStyle game_camBtn_base_iPhone;
 	public GUIStyle game_lightSwitch_iPhone;
+	public GUIStyle game_lightSwitch_off_iPhone;
 	public GUIStyle game_camBtn_offline_iPhone;
 	public GUIStyle game_item_shotgun_iPhone;
 	public GUIStyle game_item_m14_iPhone;
+
+	private GUIStyle game_item_s1_iphone, game_item_s2_iphone, game_item_g1_iphone, game_item_g2_iphone;
 
 
 
@@ -60,7 +63,6 @@ public class GUIController : MonoBehaviour {
 		if(lightSwitchFlag && scene.CurrentTurnState!=(int)TurnState.States.CharSelected) lightSwitchFlag = false;
 	}
 
-
 	public void ConfirmationButtons(){ //called in OnGUI
 		if(confirmationButtonLeft<=confirmationButtonBoxLocation.x){ //box is in its final place. allow clicking by showing buttons
 			if(GUI.Button(new Rect(confirmButtonLocation.x,confirmButtonLocation.y,200,244), "", game_confSlider_green_iPhone)) {
@@ -78,9 +80,23 @@ public class GUIController : MonoBehaviour {
 		}
 	}
 
+	public void EstablishGadgetTextures(){
+		List<int> spyGear = scene.ReturnGadgetsForTeam((int)GameEngine.Players.One);
+		List<int> guyGear = scene.ReturnGadgetsForTeam((int)GameEngine.Players.Two);
+		//assign gadget textures based on what's equipped
+
+
+	}
+
 	public void LightSwitch(){
-		if(GUI.Button(new Rect(lightSwitchLocation.x, lightSwitchLocation.y, 138, 100),"", game_lightSwitch_iPhone)){
-			playerHasFlippedLightswitch = true;
+		if(scene.IsSelectedPlayersRoomLit()){
+			if(GUI.Button(new Rect(lightSwitchLocation.x, lightSwitchLocation.y, 138, 100),"", game_lightSwitch_off_iPhone)){
+				playerHasFlippedLightswitch = true;
+			}
+		}else{
+			if(GUI.Button(new Rect(lightSwitchLocation.x, lightSwitchLocation.y, 138, 100),"", game_lightSwitch_iPhone)){
+				playerHasFlippedLightswitch = true;
+			}
 		}
 	}
 

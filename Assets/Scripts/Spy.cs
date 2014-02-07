@@ -27,8 +27,8 @@ public class Spy : Player{
 		get{return hasData;}
 	}
 
-	public int GearEquipped(){
-		return this.gearEquipped;
+	public int GearEquipped{
+		get{return this.gearEquipped;}
 	}
 
 	public string GearEquipped_String(){

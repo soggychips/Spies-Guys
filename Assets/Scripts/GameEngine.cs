@@ -148,7 +148,7 @@ public class GameEngine : MonoBehaviour {
 		DestroyHighlights();
 		tstate.Neutralize();
 	}
-	
+
 	public void GiveControlToPlayer1(){ //Give control to Spies
 		turn++;
 		spyNoiseAlertLocations.Clear ();
@@ -319,6 +319,11 @@ public class GameEngine : MonoBehaviour {
 				}
 			}
 		}
+	}
+
+	public bool IsSelectedPlayersRoomLit(){
+		Vector2 selectedPlayerLocation = ReturnSelectedPlayer().TileLocation;
+		return map.IsRoomLit(map.TileAt (selectedPlayerLocation).Room);
 	}
 
 	public void ShowLightswitchWallButton(Vector2 tileLocation){
@@ -726,6 +731,16 @@ public class GameEngine : MonoBehaviour {
 		return map.CurrentPlayerAtTile(x,z,currentPlayer);	
 	}
 
+	public List<int> ReturnGadgetsForTeam(int teamNumber){
+		if(teamNumber>(int)Players.Two){
+			Debug.Log ("Error: GameEngine.ReturnGadgetsForTeam");
+			return new List<int>();
+		}else{
+			return map.ReturnGadgetsForTeam(teamNumber);
+		}
+
+	}
+
 	public int ReturnRoomContainingTile(int x, int z){
 		return map.ReturnRoomContainingTile(x,z);
 	}
@@ -998,7 +1013,7 @@ public class GameEngine : MonoBehaviour {
 
 	public void Attack(Vector2 enemyLocationCoords)
 	{
-		if(currentPlayer==(int)Players.One && ReturnSelectedSpy().GearEquipped() == (int)Spy.SpyGear.empGun){
+		if(currentPlayer==(int)Players.One && ReturnSelectedSpy().GearEquipped == (int)Spy.SpyGear.empGun){
 			Debug.Log ("You can't attack with that weapon!");
 			CancelAction();
 		}else{
