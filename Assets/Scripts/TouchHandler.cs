@@ -403,6 +403,11 @@ public class TouchHandler : MonoBehaviour {
 		guiController.FlagConfirmationButtons();
 		return guiController.ConfirmationButtonPlayerInput();
 	}
+
+	public int EndTurnConfirmationButtons(){
+		guiController.EndTurnFlag();
+		return guiController.ConfirmationButtonPlayerInput();
+	}
 	
 	public void LoadMainMenu(){
 		 

@@ -1,19 +1,6 @@
 ﻿<Properties>
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/GUIController.cs">
-    <Files>
-      <File FileName="Assets/Scripts/GameEngine.cs" Line="737" Column="27" />
-      <File FileName="Assets/Scripts/CameraController.cs" Line="1" Column="1" />
-      <File FileName="Assets/Scripts/GUIController.cs" Line="103" Column="30" />
-      <File FileName="Assets/Scripts/TouchHandler.cs" Line="433" Column="46" />
-      <File FileName="Assets/Scripts/Player.cs" Line="1" Column="1" />
-      <File FileName="Assets/Scripts/Spy.cs" Line="30" Column="25" />
-      <File FileName="Assets/Scripts/Guy.cs" Line="20" Column="35" />
-      <File FileName="Assets/Scripts/MapInfo.cs" Line="992" Column="42" />
-      <File FileName="Assets/Scripts/DataCollection.cs" Line="1" Column="1" />
-      <File FileName="Assets/Scripts/TurnState.cs" Line="1" Column="1" />
-    </Files>
-  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.Workspace />
+  <MonoDevelop.Ide.Workbench />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>

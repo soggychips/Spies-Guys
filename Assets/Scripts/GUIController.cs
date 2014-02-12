@@ -5,7 +5,7 @@ using System.Collections.Generic;
 public class GUIController : MonoBehaviour {
 
 	public float animationSpeed = 800;
-	public bool confirmationButtonFlag, doorActionsFlag, lightSwitchFlag, lockdownFlag, EMPFlag, attackFlag;
+	public bool confirmationButtonFlag, doorActionsFlag, lightSwitchFlag, lockdownFlag, EMPFlag, attackFlag, endTurnFlag;
 
 	private bool playerHasConfirmedOrCancelled, playerHasFlippedLightswitch;
 	private int confirmOrCancel; //set as 1 for confirm, 2 for cancel
@@ -57,6 +57,9 @@ public class GUIController : MonoBehaviour {
 		if(lightSwitchFlag){
 			LightSwitch();
 		}
+		if(endTurnFlag){
+			EndTurnConfirmationButtons();
+		}
 	} 
 
 	void Update(){
@@ -64,6 +67,28 @@ public class GUIController : MonoBehaviour {
 	}
 
 	public void ConfirmationButtons(){ //called in OnGUI
+		if(confirmationButtonLeft<=confirmationButtonBoxLocation.x){ //box is in its final place. allow clicking by showing buttons
+			if(GUI.Button(new Rect(confirmButtonLocation.x,confirmButtonLocation.y,200,244), "", game_confSlider_green_iPhone)) {
+				playerHasConfirmedOrCancelled = true;
+				confirmOrCancel = 1;
+			}
+			if(GUI.Button (new Rect(cancelButtonLocation.x,cancelButtonLocation.y,200,244),"", game_confSlider_red_iPhone)) {
+				playerHasConfirmedOrCancelled = true;
+				confirmOrCancel = 2;
+			}
+			GUI.Box (new Rect(confirmationButtonBoxLocation.x,confirmationButtonBoxLocation.y, 204,Screen.height),"", game_confSlider_base_iPhone);
+		}else{ //Animate box to location
+			GUI.Box (new Rect(confirmationButtonLeft,confirmationButtonBoxLocation.y,204,Screen.height),"", game_confSlider_base_iPhone);  //Display texture containing the button images pasted on (unclickable)
+			confirmationButtonLeft -= Time.deltaTime * animationSpeed;
+		}
+	}
+
+	/* (Evan)
+	 * CHANGE THE ANIMATION 
+	 * IN THE 
+	 * FOLLOWING METHOD:
+	 */ 
+	public void EndTurnConfirmationButtons(){ //called in OnGUI
 		if(confirmationButtonLeft<=confirmationButtonBoxLocation.x){ //box is in its final place. allow clicking by showing buttons
 			if(GUI.Button(new Rect(confirmButtonLocation.x,confirmButtonLocation.y,200,244), "", game_confSlider_green_iPhone)) {
 				playerHasConfirmedOrCancelled = true;
@@ -114,6 +139,7 @@ public class GUIController : MonoBehaviour {
 		playerHasConfirmedOrCancelled = false;
 		confirmationButtonLeft = Screen.width;
 		confirmationButtonFlag = false;
+		endTurnFlag = false;
 	}
 
 	public int ConfirmationButtonPlayerInput(){ //called by TouchHandler.cs 
@@ -126,6 +152,10 @@ public class GUIController : MonoBehaviour {
 
 	public void FlagConfirmationButtons(){ //called by TouchHandler.cs
 		confirmationButtonFlag = true;
+	}
+
+	public void EndTurnFlag(){
+		endTurnFlag = true;
 	}
 
 	public void FlagLightswitchButtons(){ //called by TouchHandler.cs
