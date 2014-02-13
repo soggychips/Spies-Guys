@@ -11,6 +11,8 @@ public class GUIController : MonoBehaviour {
 	private int confirmOrCancel; //set as 1 for confirm, 2 for cancel
 	private float confirmationButtonLeft;
 	private Vector2 confirmationButtonBoxLocation, confirmButtonLocation, cancelButtonLocation;
+	private float turnConftop;
+	private Vector2 turnConfBoxLocation, turnConfButtonLocation, turnCancelButtonLocation;
 	private Vector2 camButtonP1Location, camButtonP2Location;
 	private Vector2 lightSwitchLocation;
 	private CameraController cameraController;
@@ -22,6 +24,9 @@ public class GUIController : MonoBehaviour {
 	public GUIStyle game_confSlider_base_iPhone;
 	public GUIStyle game_confSlider_green_iPhone;
 	public GUIStyle game_confSlider_red_iPhone;
+	public GUIStyle game_turnConfBox_iPhone;
+	public GUIStyle game_turnConfBtn_iPhone;
+	public GUIStyle game_turnCancelBtn_iPhone;
 	public GUIStyle game_camBtn_p1_iPhone;
 	public GUIStyle game_camBtn_p2_iPhone;
 	public GUIStyle game_camBtn_base_iPhone;
@@ -41,6 +46,9 @@ public class GUIController : MonoBehaviour {
 		confirmationButtonBoxLocation = new Vector2(Screen.width-204,0);
 		confirmButtonLocation = new Vector2(Screen.width-200,68);
 		cancelButtonLocation = new Vector2(Screen.width-200,396);
+		turnConfBoxLocation = new Vector2(Screen.width/2 - 512, Screen.height/2 - 256);
+		turnConfButtonLocation = new Vector2(Screen.width/2 + 200, Screen.height/2 +100); 
+		turnCancelButtonLocation = new Vector2(Screen.width/2 - 200, Screen.height/2 +100); 
 		camButtonP1Location = new Vector2(0, 316);
 		camButtonP2Location = new Vector2(0, 460);
 		lightSwitchLocation = new Vector2(220, Screen.height - 100);
@@ -89,19 +97,19 @@ public class GUIController : MonoBehaviour {
 	 * FOLLOWING METHOD:
 	 */ 
 	public void EndTurnConfirmationButtons(){ //called in OnGUI
-		if(confirmationButtonLeft<=confirmationButtonBoxLocation.x){ //box is in its final place. allow clicking by showing buttons
-			if(GUI.Button(new Rect(confirmButtonLocation.x,confirmButtonLocation.y,200,244), "", game_confSlider_green_iPhone)) {
+		if(turnConftop<=turnConfButtonLocation.y){ //box is in its final place. allow clicking by showing buttons
+			if(GUI.Button(new Rect(turnConfButtonLocation.x,turnConfButtonLocation.y,128,88), "", game_turnConfBtn_iPhone)) {
 				playerHasConfirmedOrCancelled = true;
 				confirmOrCancel = 1;
 			}
-			if(GUI.Button (new Rect(cancelButtonLocation.x,cancelButtonLocation.y,200,244),"", game_confSlider_red_iPhone)) {
+			if(GUI.Button (new Rect(turnCancelButtonLocation.x,turnCancelButtonLocation.y,128,88),"", game_turnCancelBtn_iPhone)) {
 				playerHasConfirmedOrCancelled = true;
 				confirmOrCancel = 2;
 			}
-			GUI.Box (new Rect(confirmationButtonBoxLocation.x,confirmationButtonBoxLocation.y, 204,Screen.height),"", game_confSlider_base_iPhone);
+			GUI.Box (new Rect(turnConfBoxLocation.x,turnConfBoxLocation.y, 256,512),"", game_turnConfBox_iPhone);
 		}else{ //Animate box to location
-			GUI.Box (new Rect(confirmationButtonLeft,confirmationButtonBoxLocation.y,204,Screen.height),"", game_confSlider_base_iPhone);  //Display texture containing the button images pasted on (unclickable)
-			confirmationButtonLeft -= Time.deltaTime * animationSpeed;
+			GUI.Box (new Rect(turnConftop,turnConfBoxLocation.y,256,512),"", game_turnConfBox_iPhone);  //Display texture containing the button images pasted on (unclickable)
+			turnConftop -= Time.deltaTime * animationSpeed;
 		}
 	}
 
@@ -140,6 +148,7 @@ public class GUIController : MonoBehaviour {
 		confirmationButtonLeft = Screen.width;
 		confirmationButtonFlag = false;
 		endTurnFlag = false;
+		turnConftop = Screen.height;
 	}
 
 	public int ConfirmationButtonPlayerInput(){ //called by TouchHandler.cs 
