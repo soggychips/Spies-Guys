@@ -351,7 +351,7 @@ public class TouchHandler : MonoBehaviour {
 
 	public void CompleteTurnConfirmation ()
 	{
-		int buttonPressed = ConfirmationButtons();	
+		int buttonPressed = EndTurnConfirmationButtons();	
 		if(buttonPressed==1){ 		
 			scene.SwitchPlayers();
 			scene.BeginTurn();
