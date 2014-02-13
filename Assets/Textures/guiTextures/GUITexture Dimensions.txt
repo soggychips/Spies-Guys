@@ -1,13 +1,15 @@
 guiTexture Dimensions
 
 114x26 - Item Icons
-128x136 - Player Cam Button Base
-122x76 (0, -4) - Player Cam Button Switches
-122x124 - Agent Offline Switch
-128x88 - Main Cam Button
+134x148 - Player Cam Button Base
+128x88 (0, -4) - Player Cam Button Switches
+128x136 - Agent Offline Switch
+134x100 - Main Cam Button
 204x640 - Confirmation Slider
 200x244 - Confirmation Buttons
-128x134 - Turn Submit Button
-138x100 - Light Switch
-512x256 - Turn Submit Box
-128x88 - Turn Submit Buttons
+134x138 - Turn Submit Button
+150x104 - Light Switch
+150x104 - Lock Switch
+112x158 - Door Button
+524x260 - Turn Submit Box
+138x98 - Turn Submit Buttons

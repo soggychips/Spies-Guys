@@ -34,7 +34,7 @@ public class CameraController : MonoBehaviour {
 		scene = GameObject.Find("Engine").GetComponent("GameEngine") as GameEngine;
 		InitializeCamera();
 		InitializeCameraAccess();
-		camButtonMainLocation = new Vector2(-128, 200);
+		camButtonMainLocation = new Vector2(-134, 200);
 		playerPositions = new List<Vector2>();
 		unhinged=false;
 	}
@@ -186,7 +186,7 @@ public class CameraController : MonoBehaviour {
 
 	public void DisplayCameraMainButton(){
 
-		if(GUI.Button(new Rect(camButtonMainLocation.x,camButtonMainLocation.y,128,88),"", game_camBtn_main_iPhone)){
+		if(GUI.Button(new Rect(camButtonMainLocation.x,camButtonMainLocation.y,134,100),"", game_camBtn_main_iPhone)){
 			scene.DeselectCharacter();
 			currentCamera = (int)CameraPositions.main;
 			focus = main;
@@ -202,10 +202,10 @@ public class CameraController : MonoBehaviour {
 				}
 			}
 		}else{
-			if(camButtonMainLocation.x > - 128){
+			if(camButtonMainLocation.x > - 134){
 				camButtonMainLocation.x -= Time.deltaTime * animationSpeed;
-				if(camButtonMainLocation.x < -128){
-					camButtonMainLocation.x = -128;
+				if(camButtonMainLocation.x < -134){
+					camButtonMainLocation.x = -134;
 				}
 			}
 		}
